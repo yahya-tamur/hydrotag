@@ -5,13 +5,3 @@ body {
   font-family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
     Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
-
-
-.map-container {
-  width: 1000px;
-  height: 1000px;
-  padding: 1000pxm;
-  font-weight: bold;
-  border: 4mm ridge rgba(211, 220, 50, .6);
-  overflow: visible;
-}

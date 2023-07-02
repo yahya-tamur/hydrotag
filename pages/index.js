@@ -17,6 +17,13 @@ export default function Home() {
 function Map() {
  
   let [markerlist, setMarkerList] = useState([{lat: 44, lng: -80}]);
+  let iconMarker = new window.google.maps.MarkerImage(
+    "https://cdn-tp3.mozu.com/24645-37138/cms/37138/files/53fc49fe-ee2f-485d-bd4e-1412c4528451?quality=60&_mzcb=_1677685580029",
+    null, /* size is determined at runtime */
+    null, /* origin is 0,0 */
+    null, /* anchor is bottom center of the scaled image */
+    new window.google.maps.Size(32, 32)
+);
 
   return (
     //<div className={styles.mapcontainer}> aaa</div>
@@ -34,6 +41,7 @@ function Map() {
       {
         markerlist.map((marker, i) =>
           <Marker
+            icon={iconMarker}
             position={marker}
             key={i}
             onClick={e => {
