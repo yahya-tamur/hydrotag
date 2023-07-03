@@ -12,7 +12,7 @@ Make a file called `.env.local` with the following content:
 
 ```NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="<api key>"```
 
-I put my API key in the discord -- you can copy that value into `<api key>` above. You shouldn't put commit that into the public repository.
+I put my API key in the discord -- you can copy that value into `<api key>` above. You shouldn't put that into the public git repository.
 This lets Google track how much we use the Google Maps API and charge us if we use it too much.
 
 Install the required modules:
