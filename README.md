@@ -1,14 +1,14 @@
-Run the following commands to get started:
+Instructions on getting started:
 
-Clone the repository:
+* Clone the repository:
 
 ```git clone git@github.com:yahya-tamur/hydrotag.git```
 
-Copy the `.env.local` file from discord into the `frontend` directory.
+* Copy the `.env.local` file from discord into the `frontend` directory.
 
-Copy the `cert.json` file from discord into the `backend` directory.
+* Copy the `cert.json` file from discord into the `backend` directory.
 
-Open a terminal, and navigate into the backend directory. Run the
+* Open a terminal, and navigate into the backend directory. Run the
 following commands to install the necessary files and start the backend
 server on the url `http://localhost:3001`:
 
@@ -19,10 +19,10 @@ server on the url `http://localhost:3001`:
 You should be able to go to `http://localhost:3001/markers` and see the
 data for two water fountains.
 
-You need to run `npm install` only if we change dependencies -- you can
+You only need to run `npm install` if we change dependencies -- you can
 usually just run `node backend.js` to start the server.
 
-Open a new terminal, and navigate into the `frontend` directory. Run the
+* Open a new terminal, and navigate into the `frontend` directory. Run the
 following commands to install the necessary files and start the frontend
 server on the url `http://localhost:3000`:
 
@@ -39,5 +39,3 @@ In order to get started making changes, I would suggest looking at the front end
 the `frontend/pages/index.js` file. This is a React file using functional components.
 You can get started by researching the very basic syntax of React and adding simple stuff to
 the web page, like some text above the map.
-
-Things you put into the Home component should show up in the web page.
