@@ -12,9 +12,10 @@ const db = getFirestore(app);
 
 app.get('/markers', async (req, res) => {
 
-    //get data from
+    //get data from firestore.
     const snapshot = await db.collection('markers').get();
 
+    //transforms the data we receive into a convenient form.
     let arr = [];
     snapshot.forEach((doc) => {
         arr.push({
@@ -25,10 +26,15 @@ app.get('/markers', async (req, res) => {
             poster: doc.data().poster,
         });
     });
+
+    //for the 'poster' fields, since they're references to users, we
+    //make more requests to firestore to get the data about the users they
+    //refer to.
     for (const marker of arr) {
         marker.poster = await marker.poster.get().then(res => res.data());
     }
 
+    //send the data to the frontend.
     res.appendHeader("Access-Control-Allow-Origin", "*")
     res.json(arr);
 });
