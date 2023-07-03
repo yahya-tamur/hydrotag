@@ -1,6 +1,6 @@
 .mapcontainer {
-    width: 1000px;
-    height: 1000px;
+    width: calc(100vw - 35pt);
+    height: calc(100vh - 35pt);
     padding: 1000pxm;
     font-weight: bold;
     border: 4mm ridge rgba(211, 220, 50, .6);
