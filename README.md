@@ -8,7 +8,8 @@ Instructions on getting started:
 
 ```cd hydrotag```
 
-* Copy the `.env.local` file from discord into the project directory.
+* Copy the `.env.local` file from discord into the project directory. Make sure
+  you don't change the name of the file.
 
 *  Run the following commands to install the necessary files and start the app:
 
