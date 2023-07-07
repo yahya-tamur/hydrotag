@@ -1,9 +1,41 @@
 import mapstyles from '../styles/Map.module.css';
 import { useState, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { Router } from 'next/router';
+import { useRouter} from 'next/router';
 
+const firebaseConfig = {
+  apiKey: "AIzaSyAbHmwNNmKYkrE253miq789vVJn_zr2evM",
+  authDomain: "hydrotag-27a6b.firebaseapp.com",
+  projectId: "hydrotag-27a6b",
+  storageBucket: "hydrotag-27a6b.appspot.com",
+  messagingSenderId: "334077048073",
+  appId: "1:334077048073:web:32ada1c61c1d7093a6cfd8"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const user = auth.currentUser
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/auth.user
+    const uid = user.uid;
+    console.log(user.uid + 'is logged in')
+    // ...
+  } else {
+    console.log('Guest user')
+    const uid = "Guest"
+    // User is signed out
+    // ...
+  }
+});
 
 export default function Home() {
+  const router = useRouter()
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
@@ -19,7 +51,6 @@ export default function Home() {
 }
 
 function Map() {
- 
   //learn about react, useState.
   let [markerlist, setMarkerList] = useState([]);
 
@@ -43,9 +74,22 @@ function Map() {
     null, 
     new window.google.maps.Size(40, 40)
 );
+  var userBanner = 'Guest'
+  if (user.uid != null) {
+    userBanner = user.uid
+  }
 
   return (
-    <GoogleMap
+    <div>
+      <h1>
+        <div className="banner">
+          <div className="banner-content">
+            <h2>{userBanner}</h2>
+            <p>Hydrotag</p>
+          </div>
+        </div>
+      </h1>
+      <GoogleMap
       zoom={10}
       center={{ lat: 44, lng: -80 }}
       mapContainerClassName={mapstyles.mapcontainer}
@@ -78,8 +122,8 @@ function Map() {
             }}
           />
         )
-  } 
-     
-   </GoogleMap>
+      } 
+      </GoogleMap>
+    </div>
   );
  }
