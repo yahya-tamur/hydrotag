@@ -4,15 +4,6 @@ import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 import Image from 'next/image'
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAbHmwNNmKYkrE253miq789vVJn_zr2evM",
-  authDomain: "hydrotag-27a6b.firebaseapp.com",
-  projectId: "hydrotag-27a6b",
-  storageBucket: "hydrotag-27a6b.appspot.com",
-  messagingSenderId: "334077048073",
-  appId: "1:334077048073:web:32ada1c61c1d7093a6cfd8"
-};
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app)
 
@@ -20,7 +11,7 @@ export default function loginForm() {
   const [email, setEmail] = useState('');  
   const [password, setPassword] = useState('');
   const router = useRouter()
-  
+
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
   }
