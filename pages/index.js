@@ -1,5 +1,5 @@
 import mapstyles from '../styles/Map.module.css';
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
@@ -19,6 +19,17 @@ export default function Home() {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   });
 
+  const [text, setText] = React.useState("");
+  const [reviews, setReviews] = useState([]);//displays the the reviews as a list
+  const change = (event) => {
+    setText(event.target.value);
+  };
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setReviews([...reviews, text]);
+    setText('');
+  };
+
   if (!isLoaded) return <div>Loading...</div>;
 
   return (
@@ -33,6 +44,22 @@ export default function Home() {
         </div>
       </h1>
       <Map />
+
+      <form onSubmit={handleSubmit}>
+
+      <p></p>
+      <p></p>
+      <textarea value={text} onChange={change} placeholder="enter text here..."/>
+      <br></br>
+      <button type="submit">Submit Review</button>
+      </form>
+      <p></p>
+      <b>Reviews:</b>
+      {reviews.map((review, index) => (
+      <div key={index} className="review">
+      {review}
+      </div>
+      ))}
     </div>
   );
 }
