@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { Router } from 'next/router';
 import { useRouter} from 'next/router';
 
+import firebaseConfig from '../firebaseConfig';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -27,7 +27,6 @@ onAuthStateChanged(auth, (user) => {
 });
 
 export default function Home() {
-  const router = useRouter()
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
@@ -43,9 +42,12 @@ export default function Home() {
 }
 
 function Map() {
+  const router = useRouter();
+
   //learn about react, useState.
   let [markerlist, setMarkerList] = useState([]);
 
+  /*
   //this is how you have to fetch data from the backend.
   useEffect(() => {
     const dataFetch = async () => {
@@ -57,7 +59,7 @@ function Map() {
     };
     dataFetch();
   }, []);
-
+*/
 
   let iconMarker = new window.google.maps.MarkerImage(
     "/water-fountain.jpg",
@@ -67,7 +69,7 @@ function Map() {
     new window.google.maps.Size(40, 40)
 );
   var userBanner = 'Guest'
-  if (user.uid != null) {
+  if (user?.uid != null) {
     userBanner = user.uid
   }
 
@@ -77,6 +79,7 @@ function Map() {
         <div className="banner">
           <div className="banner-content">
             <h2>{userBanner}</h2>
+            <button type="button" onClick={() => {router.push("posts/login")}}> click here to login </button>
             <p>Hydrotag</p>
           </div>
         </div>

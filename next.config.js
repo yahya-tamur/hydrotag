@@ -12,15 +12,4 @@ const nextConfig = {
     }
 }
 
-module.exports = {
-    nextConfig,
-    async redirects() {
-        return [
-            {
-                source: '/about',
-                destination: '/posts/login',
-                permanent: true,
-            }
-        ]
-    }
-}
+module.exports = nextConfig;
