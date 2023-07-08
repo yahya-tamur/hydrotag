@@ -87,26 +87,26 @@ export default function Map() {
             await fetchData();
             console.log(auth.currentUser?.uid);
 
-           }
+          }
 
-        
+
         }
 
         }>
 
-      {
-        markerlist.map((marker, i) =>
-          <Marker
-            icon={iconMarker}
-            position={marker}
-            key={i}
-            onClick={e => {
-              alert(`clicked ${marker.name}`);
-            }}
-          />
-        )
-      }
-    </GoogleMap>
+        {
+          markerlist.map((marker, i) =>
+            <Marker
+              icon={iconMarker}
+              position={marker}
+              key={i}
+              onClick={e => {
+                alert(`clicked ${marker.name}`);
+              }}
+            />
+          )
+        }
+      </GoogleMap>
     </div >
   );
 }

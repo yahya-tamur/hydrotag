@@ -3,7 +3,7 @@ import {useRouter} from 'next/router'
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 import Image from 'next/image';
 
-import {app} from '../../app';
+import {app} from '../app';
 const auth = getAuth(app)
 
 export default function loginForm() {
