@@ -39,6 +39,7 @@ export default function Map() {
   const [center, setCenter] = useState({ lat: 44, lng: -80 });
   const [currentPosition, setCurrentPosition] = useState(null);
 
+  
   const fetchData = async () => {
     //get data from firestore.
     const snapshot = await getDocs(collection(db, 'markers'));
