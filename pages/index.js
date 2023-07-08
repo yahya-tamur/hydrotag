@@ -20,9 +20,7 @@ export default function Home() {
     setReviews([...reviews, text]);
     setText('');
   };
-
-  if (!isLoaded) return <div>Loading...</div>;
-
+  
   return (
     <div style={{ height: `100%`, width: `100%` }} >
       <h1>
