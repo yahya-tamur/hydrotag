@@ -1,11 +1,9 @@
 import {useState} from 'react';
 import {useRouter} from 'next/router'
-import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 import Image from 'next/image';
-import firebaseConfig from "../../firebaseConfig";
 
-const app = initializeApp(firebaseConfig);
+import {app} from '../../app';
 const auth = getAuth(app)
 
 export default function loginForm() {
