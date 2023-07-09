@@ -1,5 +1,5 @@
 import styles from '../styles/Map.module.css';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useGoogleMap } from "react";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection, getDocs, addDoc, GeoPoint } from 'firebase/firestore';
@@ -8,27 +8,17 @@ import { app } from '../app';
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-function getLocation(callback) {
-  let map, infoWindow;
- // infoWindow = new google.maps.InfoWindow();
-  
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        let mylat = position.coords.latitude;
-        let mylong = position.coords.longitude;
-        let loc = { lat: mylat, lng: mylong };
-        callback(loc); // Pass loc to the callback function
-      },
-      () => {
-        console.log("Error: The Geolocation service failed");
-        callback(null); // Pass null to indicate error
-      }
-    );
-  } else {
-    console.log("Error: The Geolocation service is not supported");
-    callback(null); // Pass null to indicate error
-  }
+//map otions setting
+const options = {
+  streetViewControl: false,
+  disableDefaultUI:true, 
+  clickableIcons:false
+}
+
+//Oakland
+const defaultmapCenter = {
+  lat: 37.772, 
+  lng: -122.214  
 }
 
 export default function Map() {
@@ -36,7 +26,7 @@ export default function Map() {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   });
   const [markerlist, setMarkerList] = useState([]);
-  const [center, setCenter] = useState({ lat: 44, lng: -80 });
+  const [center, setCenter] = useState(defaultmapCenter);
   const [currentPosition, setCurrentPosition] = useState(null);
 
   
@@ -61,16 +51,27 @@ export default function Map() {
     fetchData();
   }, []);
 
+  //Get current location
   useEffect(() => {
-    getLocation((loc) => {
-      if (loc !== null) {
-        setCenter(loc);
-        setCurrentPosition(loc);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          let mylat = position.coords.latitude;
+          let mylong = position.coords.longitude;
+          let loc = { lat: mylat, lng: mylong };
+          setCenter(loc);
+          setCurrentPosition(loc);
+        },
+        () => {
+          alert("Error: The Geolocation service failed");
+        }
+      );
       } else {
-        console.log("Error: Unable to get location");
+        alert("Error: The Geolocation service is not supported");
       }
-    });
-  }, []);
+    }, []);
+  
+  
 
   if (!isLoaded) return <div>Loading...</div>;
 
@@ -89,13 +90,14 @@ export default function Map() {
     null,
     new google.maps.Size(40, 40)
   );
-
+  
   return (
     <div>
       <GoogleMap
         zoom={15}
-        center={center} // Use the center state as the map center
+        center={center}
         mapContainerClassName={styles.mapcontainer}
+        options={options}
         onClick={async (e) => {
           if (!auth.currentUser?.uid) {
             alert("You must be logged in to place a marker!");
