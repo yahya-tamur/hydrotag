@@ -10,6 +10,9 @@
 # testing
 /coverage
 
+# private
+cert.json
+
 # next.js
 /.next/
 /out/
