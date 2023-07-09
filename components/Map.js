@@ -11,7 +11,8 @@ const db = getFirestore(app);
 const options = {
   streetViewControl: false,
   disableDefaultUI:true, 
-  clickableIcons:false
+  clickableIcons:false,
+  minZoom: 5, maxZoom: 16
 }
 
 //san Francisco
@@ -134,9 +135,10 @@ export default function Map() {
   );
 }
 
-// custom button move back to center(bug： showing multi-button sometime)
+// custom button move back to center(bug： showing multi-button when save the file. maybe fixed need more test)
 function PanningComponent({ targetLocation }) {
   const map = useGoogleMap();
+  const centerControlDivRef = React.useRef(null);
 
   React.useEffect(() => {
     if (map && targetLocation) {
@@ -165,11 +167,14 @@ function PanningComponent({ targetLocation }) {
       });
 
       centerControlDiv.appendChild(centerControlButton);
-      //map.controls[google.maps.ControlPosition.bottom_CENTER].clear();
+      if (centerControlDivRef.current) {
+        centerControlDivRef.current.removeChild(centerControlDivRef.current.firstChild);
+      }
+      centerControlDivRef.current = centerControlDiv;
+
       map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(centerControlDiv);
     }
   }, [map, targetLocation]);
-
   return null;
 }
 
