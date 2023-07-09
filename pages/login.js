@@ -17,7 +17,7 @@ export default function loginForm() {
   const handlePassChange = (event) => {
     setPassword(event.target.value);
   }
-  const handleSign = (event) => {
+  const handleSignin = (event) => {
     event.preventDefault();
     console.log(email)
     console.log(password)
@@ -44,7 +44,7 @@ export default function loginForm() {
   }
 
   return (
-    <form onSubmit={handleSign}>   
+    <form onSubmit={handleSignin}>   
       <Image 
       src="/logo.png"
       width={500}

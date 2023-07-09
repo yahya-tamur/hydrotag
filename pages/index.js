@@ -31,8 +31,10 @@ export default function Home() {
               await auth.signOut();
               console.log("signed out.");
               console.log(auth.currentUser?.uid)
+              location.reload();
              }}> logout </button>
             <button type="button" onClick={() => { router.push("login") }}> click here to login </button>
+            <button type="button" onClick={() => { router.push("signup") }}> click here to signup </button>
             <p>Hydrotag</p>
           </div>
         </div>
