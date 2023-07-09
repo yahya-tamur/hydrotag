@@ -1,9 +1,8 @@
 import styles from '../styles/Map.module.css';
-import React, { useState, useEffect, useGoogleMap } from "react";
-import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
+import React, { useState, useEffect} from "react";
+import { GoogleMap, useLoadScript, Marker, useGoogleMap  } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection, getDocs, addDoc, GeoPoint } from 'firebase/firestore';
-
 import { app } from '../app';
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -15,10 +14,10 @@ const options = {
   clickableIcons:false
 }
 
-//Oakland
+//san Francisco
 const defaultmapCenter = {
-  lat: 37.772, 
-  lng: -122.214  
+  lat: 37.7749,
+  lng: -122.4194
 }
 
 export default function Map() {
@@ -28,7 +27,7 @@ export default function Map() {
   const [markerlist, setMarkerList] = useState([]);
   const [center, setCenter] = useState(defaultmapCenter);
   const [currentPosition, setCurrentPosition] = useState(null);
-
+  const [zoom, setzoom] = useState(11);
   
   const fetchData = async () => {
     //get data from firestore.
@@ -61,6 +60,7 @@ export default function Map() {
           let loc = { lat: mylat, lng: mylong };
           setCenter(loc);
           setCurrentPosition(loc);
+          setzoom(15)
         },
         () => {
           alert("Error: The Geolocation service failed");
@@ -94,7 +94,7 @@ export default function Map() {
   return (
     <div>
       <GoogleMap
-        zoom={15}
+        zoom={zoom}
         center={center}
         mapContainerClassName={styles.mapcontainer}
         options={options}
@@ -111,6 +111,7 @@ export default function Map() {
           }
         }}
       >
+        <PanningComponent targetLocation={center} />
         {markerlist.map((marker, i) => (
           <Marker
             icon={iconMarker}
@@ -132,3 +133,43 @@ export default function Map() {
     </div>
   );
 }
+
+// custom button move back to center(bug： showing multi-button sometime)
+function PanningComponent({ targetLocation }) {
+  const map = useGoogleMap();
+
+  React.useEffect(() => {
+    if (map && targetLocation) {
+      const centerControlDiv = document.createElement("div");
+      const centerControlButton = document.createElement("button");
+
+      // Set CSS for the control.
+      centerControlButton.style.backgroundColor = "#fff";
+      centerControlButton.style.border = "2px solid #fff";
+      centerControlButton.style.borderRadius = "3px";
+      centerControlButton.style.boxShadow = "0 2px 6px rgba(0,0,0,.3)";
+      centerControlButton.style.color = "rgb(25,25,25)";
+      centerControlButton.style.cursor = "pointer";
+      centerControlButton.style.fontFamily = "Roboto,Arial,sans-serif";
+      centerControlButton.style.fontSize = "16px";
+      centerControlButton.style.lineHeight = "38px";
+      centerControlButton.style.margin = "8px 0 22px";
+      centerControlButton.style.padding = "0 5px";
+      centerControlButton.style.textAlign = "center";
+      centerControlButton.textContent = "Center Map";
+      centerControlButton.title = "Click to recenter the map";
+      centerControlButton.type = "button";
+
+      centerControlButton.addEventListener("click", () => {
+        map.panTo(targetLocation);
+      });
+
+      centerControlDiv.appendChild(centerControlButton);
+      //map.controls[google.maps.ControlPosition.bottom_CENTER].clear();
+      map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(centerControlDiv);
+    }
+  }, [map, targetLocation]);
+
+  return null;
+}
+
