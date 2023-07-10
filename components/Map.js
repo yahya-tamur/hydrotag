@@ -29,6 +29,8 @@ export default function Map() {
   const [center, setCenter] = useState(defaultmapCenter);
   const [currentPosition, setCurrentPosition] = useState(null);
   const [zoom, setzoom] = useState(11);
+
+  const [selectedMarker, setSelectedMarker] = useState(undefined);
   
   const fetchData = async () => {
     //get data from firestore.
@@ -84,6 +86,14 @@ export default function Map() {
     new google.maps.Size(40, 40)
   );
 
+    let iconSelectedMarker = new google.maps.MarkerImage(
+    "/water-fountain-selected.jpg",
+    null,
+    null,
+    null,
+    new google.maps.Size(40, 40)
+  );
+
   let iconCurrentPosition = new google.maps.MarkerImage(
     "/logo.png",
     null,
@@ -115,11 +125,11 @@ export default function Map() {
         <PanningComponent targetLocation={center} />
         {markerlist.map((marker, i) => (
           <Marker
-            icon={iconMarker}
+            icon={marker.id == selectedMarker ? iconSelectedMarker : iconMarker}
             position={marker}
             key={i}
             onClick={(e) => {
-              alert(`Clicked ${marker.name}`);
+              setSelectedMarker(marker.id);
             }}
           />
         ))}
