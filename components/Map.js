@@ -2,7 +2,7 @@ import styles from '../styles/Map.module.css';
 import React, { useState, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker, useGoogleMap } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
-import { getFirestore, collection, getDocs, addDoc, GeoPoint } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc } from 'firebase/firestore';
 import { app } from '../app';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
@@ -68,19 +68,22 @@ export default function Map() {
     try {
       const snapshot = await getDocs(collection(db, 'reviews'));
       let arr = [];
-      snapshot.forEach((doc) => {
-        console.log(doc.data());
-        if (doc.data().marker == sel_marker) {
+      snapshot.forEach(async (d) => {
+        console.log(d.data());
+        if (d.data().marker == sel_marker) {
           arr.push({
-            id: doc.id,
-            poster: doc.data().poster,
-            marker: doc.data().marker,
-            text: doc.data().text,
+            id: d.id,
+            poster: d.data().poster,
+            marker: d.data().marker,
+            text: d.data().text,
           });
-  
         }
-  
       });
+      for (const el of arr) {
+        const email = await getDoc(doc(db, "users", el.poster));
+        el.poster = email.data().email;
+      }
+
       console.log(arr);
       setReviews(arr);
     } catch {

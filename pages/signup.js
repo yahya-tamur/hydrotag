@@ -2,13 +2,15 @@ import {useState} from 'react';
 import {useRouter} from 'next/router'
 import { getAuth, updateProfile, createUserWithEmailAndPassword} from "firebase/auth";
 import Image from 'next/image';
+import {doc, setDoc} from 'firebase/firestore'
 
 import {app} from '../app';
-const auth = getAuth(app)
+import { getFirestore } from 'firebase/firestore';
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 export default function signupForm() {
     const [email, setEmail] = useState('');
-    const [username, setUser] = useState('');
     const [password, setPassword] = useState('');
     const [check, setCheck] = useState('');
     const router = useRouter();
@@ -19,9 +21,6 @@ export default function signupForm() {
     const handlePassChange = (event) => {
         setPassword(event.target.value);
     }
-    const handleUserChange = (event) => {
-        setUser(event.target.value);
-    }
     const handleCheck = (event) => {
         setCheck(event.target.value);
     }
@@ -30,7 +29,7 @@ export default function signupForm() {
         if (!validate()) {
             return false
         }
-        register(auth, username, email, password);
+        register(auth, email, password);
     }
 
     function validate(event) {
@@ -41,15 +40,15 @@ export default function signupForm() {
         return true
     }
 
-    const register = (event) => {
-        createUserWithEmailAndPassword(auth, email, password)
-        .then(function () {
-            console.log('Sign-up successful. Redirecting to main page...')
-            router.push("/");
-        })
-        .catch((error) => {
-            console.log(error)
-        })
+    const register = async (event) => {
+      try {
+        let x = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, "users", x.user.uid), {
+          email: email
+        });
+        console.log('Sign-up successful. Redirecting to main page...')
+        router.push("/");
+      } catch { error => console.log(error)}
     }
 
 
@@ -64,10 +63,6 @@ export default function signupForm() {
       <div>
         <label for="email">Email:</label>
         <input type="text" value={email} onChange= {handleEmailChange} />
-      </div>
-      <div>
-        <label for="username">Display Name:</label>
-        <input type="text" value={username} onChange= {handleUserChange} />
       </div>
       <div>
         <label for="password">Password:</label>
