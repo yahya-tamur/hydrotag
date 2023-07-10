@@ -1,17 +1,26 @@
 import styles from '../styles/Map.module.css';
-import React, { useState, useEffect} from "react";
-import { GoogleMap, useLoadScript, Marker, useGoogleMap  } from "@react-google-maps/api";
+import React, { useState, useEffect } from "react";
+import { GoogleMap, useLoadScript, Marker, useGoogleMap } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection, getDocs, addDoc, GeoPoint } from 'firebase/firestore';
 import { app } from '../app';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemText from '@mui/material/ListItemText';
+import List from '@mui/material/List';
+import Typography from '@mui/material/Typography';
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 //map otions setting
 const options = {
   streetViewControl: false,
-  disableDefaultUI:true, 
-  clickableIcons:false,
+  disableDefaultUI: true,
+  clickableIcons: false,
   minZoom: 5, maxZoom: 16
 }
 
@@ -31,24 +40,53 @@ export default function Map() {
   const [zoom, setzoom] = useState(11);
 
   const [selectedMarker, setSelectedMarker] = useState(undefined);
-  
+
   const fetchData = async () => {
     //get data from firestore.
-    const snapshot = await getDocs(collection(db, 'markers'));
-    let arr = [];
-    snapshot.forEach((doc) => {
-      console.log(doc.data());
-      arr.push({
-        id: doc.id,
-        name: doc.data().name,
-        lat: doc.data().location._lat,
-        lng: doc.data().location._long,
-        poster: doc.data().poster,
+    
+    try {
+      const snapshot = await getDocs(collection(db, 'markers'));
+      let arr = [];
+      snapshot.forEach((doc) => {
+        arr.push({
+          id: doc.id,
+          name: doc.data().name,
+          lat: doc.data().location._lat,
+          lng: doc.data().location._long,
+          poster: doc.data().poster,
+        });
       });
-    });
-    setMarkerList(arr);
+      setMarkerList(arr)
+    } catch {
+      alert("error getting data!")
+    };
+
   };
 
+  const getReviews = async (sel_marker) => {
+
+    try {
+      const snapshot = await getDocs(collection(db, 'reviews'));
+      let arr = [];
+      snapshot.forEach((doc) => {
+        console.log(doc.data());
+        if (doc.data().marker == sel_marker) {
+          arr.push({
+            id: doc.id,
+            poster: doc.data().poster,
+            marker: doc.data().marker,
+            text: doc.data().text,
+          });
+  
+        }
+  
+      });
+      console.log(arr);
+      setReviews(arr);
+    } catch {
+      alert("error getting data!");
+    }
+  }
   useEffect(() => {
     fetchData();
   }, []);
@@ -69,15 +107,17 @@ export default function Map() {
           alert("Error: The Geolocation service failed");
         }
       );
-      } else {
-        alert("Error: The Geolocation service is not supported");
-      }
-    }, []);
-  
-  
+    } else {
+      alert("Error: The Geolocation service is not supported");
+    }
+  }, []);
+
+  const [text, setText] = React.useState("");
+  const [reviews, setReviews] = useState([]);//displays the the reviews as a list
+
+  const [adding, setAdding] = useState(false);
 
   if (!isLoaded) return <div>Loading...</div>;
-
   let iconMarker = new google.maps.MarkerImage(
     "/water-fountain.jpg",
     null,
@@ -86,7 +126,7 @@ export default function Map() {
     new google.maps.Size(40, 40)
   );
 
-    let iconSelectedMarker = new google.maps.MarkerImage(
+  let iconSelectedMarker = new google.maps.MarkerImage(
     "/water-fountain-selected.jpg",
     null,
     null,
@@ -101,24 +141,48 @@ export default function Map() {
     null,
     new google.maps.Size(40, 40)
   );
-  
+
+
+
+
   return (
     <div>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={adding}
+            onChange={() => { setAdding(!adding); }}
+            inputProps={{ 'aria-label': 'controlled' }}
+          />
+        }
+        label="Add Marker"
+      />
       <GoogleMap
         zoom={zoom}
         center={center}
         mapContainerClassName={styles.mapcontainer}
         options={options}
         onClick={async (e) => {
-          if (!auth.currentUser?.uid) {
-            alert("You must be logged in to place a marker!");
+          if (!adding) {
+            setSelectedMarker(undefined);
+            getReviews(undefined);
           } else {
-            await addDoc(collection(db, "markers"), {
-              location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
-              poster: auth.currentUser.uid,
-            });
-            await fetchData();
-            console.log(auth.currentUser?.uid);
+            if (!auth.currentUser?.uid) {
+              alert("You must be logged in to place a marker!");
+            } else {
+              try {
+                await addDoc(collection(db, "markers"), {
+                  location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
+                  poster: auth.currentUser.uid,
+                });
+                await fetchData();
+                setAdding(false);
+
+              } catch {
+                alert("error submitting data!");
+              }
+
+            }
           }
         }}
       >
@@ -130,18 +194,58 @@ export default function Map() {
             key={i}
             onClick={(e) => {
               setSelectedMarker(marker.id);
+              getReviews(marker.id);
             }}
           />
         ))}
-        
+
         {currentPosition && (
           <Marker
-            icon={iconCurrentPosition} 
+            icon={iconCurrentPosition}
             position={currentPosition}
           />
         )}
       </GoogleMap>
+
+      <FormControl>
+        <FormLabel>Add Review</FormLabel>
+        <TextField value={text} onChange={e => {setText(e.target.value)}} placeholder="enter text here..."></TextField>
+        <Button onClick={
+          async () => {
+            if (selectedMarker == undefined) {
+              alert("no marker selected!");
+            } else {
+              try {
+                await addDoc(collection(db, "reviews"), {
+                  marker: selectedMarker,
+                  poster: auth.currentUser.uid,
+                  text: text
+                });
+                await getReviews(selectedMarker);
+              } catch {
+                alert("error adding data!");
+              }
+
+            }
+          }
+
+        }>Submit Review</Button>
+      </FormControl>
+
+      <p />
+      <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        Reviews:
+      </Typography>
+      <List>
+      {reviews.map(review => (
+        <ListItemText key={review.id} primary={review.poster} secondary={review.text} />
+
+      ))}
+
+      </List>
+
     </div>
+
   );
 }
 
