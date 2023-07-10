@@ -1,4 +1,4 @@
-import {useState} from 'react';
+/*import {useState} from 'react';
 import {useRouter} from 'next/router'
 import { getAuth, updateProfile, createUserWithEmailAndPassword} from "firebase/auth";
 import Image from 'next/image';
@@ -78,3 +78,4 @@ export default function signupForm() {
     </form>
     )
 }
+*/

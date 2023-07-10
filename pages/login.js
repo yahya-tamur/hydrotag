@@ -1,4 +1,4 @@
-import {useState} from 'react';
+/*import {useState} from 'react';
 import {useRouter} from 'next/router'
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 import Image from 'next/image';
@@ -41,8 +41,8 @@ export default function loginForm() {
       })
     }*/
     // Send the login data to your server
+    /*
   }
-
   return (
     <form onSubmit={handleSignin}>   
       <Image 
@@ -67,4 +67,4 @@ export default function loginForm() {
       </button>
     </form>
   );
-  }
+  }*/
