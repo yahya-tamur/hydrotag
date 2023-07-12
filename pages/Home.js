@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { getAuth } from "firebase/auth";
 import { useRouter } from 'next/router';
 import Map from '../components/Map';
+import Sidebar from '../Sidebar.js';
 
 import {app} from '../app';
 const auth = getAuth(app);
@@ -9,6 +10,8 @@ const auth = getAuth(app);
 export default function Home() {
 
   const router = useRouter();
+
+
 
   return (
     <div style={{ height: `100%`, width: `100%` }} >

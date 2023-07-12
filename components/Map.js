@@ -2,7 +2,7 @@ import styles from '../styles/Map.module.css';
 import React, { useState, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker, useGoogleMap } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
-import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, FieldValue} from 'firebase/firestore';
 import { app } from '../app';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
@@ -62,6 +62,7 @@ export default function Map() {
     };
 
   };
+
 
   const getReviews = async (sel_marker) => {
 
@@ -233,6 +234,30 @@ export default function Map() {
           }
 
         }>Submit Review</Button>
+      </FormControl>
+      <FormControl>
+        <FormLabel>Follow User</FormLabel>
+        <TextField value={text} onChange={e => {setText(e.target.value)}} placeholder="input userID here..."></TextField>
+        <Button onClick={
+          async () => {
+            const q = query(collection(db, "users"), where("email", text));
+            users = []
+            querySnapshot.forEach((doc) => {
+              users.push(doc.data().name);
+          });
+            try {
+              await addDoc(collection(db, "connections", "fmap"), {
+                follower: auth.currentUser.uid,
+                following: users[0],
+                timestamp: FieldValue.serverTimestamp()
+              });
+              alert("Following" + text)
+            }
+            catch (e) {
+              console.log(e)
+            }
+          }
+        }>Search User</Button>
       </FormControl>
 
       <p />
