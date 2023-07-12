@@ -2,7 +2,11 @@ import styles from '../styles/Map.module.css';
 import React, { useState, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker, useGoogleMap } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
+<<<<<<< Updated upstream
 import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc } from 'firebase/firestore';
+=======
+import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, serverTimestamp} from 'firebase/firestore';
+>>>>>>> Stashed changes
 import { app } from '../app';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
@@ -117,8 +121,8 @@ export default function Map() {
 
   const [text, setText] = React.useState("");
   const [reviews, setReviews] = useState([]);//displays the the reviews as a list
-
   const [adding, setAdding] = useState(false);
+  var fuid = ""
 
   if (!isLoaded) return <div>Loading...</div>;
   let iconMarker = new google.maps.MarkerImage(
@@ -234,6 +238,37 @@ export default function Map() {
 
         }>Submit Review</Button>
       </FormControl>
+<<<<<<< Updated upstream
+=======
+      <FormControl>
+        <FormLabel>Follow User</FormLabel>
+        <TextField value={emailtext} onChange={e => {setEmailText(e.target.value)}} placeholder="input userID here..."></TextField>
+        <Button onClick={
+          async () => {
+            try {
+              const q = await getDocs(collection(db, "users"))
+              q.forEach(async (u) => {
+                console.log(u.data());
+                if (u.data().email == emailtext) {
+                  fuid = u.id;
+                }
+              });
+              console.log(fuid)
+              await addDoc(collection(db, "connections"), {
+                follower: auth.currentUser.uid,
+                following: fuid,
+                timestamp: serverTimestamp()
+              });
+              alert("Now following " + emailtext)
+            }
+            catch (e) {
+              console.log(e)
+              alert("Error gathering data")
+            }
+          }
+        }>Search User</Button>
+      </FormControl>
+>>>>>>> Stashed changes
 
       <p />
       <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
