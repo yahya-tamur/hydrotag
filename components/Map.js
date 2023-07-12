@@ -117,6 +117,7 @@ export default function Map() {
   }, []);
 
   const [text, setText] = React.useState("");
+  const [emailtext, setEmailText] = React.useState("");
   const [reviews, setReviews] = useState([]);//displays the the reviews as a list
 
   const [adding, setAdding] = useState(false);
@@ -237,24 +238,27 @@ export default function Map() {
       </FormControl>
       <FormControl>
         <FormLabel>Follow User</FormLabel>
-        <TextField value={text} onChange={e => {setText(e.target.value)}} placeholder="input userID here..."></TextField>
+        <TextField value={emailtext} onChange={e => {setEmailText(e.target.value)}} placeholder="input userID here..."></TextField>
         <Button onClick={
           async () => {
-            const q = query(collection(db, "users"), where("email", text));
-            users = []
-            querySnapshot.forEach((doc) => {
-              users.push(doc.data().name);
-          });
             try {
-              await addDoc(collection(db, "connections", "fmap"), {
+              const q = await getDocs(db, "users")
+              fuid = ''
+              q.forEach(async (u) => {
+                console.log(u.data());
+                if (u.data().email == emailtext) {
+                  fuid = u.id;
+                }
+              });
+              await addDoc(collection(db, "connections"), {
                 follower: auth.currentUser.uid,
-                following: users[0],
+                following: fuid,
                 timestamp: FieldValue.serverTimestamp()
               });
-              alert("Following" + text)
+              alert("Following" + emailtext)
             }
-            catch (e) {
-              console.log(e)
+            catch {
+              alert("Error gathering data")
             }
           }
         }>Search User</Button>
