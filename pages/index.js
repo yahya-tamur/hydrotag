@@ -4,6 +4,8 @@ import Map from '../components/Map';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
+import Search from './Search'; // Import the Search component
+//<Search /> {} //search component .... this goes before map in return()
 
 import {app} from '../app';
 const auth = getAuth(app);
@@ -164,6 +166,7 @@ export default function Home() {
               console.log("signed out.");
               location.reload();
             }}> logout </button>
+            
             <Map />
           </div>
         )}
