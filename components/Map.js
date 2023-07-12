@@ -2,11 +2,7 @@ import styles from '../styles/Map.module.css';
 import React, { useState, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker, useGoogleMap } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
-<<<<<<< Updated upstream
-import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc } from 'firebase/firestore';
-=======
 import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, serverTimestamp} from 'firebase/firestore';
->>>>>>> Stashed changes
 import { app } from '../app';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
@@ -238,8 +234,6 @@ export default function Map() {
 
         }>Submit Review</Button>
       </FormControl>
-<<<<<<< Updated upstream
-=======
       <FormControl>
         <FormLabel>Follow User</FormLabel>
         <TextField value={emailtext} onChange={e => {setEmailText(e.target.value)}} placeholder="input userID here..."></TextField>
@@ -268,7 +262,6 @@ export default function Map() {
           }
         }>Search User</Button>
       </FormControl>
->>>>>>> Stashed changes
 
       <p />
       <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
