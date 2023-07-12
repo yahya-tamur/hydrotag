@@ -116,6 +116,7 @@ export default function Map() {
   }, []);
 
   const [text, setText] = React.useState("");
+  const [emailtext, setEmailText] = React.useState("");
   const [reviews, setReviews] = useState([]);//displays the the reviews as a list
   const [adding, setAdding] = useState(false);
   var fuid = ""
@@ -239,25 +240,39 @@ export default function Map() {
         <TextField value={emailtext} onChange={e => {setEmailText(e.target.value)}} placeholder="input userID here..."></TextField>
         <Button onClick={
           async () => {
-            try {
-              const q = await getDocs(collection(db, "users"))
-              q.forEach(async (u) => {
-                console.log(u.data());
-                if (u.data().email == emailtext) {
-                  fuid = u.id;
-                }
-              });
-              console.log(fuid)
-              await addDoc(collection(db, "connections"), {
-                follower: auth.currentUser.uid,
-                following: fuid,
-                timestamp: serverTimestamp()
-              });
-              alert("Now following " + emailtext)
+            const time = serverTimestamp();
+            if (!auth.currentUser?.uid) {
+              alert("You must be logged in add a friend!");
             }
-            catch (e) {
-              console.log(e)
-              alert("Error gathering data")
+            else {
+              try {
+                const q = await getDocs(collection(db, "users"))
+                q.forEach(async (u) => {
+                  console.log(u.data());
+                  if (u.data().email == emailtext) {
+                    fuid = u.id;
+                  }
+                });
+                if(!fuid) {
+                  alert("The user " + emailtext + " does not exist!")
+                }
+                else if (fuid == auth.currentUser.uid) {
+                  alert("Following yourself is not supported.")
+                }
+                else {
+                  console.log(fuid)
+                  await addDoc(collection(db, "connections"), {
+                    follower: auth.currentUser.uid,
+                    following: fuid,
+                    timestamp: time
+                  });
+                  alert("Now following " + emailtext + " since " + time)
+                }
+              }
+              catch (e) {
+                console.log(e)
+                alert("Error gathering data")
+              }
             }
           }
         }>Search User</Button>
