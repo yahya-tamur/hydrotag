@@ -4,7 +4,7 @@ and import your global styles there.
 The pages/_app.js is a custom App component that wraps around all your page components.
 
 not allowed to use app.js because Global CSS cannot be imported from files other than your Custom <App>.
- Due to the Global nature of stylesheets, and to avoid conflicts
+ Due to the Global nature of stylesheets, and to avoid conflicts - Evelyn
 */
 
 // pages/_app.js
