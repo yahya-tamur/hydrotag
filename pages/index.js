@@ -4,17 +4,16 @@ import Map from '../components/Map';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
-import Search from './Search'; // Import the Search component
+// import Search from './Search'; // Import the Search component
 //<Search /> {} //search component .... this goes before map in return()
 
-import {app} from '../app';
+import { app } from '../app';
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 export default function Home() {
-
   const [isSignup, setIsSignup] = useState(false);
-  const [email, setEmail] = useState('');  
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [check, setCheck] = useState('');
 
@@ -46,8 +45,8 @@ export default function Home() {
 
   const validate = () => {
     if (password !== check) {
-        console.log("Passwords do not match");
-        return false;
+      console.log("Passwords do not match");
+      return false;
     }
     return true;
   }
@@ -55,7 +54,7 @@ export default function Home() {
   const submit = (event) => {
     event.preventDefault();
     if (!validate()) {
-        return false;
+      return false;
     }
     register(email, password);
   }
@@ -68,148 +67,140 @@ export default function Home() {
       });
       console.log('Sign-up successful. Redirecting to main page...')
       router.push("/");
-    } catch { error => console.log(error)}
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
-    <div style={{ 
-      height: `100vh`, 
-      width: `100%`, 
-      backgroundColor: 'teal', 
-      display: 'flex', 
+    <div style={{
+      height: `100vh`,
+      width: `100%`,
+      backgroundColor: 'teal',
+      display: 'flex',
       flexDirection: 'column'
     }}>
-      <div style={{ 
-        width: '100%', 
-        backgroundColor: 'grey', 
-        padding: '1em', 
+      <div style={{
+        width: '100%',
+        backgroundColor: 'grey',
+        padding: '1em',
         textAlign: 'center'
       }}>
-        <h1 style={{margin: '0'}}>Hydro Tag App</h1>
+        <h1 style={{ margin: '0', fontSize: '2em' }}>Hydro Tag App</h1>
       </div>
-      <div style={{ 
-        display: 'flex', 
-        height: 'calc(100vh - 2em)', 
+      <div style={{
+        display: 'flex',
+        height: 'calc(100vh - 2em)',
         width: `100%`,
-        justifyContent: 'center',
-        alignItems: 'center'
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        paddingRight: '1em',
+        paddingLeft: auth.currentUser ? '30%' : '0',
       }}>
-        <div style={{ 
-          width: '30%', 
-          minHeight: '40%',
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          backgroundColor: 'white', 
-          padding: '2%',
-          marginBottom: '5%'
-        }}>
-          {!isSignup ? 
-            <form onSubmit={handleSignin} style={{ width: '80%' }}>   
-              <h2>Login</h2>
-              <p>Don't have an account yet? <a href="#" onClick={() => setIsSignup(true)}>Sign up</a></p>
-              <label>
-                Email Address:
-                <input type="text" value={email} onChange= {handleEmailChange} />
-              </label>
-              <br></br>
-              <label>
-                Password:
-                <input type="password" value={password} onChange= {handlePassChange} />
-              </label>
-              <br></br><br></br>
-              <button type="submit">
-                Submit
-              </button>
-            </form>
-            :
-            <form onSubmit={submit} style={{ width: '80%' }}>   
-              <h2>Sign up</h2>
-              <label>
-                Email Address:
-                <input type="text" value={email} onChange= {handleEmailChange} />
-              </label>
-              <br></br>
-              <label>
-                Password:
-                <input type="password" value={password} onChange= {handlePassChange} />
-              </label>
-              <br></br>
-              <label>
-                Confirm Password:
-                <input type="password" value={check} onChange= {handleCheck} />
-              </label>
-              <br></br><br></br>
-              <button type="submit">
-                Submit
-              </button>
-              <button type="button" onClick={() => setIsSignup(false)}>
-                Go Back
-              </button>
-            </form>
-          }
-        </div>
-        
-        {!auth.currentUser ? null : (
-          <div style={{ 
-            width: '70%', 
-            height: '100%', 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            justifyContent: 'center' 
+        {!auth.currentUser && (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            width: '100%'
           }}>
-            <h2>{auth.currentUser.uid}</h2>
+            <div style={{
+              width: '30%',
+              minHeight: '40%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'white',
+              padding: '2%',
+              marginBottom: '5%',
+              marginLeft: '2em', // Small adjustment here
+              marginTop: '4%', // Adjusted margin top here
+            }}>
+              {!isSignup ?
+                //...login form
+                <form onSubmit={handleSignin} style={{ width: '80%' }}>
+                  <h2 style={{ fontSize: '1.5em' }}>Login</h2>
+                  <p style={{ fontSize: '1.2em' }}>Don't have an account yet? <a href="#" onClick={() => setIsSignup(true)}>Sign up</a></p>
+                  <label style={{ fontSize: '1.2em' }}>
+                    Email Address:
+                    <input type="text" value={email} onChange={handleEmailChange} />
+                  </label>
+                  <br></br>
+                  <label style={{ fontSize: '1.2em' }}>
+                    Password:
+                    <input type="password" value={password} onChange={handlePassChange} />
+                  </label>
+                  <br></br><br></br>
+                  <button type="submit" style={{ fontSize: '1.2em' }}>
+                    Submit
+                  </button>
+                </form>
+                :
+                //...signup form
+                <form onSubmit={submit} style={{ width: '80%' }}>
+                  <h2 style={{ fontSize: '1.5em' }}>Sign up</h2>
+                  <label style={{ fontSize: '1.2em' }}>
+                    Email Address:
+                    <input type="text" value={email} onChange={handleEmailChange} />
+                  </label>
+                  <br></br>
+                  <label style={{ fontSize: '1.2em' }}>
+                    Password:
+                    <input type="password" value={password} onChange={handlePassChange} />
+                  </label>
+                  <br></br>
+                  <label style={{ fontSize: '1.2em' }}>
+                    Confirm Password:
+                    <input type="password" value={check} onChange={handleCheck} />
+                  </label>
+                  <br></br><br></br>
+                  <button type="submit" style={{ fontSize: '1.2em' }}>
+                    Submit
+                  </button>
+                  <button type="button" onClick={() => setIsSignup(false)} style={{ fontSize: '1.2em' }}>
+                    Go Back
+                  </button>
+                </form>
+              }
+              </div>
+              <div style={{
+                width: '60%',
+                paddingRight: '2em',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+              }}>
+                <h1 style={{ fontSize: '3em' }}>Welcome to the Hydro Tag App!</h1>
+                <p className="double-spaced" style={{ fontSize: '1.5em', textAlign: 'justify' }}>
+                HydroTag is your comprehensive companion for discovering, tracking, and reviewing water sources in your vicinity. With an aim to make finding quality water convenient and personalized, HydroTag provides a platform to explore water sources around you, along with valuable insights on their quality, based on user reviews. You can easily pin your findings on the map, see pins from your friends, and contribute to the community through your own reviews. HydroTag isn't just an app, but a community dedicated to sharing the best hydration spots, ensuring you and your friends never have to compromise on the quality of water you consume. Start your personalized water discovery journey with HydroTag today!
+              </p>
+            </div>
+          </div>
+        )}
+        {auth.currentUser && (
+          <div style={{
+            width: '70%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: '1em'
+          }}>
+            <h1 style={{ fontSize: '3em' }}>Welcome {auth.currentUser.email}</h1>
             <button type="button" onClick={async () => {
               await auth.signOut();
               console.log("signed out.");
               location.reload();
             }}> logout </button>
-            
+
             <Map />
           </div>
         )}
       </div>
     </div>
-  );
+  )
 }
-
-/*
-import React, { useState } from "react";
-import { getAuth } from "firebase/auth";
-import { useRouter } from 'next/router';
-import Map from '../components/Map';
-
-import {app} from '../app';
-const auth = getAuth(app);
-
-export default function Home() {
-
-  const router = useRouter();
-
-  return (
-    <div style={{ height: `100%`, width: `100%` }} >
-      <h1>
-        <div className="banner">
-          <div className="banner-content">
-            <h2>{auth.currentUser?.uid ?? "Guest"}</h2>
-            <button type="button" onClick={async () => {
-              await auth.signOut();
-              console.log("signed out.");
-              console.log(auth.currentUser?.uid)
-              location.reload();
-             }}> logout </button>
-            <button type="button" onClick={() => { router.push("login") }}> click here to login </button>
-            <button type="button" onClick={() => { router.push("signup") }}> click here to signup </button>
-            <p>Hydrotag</p>
-          </div>
-        </div>
-      </h1>
-      <Map />
-
-
-    </div>
-  );
-}
-*/
