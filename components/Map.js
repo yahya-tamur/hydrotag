@@ -1,18 +1,17 @@
-import styles from '../styles/Map.module.css';
 import React, { useState, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker, useGoogleMap } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
-import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, serverTimestamp} from 'firebase/firestore';
-import { app } from '../app';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
+import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, serverTimestamp } from 'firebase/firestore';
+
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
+import ToggleButton from '@mui/material/ToggleButton';
+import Paper from '@mui/material/Paper';
+
+import { app } from '../app';
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -41,9 +40,7 @@ export default function Map() {
 
   const [selectedMarker, setSelectedMarker] = useState(undefined);
 
-  const fetchData = async () => {
-    //get data from firestore.
-    
+  const getMarkers = async () => {
     try {
       const snapshot = await getDocs(collection(db, 'markers'));
       let arr = [];
@@ -62,6 +59,10 @@ export default function Map() {
     };
 
   };
+  useEffect(() => {
+    getMarkers();
+  }, []);
+
 
   const getReviews = async (sel_marker) => {
 
@@ -90,10 +91,6 @@ export default function Map() {
       alert("error getting data!");
     }
   }
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   //Get current location
   useEffect(() => {
     if (navigator.geolocation) {
@@ -116,10 +113,9 @@ export default function Map() {
   }, []);
 
   const [text, setText] = React.useState("");
-  const [emailtext, setEmailText] = React.useState("");
+
   const [reviews, setReviews] = useState([]);//displays the the reviews as a list
   const [adding, setAdding] = useState(false);
-  var fuid = ""
 
   if (!isLoaded) return <div>Loading...</div>;
   let iconMarker = new google.maps.MarkerImage(
@@ -146,25 +142,87 @@ export default function Map() {
     new google.maps.Size(40, 40)
   );
 
-
-
-
   return (
-    <div>
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={adding}
-            onChange={() => { setAdding(!adding); }}
-            inputProps={{ 'aria-label': 'controlled' }}
-          />
-        }
-        label="Add Marker"
-      />
+    <div style={{
+      display: 'flex',
+    }}>
+
+      <Paper style={{
+        flex: 10,
+        margin: '20px',
+        marginLeft: '0px',
+        padding: '20px',
+      }}>
+        <ToggleButton
+          value="Add Marker"
+          color='primary'
+          selected={adding}
+          onChange={() => {
+            setAdding(!adding);
+          }}
+        >
+          <Typography>
+            Add Marker
+          </Typography>
+        </ToggleButton>
+        {selectedMarker ? (
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+        }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
+            Reviews:
+          </Typography>
+          <List>
+            {reviews.map(review => (
+              <ListItemText key={review.id} primary={review.poster} secondary={review.text} />
+
+            ))}
+          </List>
+
+          <TextField variant="standard" value={text} onChange={e => { setText(e.target.value) }} placeholder="write a review..."/>
+          <Button
+            sx={{alignSelf: 'flex-start', margin: '10px', marginLeft: '0px'}}
+            variant='outlined'
+            onClick={
+            async () => {
+              if (selectedMarker == undefined) {
+                alert("no marker selected!");
+                return;
+              }
+                try {
+                  await addDoc(collection(db, "reviews"), {
+                    marker: selectedMarker,
+                    poster: auth.currentUser.uid,
+                    text: text
+                  });
+                  await getReviews(selectedMarker);
+                  setText("");
+                } catch {
+                  alert("error adding data!");
+                }
+
+              
+            }
+
+          }>Submit</Button>
+        </div>
+
+        ) : (<div />)}
+      </Paper>
+
       <GoogleMap
         zoom={zoom}
         center={center}
-        mapContainerClassName={styles.mapcontainer}
+        mapContainerStyle={{
+          width: 'calc(100vw - 350pt)',
+          height: 'calc(100vh - 350pt)',
+          padding: '1000pxm',
+          fontWeight: 'bold',
+          flex: 40,
+          border: '4mm ridge rgba(211, 220, 50, .6)',
+          overflow: 'visible',
+        }}
         options={options}
         onClick={async (e) => {
           if (!adding) {
@@ -179,13 +237,11 @@ export default function Map() {
                   location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
                   poster: auth.currentUser.uid,
                 });
-                await fetchData();
+                await getMarkers();
                 setAdding(false);
-
               } catch {
                 alert("error submitting data!");
               }
-
             }
           }
         }}
@@ -202,7 +258,6 @@ export default function Map() {
             }}
           />
         ))}
-
         {currentPosition && (
           <Marker
             icon={iconCurrentPosition}
@@ -210,86 +265,6 @@ export default function Map() {
           />
         )}
       </GoogleMap>
-
-      <FormControl>
-        <FormLabel>Add Review</FormLabel>
-        <TextField value={text} onChange={e => {setText(e.target.value)}} placeholder="enter text here..."></TextField>
-        <Button onClick={
-          async () => {
-            if (selectedMarker == undefined) {
-              alert("no marker selected!");
-            } else {
-              try {
-                await addDoc(collection(db, "reviews"), {
-                  marker: selectedMarker,
-                  poster: auth.currentUser.uid,
-                  text: text
-                });
-                await getReviews(selectedMarker);
-              } catch {
-                alert("error adding data!");
-              }
-
-            }
-          }
-
-        }>Submit Review</Button>
-      </FormControl>
-      <FormControl>
-        <FormLabel>Follow User</FormLabel>
-        <TextField value={emailtext} onChange={e => {setEmailText(e.target.value)}} placeholder="input userID here..."></TextField>
-        <Button onClick={
-          async () => {
-            const time = serverTimestamp();
-            if (!auth.currentUser?.uid) {
-              alert("You must be logged in add a friend!");
-            }
-            else {
-              try {
-                const q = await getDocs(collection(db, "users"))
-                q.forEach(async (u) => {
-                  console.log(u.data());
-                  if (u.data().email == emailtext) {
-                    fuid = u.id;
-                  }
-                });
-                if(!fuid) {
-                  alert("The user " + emailtext + " does not exist!")
-                }
-                else if (fuid == auth.currentUser.uid) {
-                  alert("Following yourself is not supported.")
-                }
-                else {
-                  console.log(fuid)
-                  await addDoc(collection(db, "connections"), {
-                    follower: auth.currentUser.uid,
-                    following: fuid,
-                    timestamp: time
-                  });
-                  alert("Now following " + emailtext + " since " + time)
-                }
-              }
-              catch (e) {
-                console.log(e)
-                alert("Error gathering data")
-              }
-            }
-          }
-        }>Search User</Button>
-      </FormControl>
-
-      <p />
-      <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-        Reviews:
-      </Typography>
-      <List>
-      {reviews.map(review => (
-        <ListItemText key={review.id} primary={review.poster} secondary={review.text} />
-
-      ))}
-
-      </List>
-
     </div>
 
   );

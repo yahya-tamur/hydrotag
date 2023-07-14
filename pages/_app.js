@@ -10,8 +10,25 @@ not allowed to use app.js because Global CSS cannot be imported from files other
 // pages/_app.js
 
 import '../styles/globals.css';  // This is your global CSS file
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { getAuth } from "firebase/auth";
+
+import { app } from '../app';
+const auth = getAuth(app);
 
 function MyApp({ Component, pageProps }) {
+  const router = useRouter();
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        router.push('/Home');
+      } else {
+        router.push('/');
+      }
+    })
+  }, []
+  )
   return <Component {...pageProps} />;
 }
 

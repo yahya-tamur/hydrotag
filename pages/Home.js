@@ -1,24 +1,106 @@
-import React, { useState } from "react";
+//import React, { useState } from "react";
 import { getAuth } from "firebase/auth";
 import { useRouter } from 'next/router';
 import Map from '../components/Map';
+import Users from '../components/Users';
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import Drawer from '@mui/material/Drawer';
+import CssBaseline from '@mui/material/CssBaseline';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import List from '@mui/material/List';
+import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import Diversity1Icon from '@mui/icons-material/Diversity1';
+import TravelExploreIcon from '@mui/icons-material/TravelExplore';
+import LogoutIcon from '@mui/icons-material/Logout';
+import SettingsIcon from '@mui/icons-material/Settings';
 
-import {app} from '../app';
+import { app } from '../app';
 const auth = getAuth(app);
+const drawerWidth = 240;
+
 
 export default function Home() {
-
-  const router = useRouter();
+  const [selected, setSelected] = React.useState("Map");
 
   return (
-    <div style={{ height: `100%`, width: `100%` }} >
-      <h1>
-        <div className="banner">
-          <div className="banner-content">
-          </div>
-        </div>
-      </h1>
-      <Map />
-    </div>
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <AppBar
+        position="fixed"
+        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
+      >
+        <Toolbar>
+          <Typography variant="h6" noWrap component="div">
+            {selected}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3, ml: `${drawerWidth}px` }}
+      >
+        <Toolbar />
+        {(() => {switch (selected) {
+          case 'Map': return (<Map />);
+          case 'Users': return (<Users />);
+          default: return (
+            <Typography paragraph>
+              not implemented yet!
+            </Typography>
+          );
+        } })()}
+      </Box>
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+        variant="permanent"
+        anchor="left"
+      >
+        <Toolbar />
+        <Divider />
+        <List>
+          {[
+            ["Map", <TravelExploreIcon />],
+            ["Users", <Diversity1Icon />],
+            ["Settings", <SettingsIcon />]
+          ].map((tuple, index) => (
+          <ListItem key={tuple[0]} disablePadding>
+          <ListItemButton onClick={() => setSelected(tuple[0])}>
+            <ListItemIcon>
+              {tuple[1]}
+            </ListItemIcon>
+            <ListItemText primary={tuple[0]} />
+          </ListItemButton>
+        </ListItem>
+          ))
+        }
+        </List>
+        <Divider />
+        <List>
+          <ListItem key={"logout"} disablePadding>
+            <ListItemButton onClick={() => auth.signOut()}>
+              <ListItemIcon>
+                <LogoutIcon />
+              </ListItemIcon>
+              <ListItemText primary="Log Out" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Drawer>
+    </Box>
   );
 }

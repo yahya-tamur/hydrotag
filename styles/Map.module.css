@@ -1,8 +1,0 @@
-.mapcontainer {
-    width: calc(100vw - 350pt);
-    height: calc(100vh - 350pt);
-    padding: 1000pxm;
-    font-weight: bold;
-    border: 4mm ridge rgba(211, 220, 50, .6);
-    overflow: visible;
-  }

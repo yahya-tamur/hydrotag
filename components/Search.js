@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
-import { initializeApp } from "firebase/app";
 //import { useCollectionData } from 'react-firebase-hooks/firestore';
-import firebaseConfig from "../firebaseConfig";
-const app = initializeApp(firebaseConfig);
+import app from '../app';
 
 const Search = () => {
     const [searchQuery, setSearchQuery] = useState("")
