@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { GoogleMap, useLoadScript, Marker, useGoogleMap } from "@react-google-maps/api";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { GoogleMap, useLoadScript, Marker, useGoogleMap, DirectionsRenderer } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, serverTimestamp } from 'firebase/firestore';
 
@@ -35,10 +35,30 @@ export default function Map() {
   });
   const [markerlist, setMarkerList] = useState([]);
   const [center, setCenter] = useState(defaultmapCenter);
-  const [currentPosition, setCurrentPosition] = useState(null);
+  const [currentPosition, setCurrentPosition] = useState('');
+  const [destination, setdestination] = useState('');
   const [zoom, setzoom] = useState(11);
-
+  const [directionresponse, setdirectionResponse] = useState(null);
   const [selectedMarker, setSelectedMarker] = useState(undefined);
+
+ async function getroute(){
+  console.log("hello");
+  if (currentPosition === '' || destination === ''){
+    return
+  }
+    const directionservice = new google.maps.DirectionsService();
+    const results = await directionservice.route({
+      origin: currentPosition,
+      destination: destination,
+      travelMode: google.maps.TravelMode.DRIVING
+    })
+    setdirectionResponse(results);
+ }
+
+ function deleteroute(){
+  setdestination('');
+  setdirectionResponse(null);
+ }
 
   const getMarkers = async () => {
     try {
@@ -96,11 +116,8 @@ export default function Map() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          let mylat = position.coords.latitude;
-          let mylong = position.coords.longitude;
-          let loc = { lat: mylat, lng: mylong };
-          setCenter(loc);
-          setCurrentPosition(loc);
+          setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
+          setCurrentPosition({ lat: position.coords.latitude, lng: position.coords.longitude });
           setzoom(15)
         },
         () => {
@@ -165,48 +182,66 @@ export default function Map() {
             Add Marker
           </Typography>
         </ToggleButton>
+
+       
+
         {selectedMarker ? (
-        <div style={{
+          <div style={{
             display: 'flex',
             flexDirection: 'column',
-        }}>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
-            Reviews:
-          </Typography>
-          <List>
-            {reviews.map(review => (
-              <ListItemText key={review.id} primary={review.poster} secondary={review.text} />
-
-            ))}
-          </List>
-
-          <TextField variant="standard" value={text} onChange={e => { setText(e.target.value) }} placeholder="write a review..."/>
+          }}>
+            
           <Button
-            sx={{alignSelf: 'flex-start', margin: '10px', marginLeft: '0px'}}
-            variant='outlined'
-            onClick={
-            async () => {
-              if (selectedMarker == undefined) {
-                alert("no marker selected!");
-                return;
-              }
-                try {
-                  await addDoc(collection(db, "reviews"), {
-                    marker: selectedMarker,
-                    poster: auth.currentUser.uid,
-                    text: text
-                  });
-                  await getReviews(selectedMarker);
-                  setText("");
-                } catch {
-                  alert("error adding data!");
+          variant="contained"
+          value="find way"
+          color='success'
+          //selected={}
+          onClick={() => {
+            getroute();
+          }}
+        >
+          <Typography>
+          find way
+          </Typography>
+         </Button>
+
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
+              Reviews:
+            </Typography>
+            <List>
+              {reviews.map(review => (
+                <ListItemText key={review.id} primary={review.poster} secondary={review.text} />
+
+              ))}
+            </List>
+            
+            
+
+            <TextField variant="standard" value={text} onChange={e => { setText(e.target.value) }} placeholder="write a review..." />
+            <Button
+              sx={{ alignSelf: 'flex-start', margin: '10px', marginLeft: '0px' }}
+              variant='outlined'
+              onClick={
+                async () => {
+                  if (selectedMarker == undefined) {
+                    alert("no marker selected!");
+                    return;
+                  }
+                  try {
+                    await addDoc(collection(db, "reviews"), {
+                      marker: selectedMarker,
+                      poster: auth.currentUser.uid,
+                      text: text
+                    });
+                    await getReviews(selectedMarker);
+                    setText("");
+                  } catch {
+                    alert("error adding data!");
+                  }
                 }
 
-              
-            }
-
-          }>Submit</Button>
-        </div>
+              }>Submit</Button>
+          </div>
 
         ) : (<div />)}
       </Paper>
@@ -246,7 +281,16 @@ export default function Map() {
           }
         }}
       >
+          {directionresponse && (
+            <DirectionsRenderer 
+            directions={directionresponse}
+            options = {{suppressMarkers: true}} 
+            />
+          )}
         <PanningComponent targetLocation={center} />
+
+      
+
         {markerlist.map((marker, i) => (
           <Marker
             icon={marker.id == selectedMarker ? iconSelectedMarker : iconMarker}
@@ -255,6 +299,7 @@ export default function Map() {
             onClick={(e) => {
               setSelectedMarker(marker.id);
               getReviews(marker.id);
+              setdestination({ lat: marker.lat, lng: marker.lng });
             }}
           />
         ))}
