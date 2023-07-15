@@ -42,7 +42,6 @@ export default function Map() {
   const [selectedMarker, setSelectedMarker] = useState(undefined);
 
  async function getroute(){
-  console.log("hello");
   if (currentPosition === '' || destination === ''){
     return
   }
@@ -53,12 +52,13 @@ export default function Map() {
       travelMode: google.maps.TravelMode.DRIVING
     })
     setdirectionResponse(results);
+    console.log(results);
     setshowroute(true);
  }
 
  function deleteroute(){
   setshowroute(false);
-  setdestination('');
+  //setdestination('');
   setdirectionResponse(null);
  }
 
