@@ -1,49 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
-//import { useCollectionData } from 'react-firebase-hooks/firestore';
-import app from '../app';
+import { initializeApp } from "firebase/app";
+import firebaseConfig from "../firebaseConfig";
 
-const Search = () => {
-    const [searchQuery, setSearchQuery] = useState("")
-    const [results, setResults] = useState([])
-
-    const usersRef = collection(getFirestore(), 'users');
-    const q = query(usersRef, where('email', '==', searchQuery));
-    const [users] = useCollectionData(query, { idField: 'id' });
-
+const visual = () => {
+    const [searchQuery, setSearchQuery] = useState("") 
+    const [users, setUsers] = useState([]) // list of users
+    const [filteredUsers, setFilteredUsers] = useState([]); // filtered list of users
 
     // Retrieve data from Firestore based on search 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchUsersData = async () => {
+            const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
-            const q = query(collection(db, "myCollection"), where("user", "==", searchQuery));
-            const querySnapshot = await getDocs(q);
-            const data = querySnapshot.docs.map((doc) => doc.data());
-            setData(data);
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('email', '>=', searchQuery));
+
+            const snapshot = await getDocs(q);
+            const usersarray = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setUsers(usersarray);
         };
-        fetchData();
+        fetchUsersData();
     }, [searchQuery]);
+    useEffect(() => {
+        const filterUsers = () => {
+          const filteredResults = users.filter((user) =>
+            user.email.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+          setFilteredUsers(filteredResults);
+        };
+        filterUsers();
+    }, [users, searchQuery]);
+  
+    const handleSearch = (event) => {
+        setSearchQuery(event.target.value);
+      };
 
-    // search function
-    function s(e) {
-        e.preventDefault()
-        setQuery(e.target.value)
-    }
-
-    return ( 
+     return (
         <div>
-            <form onSubmit={s}>
-            <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-            <button type="submit">Search</button>
-            </form>
-            {users && users.map((user) => (
-                <div key={user.id}>
-                    <p>Email: {user.email}</p>
-                    <p>name: {user.username}</p>
-                </div>
-            ))}
+          <input type="text" placeholder="Search users" onChange={handleSearch} />
+          <div>
+            <h2>Search Results:</h2>
+            {filteredUsers.length > 0 ? (
+              <ul>
+                {filteredUsers.map((user) => (
+                  <li key={user.id}>{user.email}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>No results</p>
+            )}
+          </div>
         </div>
-    );
+      );
 };
 
-export default Search;
+export default visual;
