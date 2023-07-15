@@ -53,9 +53,11 @@ export default function Map() {
       travelMode: google.maps.TravelMode.DRIVING
     })
     setdirectionResponse(results);
+    setshowroute(true);
  }
 
  function deleteroute(){
+  setshowroute(false);
   setdestination('');
   setdirectionResponse(null);
  }
@@ -133,6 +135,7 @@ export default function Map() {
 
   const [reviews, setReviews] = useState([]);//displays the the reviews as a list
   const [adding, setAdding] = useState(false);
+  const [showroute, setshowroute] = useState(false);
 
   if (!isLoaded) return <div>Loading...</div>;
   let iconMarker = new google.maps.MarkerImage(
@@ -182,8 +185,26 @@ export default function Map() {
             Add Marker
           </Typography>
         </ToggleButton>
+        {showroute ? (
+          
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          <Button
+                variant="contained"
+                color='error'
+                onClick={() => {
+                  deleteroute();
+                }}
+              >
+                <Typography>
+                Delete Route
+                </Typography>
+              </Button>
+        </div>
+      ) : null}
 
-       
 
         {selectedMarker ? (
           <div style={{
@@ -193,15 +214,13 @@ export default function Map() {
             
           <Button
           variant="contained"
-          value="find way"
           color='success'
-          //selected={}
           onClick={() => {
             getroute();
           }}
         >
           <Typography>
-          find way
+          Find Route
           </Typography>
          </Button>
 
@@ -280,7 +299,7 @@ export default function Map() {
             }
           }
         }}
-      >
+      >     
           {directionresponse && (
             <DirectionsRenderer 
             directions={directionresponse}
