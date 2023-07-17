@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { GoogleMap, useLoadScript, Marker, useGoogleMap, DirectionsRenderer } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
-import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, serverTimestamp, query, where, } from 'firebase/firestore';
 
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -10,6 +10,10 @@ import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import ToggleButton from '@mui/material/ToggleButton';
 import Paper from '@mui/material/Paper';
+//add switch
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 import { app } from '../app';
 const auth = getAuth(app);
@@ -34,13 +38,14 @@ export default function Map() {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   });
   const [markerlist, setMarkerList] = useState([]);
+  const [friendlist, setfriendList] = useState([]);
   const [center, setCenter] = useState(defaultmapCenter);
   const [currentPosition, setCurrentPosition] = useState('');
   const [destination, setdestination] = useState('');
   const [zoom, setzoom] = useState(11);
   const [directionresponse, setdirectionResponse] = useState(null);
   const [selectedMarker, setSelectedMarker] = useState(undefined);
-
+  
  async function getroute(){
   if (currentPosition === '' || destination === ''){
     return
@@ -62,18 +67,50 @@ export default function Map() {
   setdirectionResponse(null);
  }
 
+ const getfriendslist = async () => {
+  if (!auth.currentUser?.uid) {
+    alert("You must be logged in to place a marker!");
+  } else {
+    try {
+      const q = query(collection(db, "connections"), where("follower", "==", auth.currentUser.uid));
+      const snapshot = await getDocs(q);
+      console.log(snapshot);
+      let arr = [];
+      snapshot.forEach((doc) => {
+        arr.push(
+          doc.data().following
+          );
+      });
+      arr.push(auth.currentUser.uid);
+      setfriendList(arr);
+    } catch {
+      alert("error getting data for connection!");
+    }
+  }
+};
+
   const getMarkers = async () => {
     try {
       const snapshot = await getDocs(collection(db, 'markers'));
       let arr = [];
       snapshot.forEach((doc) => {
-        arr.push({
+        if(pin_fr){
+          if(friendlist.includes(doc.data().poster)){
+            arr.push({
+              id: doc.id,
+              name: doc.data().name,
+              lat: doc.data().location._lat,
+              lng: doc.data().location._long,
+              poster: doc.data().poster,
+            });
+          }
+        }else{ arr.push({
           id: doc.id,
           name: doc.data().name,
           lat: doc.data().location._lat,
           lng: doc.data().location._long,
           poster: doc.data().poster,
-        });
+        });}
       });
       setMarkerList(arr)
     } catch {
@@ -85,21 +122,30 @@ export default function Map() {
     getMarkers();
   }, []);
 
-
   const getReviews = async (sel_marker) => {
-
     try {
       const snapshot = await getDocs(collection(db, 'reviews'));
       let arr = [];
       snapshot.forEach(async (d) => {
         console.log(d.data());
         if (d.data().marker == sel_marker) {
-          arr.push({
-            id: d.id,
-            poster: d.data().poster,
-            marker: d.data().marker,
-            text: d.data().text,
-          });
+          if(review_fr){
+            if(friendlist.includes(d.data().poster)){
+              arr.push({
+                id: d.id,
+                poster: d.data().poster,
+                marker: d.data().marker,
+                text: d.data().text,
+              });
+            }
+          }else{
+            arr.push({
+              id: d.id,
+              poster: d.data().poster,
+              marker: d.data().marker,
+              text: d.data().text,
+            });
+          }
         }
       });
       for (const el of arr) {
@@ -113,6 +159,7 @@ export default function Map() {
       alert("error getting data!");
     }
   }
+
   //Get current location
   useEffect(() => {
     if (navigator.geolocation) {
@@ -136,6 +183,18 @@ export default function Map() {
   const [reviews, setReviews] = useState([]);//displays the the reviews as a list
   const [adding, setAdding] = useState(false);
   const [showroute, setshowroute] = useState(false);
+  const [pin_fr, setpin_fr] = useState(false);
+  const [review_fr, setreview_fr] = useState(false);
+
+  const handleChangepin = (event) => {
+    getfriendslist();
+    setpin_fr(event.target.checked);
+  };
+
+  const handlereview = (event) => {
+    getfriendslist();
+    setreview_fr(event.target.checked);
+  };
 
   if (!isLoaded) return <div>Loading...</div>;
   let iconMarker = new google.maps.MarkerImage(
@@ -185,6 +244,10 @@ export default function Map() {
             Add Marker
           </Typography>
         </ToggleButton>
+        <FormGroup>
+          <FormControlLabel control={<Switch checked={pin_fr}  onChange={handleChangepin} />} label="Friends Pins Filter" />
+          <FormControlLabel control={<Switch checked={review_fr}  onChange={handlereview}/>} label="Friends Reviews Filter" />
+        </FormGroup>
         {showroute ? (
           
         <div style={{
@@ -204,7 +267,7 @@ export default function Map() {
               </Button>
         </div>
       ) : null}
-
+      
 
         {selectedMarker ? (
           <div style={{
@@ -234,8 +297,6 @@ export default function Map() {
               ))}
             </List>
             
-            
-
             <TextField variant="standard" value={text} onChange={e => { setText(e.target.value) }} placeholder="write a review..." />
             <Button
               sx={{ alignSelf: 'flex-start', margin: '10px', marginLeft: '0px' }}
