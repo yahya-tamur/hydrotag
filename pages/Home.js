@@ -1,7 +1,7 @@
 //import React, { useState } from "react";
 import { getAuth } from "firebase/auth";
 import { useRouter } from 'next/router';
-import Search from '../components/Search';
+//import Search from '../components/Search';
 import Map from '../components/Map';
 import Users from '../components/Users';
 import * as React from 'react';
@@ -52,7 +52,7 @@ export default function Home() {
         {(() => {switch (selected) {
           case 'Map': return (<Map />);
           case 'Users': return (<Users />);
-          case 'Search': return (<Search />);
+          //case 'Search': return (<Search />);
           default: return (
             <Typography paragraph>
               not implemented yet!
@@ -79,7 +79,7 @@ export default function Home() {
             ["Map", <TravelExploreIcon />],
             ["Users", <Diversity1Icon />],
             ["Settings", <SettingsIcon />],
-            ["Search"]
+            //["Search"]
           ].map((tuple, index) => (
           <ListItem key={tuple[0]} disablePadding>
           <ListItemButton onClick={() => setSelected(tuple[0])}>
