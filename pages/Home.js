@@ -1,7 +1,5 @@
-//import React, { useState } from "react";
 import { getAuth } from "firebase/auth";
 import { useRouter } from 'next/router';
-//import Search from '../components/Search';
 import Map from '../components/Map';
 import Users from '../components/Users';
 import * as React from 'react';
@@ -22,6 +20,8 @@ import Diversity1Icon from '@mui/icons-material/Diversity1';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
+import Leadership from '../components/Leadership';
+import StarIcon from '@mui/icons-material/Star';
 
 import { app } from '../app';
 const auth = getAuth(app);
@@ -52,7 +52,7 @@ export default function Home() {
         {(() => {switch (selected) {
           case 'Map': return (<Map />);
           case 'Users': return (<Users />);
-          //case 'Search': return (<Search />);
+          case 'Leadership': return (<Leadership />);
           default: return (
             <Typography paragraph>
               not implemented yet!
@@ -78,8 +78,8 @@ export default function Home() {
           {[
             ["Map", <TravelExploreIcon />],
             ["Users", <Diversity1Icon />],
+            ["Leadership", <StarIcon />],
             ["Settings", <SettingsIcon />],
-            //["Search"]
           ].map((tuple, index) => (
           <ListItem key={tuple[0]} disablePadding>
           <ListItemButton onClick={() => setSelected(tuple[0])}>

@@ -89,7 +89,7 @@ export default function Users() {
         const followingArray = snapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}));
         setFollowings(followingArray);
       });
-      return unsub; // cleanup function
+      return unsub; 
     };
 
     const fetchFollowers = () => {
@@ -97,7 +97,7 @@ export default function Users() {
         const followersArray = snapshot.docs.map((doc) => doc.data().follower);
         setFollowers(followersArray);
       });
-      return unsub; // cleanup function
+      return unsub; 
     };
 
     if (auth.currentUser) {
