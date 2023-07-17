@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { GoogleMap, useLoadScript, Marker, useGoogleMap, DirectionsRenderer } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
-import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, serverTimestamp, query, where, } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, serverTimestamp, query, where, Timestamp, } from 'firebase/firestore';
 
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -125,6 +125,7 @@ useEffect(() => {
           poster: d.data().poster,
           marker: d.data().marker,
           text: d.data().text,
+          timestamp: d.data().timestamp ? d.data().timestamp.toDate() : null,
         }));
   
       const filteredReviews = review_fr ? arr.filter(review => friendlist.includes(review.poster)) : arr;
@@ -271,7 +272,7 @@ useEffect(() => {
             </Typography>
             <List>
               {reviews.map(review => (
-                <ListItemText key={review.id} primary={review.poster} secondary={review.text} />
+                <ListItemText key={review.id} primary={review.poster} secondary={`${review.text} (${review.timestamp ? review.timestamp.toLocaleString() : 'No timestamp'})`} />
 
               ))}
             </List>
@@ -290,7 +291,8 @@ useEffect(() => {
                     await addDoc(collection(db, "reviews"), {
                       marker: selectedMarker,
                       poster: auth.currentUser.uid,
-                      text: text
+                      text: text,
+                      timestamp: Timestamp.now(), // added server time stamp
                     });
                     await getReviews(selectedMarker);
                     setText("");
