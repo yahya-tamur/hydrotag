@@ -76,7 +76,7 @@ export default function Users() {
   useEffect(() => {
     const filterUsers = () => {
       const filteredResults = users.filter((user) =>
-        user.email.toLowerCase().includes(emailtext.toLowerCase())
+        user.email.toLowerCase().includes(emailtext.toLowerCase()) && user.id !== auth.currentUser.uid
       );
       setFilteredUsers(filteredResults);
     };
@@ -170,10 +170,10 @@ export default function Users() {
               {filteredUsers.map((user) => (
                 <ListItem key={user.id}>
                   {user.email}
-                  {followings.find(following => following.following === user.id)
+                  {(followings.find(following => following.following === user.id)
                     ? <Button onClick={() => handleUnfollow(followings.find(following => following.following === user.id).id)}>Unfollow</Button>
                     : <Button onClick={() => handleFollow(user.id)}>Follow</Button>
-                  }
+                  )}
                   <Button onClick={() => handleReport(user.id)}>Report</Button>
                 </ListItem>
               ))}
@@ -196,10 +196,12 @@ export default function Users() {
               ))}
             </ul>
           ) : (
-            <p>You're not following anyone.</p>
+            <p>You are not following any users yet.</p>
           )}
         </div>
       </div>
     </div>
   );
 }
+
+
