@@ -167,6 +167,10 @@ useEffect(() => {
     setpin_fr(event.target.checked);
   };
 
+  useEffect(() => {
+    getReviews(selectedMarker);
+  }, [selectedMarker, review_fr]);
+
   const handlereview = (event) => {
     setreview_fr(event.target.checked);
   };
