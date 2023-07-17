@@ -51,7 +51,7 @@ export default function Leadership() {
       {leaderboardData.map((user, index) => (
         <ListItem key={index}>
           {`${index + 1}. ${user.email}`}
-          {user.markersCount > 0 && <Badge badgeContent={user.markersCount} color="primary">Markers</Badge>}
+          {user.markersCount > 0 && <Badge badgeContent={user.markersCount} color="primary"> Markers</Badge>}
           {user.connectionsCount > 0 && <Badge badgeContent={user.connectionsCount} color="secondary">Connections</Badge>}
         </ListItem>
       ))}
