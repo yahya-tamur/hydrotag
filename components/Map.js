@@ -45,7 +45,9 @@ export default function Map() {
   const [zoom, setzoom] = useState(11);
   const [directionresponse, setdirectionResponse] = useState(null);
   const [selectedMarker, setSelectedMarker] = useState(undefined);
-  
+  const [pin_fr, setpin_fr] = useState(false);
+  const [review_fr, setreview_fr] = useState(false);
+
  async function getroute(){
   if (currentPosition === '' || destination === ''){
     return
@@ -63,103 +65,81 @@ export default function Map() {
 
  function deleteroute(){
   setshowroute(false);
-  //setdestination('');
   setdirectionResponse(null);
  }
 
- const getfriendslist = async () => {
-  if (!auth.currentUser?.uid) {
-    alert("You must be logged in to place a marker!");
-  } else {
-    try {
-      const q = query(collection(db, "connections"), where("follower", "==", auth.currentUser.uid));
-      const snapshot = await getDocs(q);
-      console.log(snapshot);
-      let arr = [];
-      snapshot.forEach((doc) => {
-        arr.push(
-          doc.data().following
-          );
-      });
-      arr.push(auth.currentUser.uid);
-      setfriendList(arr);
-    } catch {
-      alert("error getting data for connection!");
+ useEffect(() => {
+  const getfollowerlist = async () => {
+    if (!auth.currentUser?.uid) {
+      alert("You must be logged in to get your friends pin and review!");
+    } else {
+      try {
+        const q = query(collection(db, "connections"), where("follower", "==", auth.currentUser.uid));
+        const snapshot = await getDocs(q);
+        let arr = [];
+        snapshot.forEach((doc) => {
+          arr.push(doc.data().following);
+        });
+        arr.push(auth.currentUser.uid);
+        setfriendList(arr);
+      } catch {
+        alert("Error getting data from connection!");
+      }
     }
-  }
-};
+  };
+  getfollowerlist();
+}, []); 
 
+useEffect(() => {
   const getMarkers = async () => {
     try {
       const snapshot = await getDocs(collection(db, 'markers'));
-      let arr = [];
-      snapshot.forEach((doc) => {
-        if(pin_fr){
-          if(friendlist.includes(doc.data().poster)){
-            arr.push({
-              id: doc.id,
-              name: doc.data().name,
-              lat: doc.data().location._lat,
-              lng: doc.data().location._long,
-              poster: doc.data().poster,
-            });
-          }
-        }else{ arr.push({
+      const arr = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
           id: doc.id,
-          name: doc.data().name,
-          lat: doc.data().location._lat,
-          lng: doc.data().location._long,
-          poster: doc.data().poster,
-        });}
+          name: data.name,
+          lat: data.location._lat,
+          lng: data.location._long,
+          poster: data.poster,
+        };
       });
-      setMarkerList(arr)
-    } catch {
-      alert("error getting data!")
-    };
 
+      const filteredMarkers = pin_fr ? arr.filter(marker => friendlist.includes(marker.poster)) : arr;
+      setMarkerList(filteredMarkers);
+    } catch (error) {
+      alert("Error getting data!");
+      console.error(error);
+    }
   };
-  useEffect(() => {
-    getMarkers();
-  }, []);
+  getMarkers();
+}, [pin_fr, friendlist]);
 
   const getReviews = async (sel_marker) => {
     try {
       const snapshot = await getDocs(collection(db, 'reviews'));
-      let arr = [];
-      snapshot.forEach(async (d) => {
-        console.log(d.data());
-        if (d.data().marker == sel_marker) {
-          if(review_fr){
-            if(friendlist.includes(d.data().poster)){
-              arr.push({
-                id: d.id,
-                poster: d.data().poster,
-                marker: d.data().marker,
-                text: d.data().text,
-              });
-            }
-          }else{
-            arr.push({
-              id: d.id,
-              poster: d.data().poster,
-              marker: d.data().marker,
-              text: d.data().text,
-            });
-          }
-        }
-      });
-      for (const el of arr) {
+      const arr = snapshot.docs
+        .filter((d) => d.data().marker === sel_marker)
+        .map((d) => ({
+          id: d.id,
+          poster: d.data().poster,
+          marker: d.data().marker,
+          text: d.data().text,
+        }));
+  
+      const filteredReviews = review_fr ? arr.filter(review => friendlist.includes(review.poster)) : arr;
+  
+      for (const el of filteredReviews) {
         const email = await getDoc(doc(db, "users", el.poster));
         el.poster = email.data().email;
       }
-
-      console.log(arr);
-      setReviews(arr);
-    } catch {
-      alert("error getting data!");
+      setReviews(filteredReviews);
+    } catch (error) {
+      alert("Error getting data!");
+      console.error(error);
     }
-  }
-
+  };
+  
   //Get current location
   useEffect(() => {
     if (navigator.geolocation) {
@@ -179,20 +159,15 @@ export default function Map() {
   }, []);
 
   const [text, setText] = React.useState("");
-
   const [reviews, setReviews] = useState([]);//displays the the reviews as a list
   const [adding, setAdding] = useState(false);
   const [showroute, setshowroute] = useState(false);
-  const [pin_fr, setpin_fr] = useState(false);
-  const [review_fr, setreview_fr] = useState(false);
 
   const handleChangepin = (event) => {
-    getfriendslist();
     setpin_fr(event.target.checked);
   };
 
   const handlereview = (event) => {
-    getfriendslist();
     setreview_fr(event.target.checked);
   };
 
