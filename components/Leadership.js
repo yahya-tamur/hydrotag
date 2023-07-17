@@ -26,8 +26,8 @@ export default function Leadership() {
     const fetchLeaderboardData = async () => {
       let data = [];
       for (let user of users) {
-        const pinsSnap = await getDocs(query(collection(db, "pins"), where('userId', '==', user.id)));
-        const pinsCount = pinsSnap.size;
+        const markersSnap = await getDocs(query(collection(db, "markers"), where('poster', '==', user.id)));
+        const markersCount = markersSnap.size;
 
         const connectionsSnap = await getDocs(query(collection(db, "connections"), where('userId', '==', user.id)));
         const connectionsCount = connectionsSnap.size;
@@ -35,11 +35,11 @@ export default function Leadership() {
         data.push({
           userId: user.id,
           email: user.email,
-          pinsCount,
+          markersCount,
           connectionsCount
         });
       }
-      data.sort((a, b) => b.pinsCount - a.pinsCount);
+      data.sort((a, b) => b.markersCount - a.markersCount);
       setLeaderboardData(data);
     };
     fetchLeaderboardData();
@@ -51,10 +51,11 @@ export default function Leadership() {
       {leaderboardData.map((user, index) => (
         <ListItem key={index}>
           {`${index + 1}. ${user.email}`}
-          <Badge badgeContent={user.pinsCount} color="primary">Pins</Badge>
-          <Badge badgeContent={user.connectionsCount} color="secondary">Connections</Badge>
+          {user.markersCount > 0 && <Badge badgeContent={user.markersCount} color="primary">Markers</Badge>}
+          {user.connectionsCount > 0 && <Badge badgeContent={user.connectionsCount} color="secondary">Connections</Badge>}
         </ListItem>
       ))}
     </div>
   );
 }
+
