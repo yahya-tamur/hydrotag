@@ -11,77 +11,83 @@ export default function Index() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [check, setCheck] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const passwordCheck = () => {
+    // Checks for at least 6 characters, 1 letter and 1 number
+    const re = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+    return re.test(password);
+  };
 
   return (
     <div style={{
-      height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      flexShrink: 0,
+      minHeight: '100vh',
     }}>
       <h1 style={{
         margin: '0',
         fontSize: '2em',
         backgroundColor: 'grey',
-        paddingBottom: '10pt',
-        paddingTop: '10pt',
+        padding: '10px',
         textAlign: 'center'
       }}>Hydro Tag App</h1>
 
       <div style={{
         display: 'flex',
-        height: '100%',
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        paddingRight: '1em',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        flexGrow: 1,
         backgroundColor: 'teal',
+        padding: '1em',
       }}>
         <div style={{
-          width: '350px',
-          height: '300px',
+          maxWidth: '450px',
+          width: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
           backgroundColor: 'white',
-          padding: '20px',
-          margin: '5%', // Small adjustment here
+          padding: '30px',
+          margin: '5%',
         }}>
           {!isSignup ?
             //...login form
-            <div style={{ width: '80%' }}>
-              <h2 style={{ fontSize: '1.5em' }}>Login</h2>
-              <p style={{ fontSize: '1.2em' }}>Don't have an account yet? <a href="#" onClick={() => setIsSignup(true)}>Sign up</a></p>
-              <label style={{ fontSize: '1.2em' }}>
+            <div style={{ width: '100%' }}>
+              <h2 style={{ fontSize: '1.8em' }}>Login</h2>
+              <p style={{ fontSize: '1.4em' }}>Don't have an account yet? <a href="#" onClick={() => setIsSignup(true)}>Sign up</a></p>
+              <label style={{ fontSize: '1.4em' }}>
                 Email Address:
                 <input type="text" value={email} onChange={(e) => { setEmail(e.target.value) }} />
               </label>
               <br />
-              <label style={{ fontSize: '1.2em' }}>
+              <label style={{ fontSize: '1.4em' }}>
                 Password:
                 <input type="password" value={password} onChange={(e) => { setPassword(e.target.value) }} />
               </label>
               <br /><br />
-              <button onClick={() => signInWithEmailAndPassword(auth, email, password)} style={{ fontSize: '1.2em' }}>
+              <button onClick={() => signInWithEmailAndPassword(auth, email, password)} style={{ fontSize: '1.4em' }}>
                 Submit
               </button>
             </div>
             :
             //...signup form
-            <div style={{ width: '80%' }}>
-              <h2 style={{ fontSize: '1.5em' }}>Sign up</h2>
-              <label style={{ fontSize: '1.2em' }}>
+            <div style={{ width: '100%' }}>
+              <h2 style={{ fontSize: '1.8em' }}>Sign up</h2>
+              <label style={{ fontSize: '1.4em' }}>
                 Email Address:
                 <input type="text" value={email} onChange={(e) => { setEmail(e.target.value) }} />
               </label>
               <br />
-              <label style={{ fontSize: '1.2em' }}>
+              <label style={{ fontSize: '1.4em' }}>
                 Password:
                 <input type="password" value={password} onChange={(e) => { setPassword(e.target.value) }} />
               </label>
+              <p>{passwordCheck() ? '' : 'Password must be at least 6 characters, with at least one letter and one number.'}</p>
               <br />
-              <label style={{ fontSize: '1.2em' }}>
+              <label style={{ fontSize: '1.4em' }}>
                 Confirm Password:
                 <input type="password" value={check} onChange={(e) => { setCheck(e.target.value) }} />
               </label>
@@ -89,33 +95,40 @@ export default function Index() {
               <button
                 onClick={async (e) => {
                   e.preventDefault();
+                  if (!passwordCheck()) {
+                    setErrorMsg("Password does not meet the requirements.");
+                    return;
+                  }
                   if (password !== check) {
-                    alert("passwords don't match!");
+                    setErrorMsg("Passwords don't match!");
                     return;
                   }
                   try {
                     let x = await createUserWithEmailAndPassword(auth, email, password);
                     await setDoc(doc(db, "users", x.user.uid), { email: email });
+                    setErrorMsg("");
+                    setSuccessMsg("Your account has been created. You can now log in.");
                   } catch (error) {
-                    alert(error.message);
+                    setErrorMsg(error.message);
                   }
                 }}
-                style={{ fontSize: '1.2em' }}
+                style={{ fontSize: '1.4em' }}
               >
                 Submit
               </button>
-              <button type="button" onClick={() => setIsSignup(false)} style={{ fontSize: '1.2em' }}>
+              <p style={{ color: 'green' }}>{successMsg}</p>
+              <p style={{ color: 'red' }}>{errorMsg}</p>
+              <button type="button" onClick={() => setIsSignup(false)} style={{ fontSize: '1.4em' }}>
                 Go Back
               </button>
             </div>
           }
         </div>
         <div style={{
-          width: '60%',
-          paddingRight: '2em',
+          flex: 1,
+          padding: '0 2em',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
         }}>
           <h1 style={{ fontSize: '3em' }}>Welcome to the Hydro Tag App!</h1>
           <p style={{ lineHeight: 2, fontSize: '1.5em', textAlign: 'justify' }}>
