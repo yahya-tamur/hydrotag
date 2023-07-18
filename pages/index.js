@@ -148,7 +148,7 @@ export default function Index() {
           </Box>
 
           <Box sx={{ flex: 1, padding: '0 2em' }}>
-            <Typography variant="h2" sx={{ margin: '1em 0', color: '#209cee'}}>
+            <Typography variant="h2" sx={{ margin: '1em 0', color: '#209cee', fontWeight: 'bold'}}>
               Welcome to the Hydro Tag App!
             </Typography>
             <Typography variant="h5" sx={{ lineHeight: 2, textAlign: 'justify' }}>

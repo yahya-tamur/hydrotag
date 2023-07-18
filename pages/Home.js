@@ -19,7 +19,6 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import Diversity1Icon from '@mui/icons-material/Diversity1';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import LogoutIcon from '@mui/icons-material/Logout';
-import SettingsIcon from '@mui/icons-material/Settings';
 import Leadership from '../components/Leadership';
 import StarIcon from '@mui/icons-material/Star';
 
@@ -79,7 +78,6 @@ export default function Home() {
             ["Map", <TravelExploreIcon />],
             ["Users", <Diversity1Icon />],
             ["Leadership", <StarIcon />],
-            ["Settings", <SettingsIcon />],
           ].map((tuple, index) => (
           <ListItem key={tuple[0]} disablePadding>
           <ListItemButton onClick={() => setSelected(tuple[0])}>
