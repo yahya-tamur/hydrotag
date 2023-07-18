@@ -113,7 +113,8 @@ export default function Index() {
                   Confirm Password:
                   <input type="password" value={check} onChange={(e) => { setCheck(e.target.value) }} />
                 </label>
-                <br /><br />
+                <p style={{ color: 'green' }}>{successMsg}</p>
+                <p style={{ color: 'red' }}>{errorMsg}</p>
                 <button
                   onClick={async (e) => {
                     e.preventDefault();
@@ -138,8 +139,7 @@ export default function Index() {
                 >
                   Submit
                 </button>
-                <p style={{ color: 'green' }}>{successMsg}</p>
-                <p style={{ color: 'red' }}>{errorMsg}</p>
+                <br />
                 <button type="button" onClick={() => setIsSignup(false)} style={{ fontSize: '1.4em' }}>
                   Go Back
                 </button>
