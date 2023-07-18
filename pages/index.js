@@ -109,7 +109,6 @@ export default function Index() {
                   <input type="password" value={password} onChange={(e) => { setPassword(e.target.value) }} />
                 </label>
                 <p>{passwordCheck() ? '' : 'Password must be at least 6 characters, with at least one letter and one number.'}</p>
-                <br />
                 <label style={{ fontSize: '1.4em' }}>
                   Confirm Password:
                   <input type="password" value={check} onChange={(e) => { setCheck(e.target.value) }} />
