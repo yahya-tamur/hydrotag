@@ -47,7 +47,7 @@ export default function Leadership() {
 
   return (
     <div>
-      <h2>Leaderboard:</h2>
+      <h2>Leader board:</h2>
       {leaderboardData.map((user, index) => (
         <ListItem key={index}>
           {`${index + 1}. ${user.email}`}
