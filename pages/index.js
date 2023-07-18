@@ -34,47 +34,47 @@ export default function Index() {
           margin: 0,
           padding: 0,
         }
-      }}/>
-      
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          minHeight: '100vh', 
-          backgroundColor: 'white' 
+      }} />
+
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
+          backgroundColor: 'white'
         }}
       >
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            backgroundColor: '#209cee', 
-            color: 'white', 
-            padding: '10px' 
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#209cee',
+            color: 'white',
+            padding: '10px'
           }}
         >
           <Typography variant="h3">Hydro Tag App</Typography>
         </Box>
 
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            flexDirection: 'row', 
-            padding: '1em', 
-            flexGrow: 1 
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            padding: '1em',
+            flexGrow: 1
           }}
         >
-          <Box 
-            sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              backgroundColor: '#F0F0F0', 
-              padding: '30px', 
-              margin: '5%', 
-              maxWidth: '450px', 
-              width: '100%' 
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              backgroundColor: '#F0F0F0',
+              padding: '30px',
+              margin: '5%',
+              maxWidth: '450px',
+              width: '100%'
             }}
           >
             <img src="/logo.png" alt="Logo" />
@@ -91,8 +91,21 @@ export default function Index() {
                   Password:
                   <input type="password" value={password} onChange={(e) => { setPassword(e.target.value) }} />
                 </label>
+                <p style={{ color: 'red' }}>{errorMsg}</p> {/* Added error message display */}
                 <br /><br />
-                <button onClick={() => signInWithEmailAndPassword(auth, email, password)} style={{ fontSize: '1.4em' }}>
+                <button onClick={async () => { 
+                  try {
+                    await signInWithEmailAndPassword(auth, email, password); 
+                  } catch (error) {
+                    if (error.code === 'auth/wrong-password') {
+                      setErrorMsg('Incorrect password.');
+                    } else if (error.code === 'auth/user-not-found') {
+                      setErrorMsg('No user found with this email.');
+                    } else {
+                      setErrorMsg(error.message);
+                    }
+                  }
+                }} style={{ fontSize: '1.4em' }}>
                   Submit
                 </button>
               </div>
@@ -108,7 +121,7 @@ export default function Index() {
                   Password:
                   <input type="password" value={password} onChange={(e) => { setPassword(e.target.value) }} />
                 </label>
-                <p>{passwordCheck() ? '' : 'Password must be at least 6 characters, with at least one letter and one number.'}</p>
+                <p style={{ color: 'red' }}>{passwordCheck() ? '' : 'Password must be at least 6 characters, with at least one letter and one number.'}</p>
                 <label style={{ fontSize: '1.4em' }}>
                   Confirm Password:
                   <input type="password" value={check} onChange={(e) => { setCheck(e.target.value) }} />
@@ -132,13 +145,18 @@ export default function Index() {
                       setErrorMsg("");
                       setSuccessMsg("Your account has been created. You can now log in.");
                     } catch (error) {
-                      setErrorMsg(error.message);
+                      if (error.code === 'auth/email-already-in-use') {
+                        setErrorMsg('Email already exists! Please signup with a new one.');
+                      } else {
+                        setErrorMsg(error.message);
+                      }
                     }
                   }}
                   style={{ fontSize: '1.4em' }}
                 >
                   Submit
                 </button>
+
                 <br />
                 <button type="button" onClick={() => setIsSignup(false)} style={{ fontSize: '1.4em' }}>
                   Go Back
@@ -148,7 +166,7 @@ export default function Index() {
           </Box>
 
           <Box sx={{ flex: 1, padding: '0 2em' }}>
-            <Typography variant="h2" sx={{ margin: '1em 0', color: '#209cee', fontWeight: 'bold'}}>
+            <Typography variant="h2" sx={{ margin: '1em 0', color: '#209cee', fontWeight: 'bold' }}>
               Welcome to the Hydro Tag App!
             </Typography>
             <Typography variant="h5" sx={{ lineHeight: 2, textAlign: 'justify' }}>
@@ -160,15 +178,25 @@ export default function Index() {
               their quality, based on user reviews. You can easily pin
               your findings on the map, see pins from your friends, and
               contribute to the community through your own reviews.
-              HydroTag isn't just an app, but a community dedicated to
-              sharing the best hydration spots, ensuring you and your
-              friends never have to compromise on the quality of water
-              you consume. Start your personalized water discovery
-              journey with HydroTag today!
+              HydroTag isn't just an app, but a solution for making
+              water accessibility easy and safe for everyone.
             </Typography>
           </Box>
         </Box>
+
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#209cee',
+            color: 'white',
+            padding: '10px'
+          }}
+        >
+          <Typography variant="h6">&copy; 2023 Hydro Tag App. All Rights Reserved.</Typography>
+        </Box>
       </Box>
     </>
-  )
+  );
 }
