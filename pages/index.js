@@ -77,6 +77,7 @@ export default function Index() {
               width: '100%' 
             }}
           >
+            <img src="/logo.png" alt="Logo" />
             {!isSignup ?
               <div style={{ width: '100%' }}>
                 <h2 style={{ fontSize: '1.8em' }}>Login</h2>
