@@ -97,10 +97,10 @@ export default function Users() {
   useEffect(() => {
     const fetchFollowings = () => {
       const unsub = onSnapshot(query(collection(db, "connections"), where('follower', '==', auth.currentUser.uid)), (snapshot) => {
-        const followingArray = snapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}));
+        const followingArray = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setFollowings(followingArray);
       });
-      return unsub; 
+      return unsub;
     };
 
     const fetchFollowers = () => {
@@ -108,7 +108,7 @@ export default function Users() {
         const followersArray = snapshot.docs.map((doc) => doc.data().follower);
         setFollowers(followersArray);
       });
-      return unsub; 
+      return unsub;
     };
 
     if (auth.currentUser) {
@@ -186,7 +186,7 @@ export default function Users() {
       </Dialog>
 
       <FormControl>
-        <FormLabel>Follow User</FormLabel>
+        <FormLabel>Find People to follow!</FormLabel>
         <TextField value={emailtext} onChange={e => setEmailText(e.target.value)} placeholder="Search users..." />
       </FormControl>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -197,6 +197,7 @@ export default function Users() {
               {filteredUsers.map((user) => (
                 <ListItem key={user.id}>
                   {user.email}
+                  {followings.find(following => following.following === user.id) && followers.includes(user.id) && <StarIcon />}
                   {(followings.find(following => following.following === user.id)
                     ? <Button onClick={() => handleUnfollow(followings.find(following => following.following === user.id).id)}>Unfollow</Button>
                     : <Button onClick={() => handleFollow(user.id)}>Follow</Button>
@@ -205,39 +206,16 @@ export default function Users() {
                   <Button onClick={() => handleOpenProfile(user.id)}>Profile</Button>
                 </ListItem>
               ))}
+
             </ul>
           ) : (
             <p>No results</p>
           )}
         </div>
         <div>
-          <h2>My Followings:</h2>
-          {followings.length > 0 ? (
-            <ul>
-              {followings.map((following) => (
-                <li key={following.id}>
-                  {users.find(user => user.id === following.following).email}
-                  <Button onClick={() => handleUnfollow(following.id)}>Unfollow</Button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>You are not following anyone</p>
-          )}
+          <h2>Open up a users profile here on right hand side!! </h2>
         </div>
         <div>
-          <h2>My Followers:</h2>
-          {followers.length > 0 ? (
-            <ul>
-              {followers.map((followerId) => (
-                <li key={followerId}>
-                  {users.find(user => user.id === followerId).email}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No one is following you</p>
-          )}
         </div>
       </div>
     </div>

@@ -15,11 +15,11 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
 import Diversity1Icon from '@mui/icons-material/Diversity1';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Leadership from '../components/Leadership';
+import Profile from '../components/Profile';
 import StarIcon from '@mui/icons-material/Star';
 import PersonIcon from '@mui/icons-material/Person';
 
@@ -51,9 +51,9 @@ export default function Home() {
         <Toolbar />
         {(() => {switch (selected) {
           case 'Map': return (<Map />);
-          case 'Users': return (<Users />);
+          case 'Add Users': return (<Users />);
           case 'Leadership': return (<Leadership />);
-          case 'Profile': return (<Typography paragraph>Your profile information goes here</Typography>);
+          case 'Profile': return (<Profile />);
           default: return (
             <Typography paragraph>
               not implemented yet!
@@ -78,7 +78,7 @@ export default function Home() {
         <List>
           {[
             ["Map", <TravelExploreIcon />],
-            ["Users", <Diversity1Icon />],
+            ["Add Users", <Diversity1Icon />],
             ["Leadership", <StarIcon />],
             ["Profile", <PersonIcon />],
           ].map((tuple, index) => (
