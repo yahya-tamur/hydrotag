@@ -26,20 +26,31 @@ export default function Users() {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [followings, setFollowings] = useState([]);
   const [followers, setFollowers] = useState([]);
-  const [open, setOpen] = useState(false);
+  const [openReport, setOpenReport] = useState(false);
+  const [openProfile, setOpenProfile] = useState(false);
   const [reportType, setReportType] = useState("");
   const [reportText, setReportText] = useState("");
   const [userIdToReport, setUserIdToReport] = useState(null);
+  const [profileUserId, setProfileUserId] = useState(null);
 
   const reportTypes = ["Falsely pinning a water source", "Inappropriate reviews", "Spamming", "Being a bully"];
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleCloseReport = () => {
+    setOpenReport(false);
   };
 
-  const handleOpen = (userId) => {
+  const handleOpenReport = (userId) => {
     setUserIdToReport(userId);
-    setOpen(true);
+    setOpenReport(true);
+  };
+
+  const handleCloseProfile = () => {
+    setOpenProfile(false);
+  };
+
+  const handleOpenProfile = (userId) => {
+    setProfileUserId(userId);
+    setOpenProfile(true);
   };
 
   const handleSubmitReport = async () => {
@@ -54,7 +65,7 @@ export default function Users() {
       });
       setReportType("");
       setReportText("");
-      handleClose();
+      handleCloseReport();
       alert("Your report has been submitted and is being reviewed.");
     } else {
       alert("Please fill in all fields to submit a report.");
@@ -124,12 +135,13 @@ export default function Users() {
   };
 
   const handleReport = (userId) => {
-    handleOpen(userId);
+    handleOpenReport(userId);
   };
 
   return (
     <div>
-      <Dialog open={open} onClose={handleClose}>
+      {/* Report User Dialog */}
+      <Dialog open={openReport} onClose={handleCloseReport}>
         <DialogTitle>Report User</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -153,8 +165,23 @@ export default function Users() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleCloseReport}>Cancel</Button>
           <Button onClick={handleSubmitReport}>Submit Report</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* User Profile Dialog */}
+      <Dialog open={openProfile} onClose={handleCloseProfile}>
+        <DialogTitle>User Profile</DialogTitle>
+        <DialogContent>
+          {/* Here you should render the user profile information */}
+          <DialogContentText>
+            User ID: {profileUserId}
+            {/* Add the rest of the user information here */}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseProfile}>Close</Button>
         </DialogActions>
       </Dialog>
 
@@ -175,6 +202,7 @@ export default function Users() {
                     : <Button onClick={() => handleFollow(user.id)}>Follow</Button>
                   )}
                   <Button onClick={() => handleReport(user.id)}>Report</Button>
+                  <Button onClick={() => handleOpenProfile(user.id)}>Profile</Button>
                 </ListItem>
               ))}
             </ul>
@@ -183,25 +211,38 @@ export default function Users() {
           )}
         </div>
         <div>
-          <h2>Following:</h2>
+          <h2>My Followings:</h2>
           {followings.length > 0 ? (
             <ul>
               {followings.map((following) => (
-                <ListItem key={following.id}>
-                  {users.find(user => user.id === following.following)?.email}
-                  {followers.includes(following.following) && <StarIcon />}
+                <li key={following.id}>
+                  {users.find(user => user.id === following.following).email}
                   <Button onClick={() => handleUnfollow(following.id)}>Unfollow</Button>
-                  <Button onClick={() => handleReport(following.following)}>Report</Button>
-                </ListItem>
+                </li>
               ))}
             </ul>
           ) : (
-            <p>You are not following any users yet.</p>
+            <p>You are not following anyone</p>
+          )}
+        </div>
+        <div>
+          <h2>My Followers:</h2>
+          {followers.length > 0 ? (
+            <ul>
+              {followers.map((followerId) => (
+                <li key={followerId}>
+                  {users.find(user => user.id === followerId).email}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No one is following you</p>
           )}
         </div>
       </div>
     </div>
   );
 }
+
 
 

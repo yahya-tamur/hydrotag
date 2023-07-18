@@ -21,6 +21,7 @@ import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Leadership from '../components/Leadership';
 import StarIcon from '@mui/icons-material/Star';
+import PersonIcon from '@mui/icons-material/Person';
 
 import { app } from '../app';
 const auth = getAuth(app);
@@ -52,6 +53,7 @@ export default function Home() {
           case 'Map': return (<Map />);
           case 'Users': return (<Users />);
           case 'Leadership': return (<Leadership />);
+          case 'Profile': return (<Typography paragraph>Your profile information goes here</Typography>);
           default: return (
             <Typography paragraph>
               not implemented yet!
@@ -78,6 +80,7 @@ export default function Home() {
             ["Map", <TravelExploreIcon />],
             ["Users", <Diversity1Icon />],
             ["Leadership", <StarIcon />],
+            ["Profile", <PersonIcon />],
           ].map((tuple, index) => (
           <ListItem key={tuple[0]} disablePadding>
           <ListItemButton onClick={() => setSelected(tuple[0])}>
