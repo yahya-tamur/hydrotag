@@ -54,7 +54,7 @@ export default function Index() {
             padding: '10px'
           }}
         >
-          <Typography variant="h3">Hydro Tag App</Typography>
+          <Typography variant="h3">HydroTag App</Typography>
         </Box>
 
         <Box
@@ -167,7 +167,7 @@ export default function Index() {
 
           <Box sx={{ flex: 1, padding: '0 2em' }}>
             <Typography variant="h2" sx={{ margin: '1em 0', color: '#209cee', fontWeight: 'bold' }}>
-              Welcome to the Hydro Tag App!
+              Welcome to the HydroTag App!
             </Typography>
             <Typography variant="h5" sx={{ lineHeight: 2, textAlign: 'justify' }}>
               HydroTag is your comprehensive companion for discovering,
@@ -194,7 +194,7 @@ export default function Index() {
             padding: '10px'
           }}
         >
-          <Typography variant="h6">&copy; 2023 Hydro Tag App. All Rights Reserved.</Typography>
+          <Typography variant="h6">&copy; 2023 HydroTag App. All Rights Reserved.</Typography>
         </Box>
       </Box>
     </>
