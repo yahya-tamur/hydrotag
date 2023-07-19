@@ -252,7 +252,7 @@ export default function Index() {
             padding: '10px'
           }}
         >
-          <Typography>© HydroTag {new Date().getFullYear()}</Typography>
+          <Typography>© Copyright 2023 HydroTag - All Rights Reserved </Typography>
         </Box>
       </Box>
     </>
