@@ -131,6 +131,7 @@ export default function Index() {
                         }
                       }
                     }}
+                    sx={{ bgcolor: '#209cee', color: 'white' }}
                   >
                     Submit
                   </Button>
@@ -207,6 +208,7 @@ export default function Index() {
                         }
                       }
                     }}
+                    sx={{ bgcolor: '#209cee', color: 'white' }}
                   >
                     Submit
                   </Button>
@@ -214,7 +216,8 @@ export default function Index() {
                   <p style={{ color: 'red' }}>{errorMsg}</p>
                 </Grid>
                 <Grid item>
-                  <Button variant="contained" onClick={() => setIsSignup(false)}>
+                  <Button variant="contained" onClick={() => setIsSignup(false)}
+                    sx={{ bgcolor: '#209cee', color: 'white' }}>
                     Go Back
                   </Button>
                 </Grid>

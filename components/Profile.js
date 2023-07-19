@@ -11,12 +11,29 @@ import ListItem from '@mui/material/ListItem';
 import StarIcon from '@mui/icons-material/Star';
 import Avatar from '@mui/material/Avatar';
 import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
+import { Box } from '@mui/system';
+import { styled } from '@mui/system';
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+const CountText = styled(Typography)(({ theme }) => ({
+    fontSize: '2rem',
+    color: '#209cee',
+    cursor: 'pointer',
+}));
+
+const LabelText = styled(Typography)(({ theme }) => ({
+    fontSize: '1rem',
+    color: 'black',
+    cursor: 'pointer',
+}));
 
 export default function Profile() {
     const [bio, setBio] = useState("");
@@ -25,6 +42,8 @@ export default function Profile() {
     const [users, setUsers] = useState([]);
     const [openFollowings, setOpenFollowings] = useState(false);
     const [openFollowers, setOpenFollowers] = useState(false);
+    const [openProfile, setOpenProfile] = useState(false);
+    const [profileUserId, setProfileUserId] = useState(null);
     const [searchText, setSearchText] = useState("");
     const router = useRouter();
 
@@ -84,9 +103,14 @@ export default function Profile() {
         await updateProfile(auth.currentUser, { displayName: bio });
     }
 
-    const goToProfile = (userId) => {
-        router.push(`/profile/${userId}`);
-    }
+    const handleCloseProfile = () => {
+        setOpenProfile(false);
+    };
+
+    const handleOpenProfile = (userId) => {
+        setProfileUserId(userId);
+        setOpenProfile(true);
+    };
 
     const filteredFollowings = searchText
         ? followings.filter((following) =>
@@ -102,64 +126,93 @@ export default function Profile() {
 
     return (
         <div>
-            <Avatar sx={{ bgcolor: 'blue' }} >{auth.currentUser?.email[0].toUpperCase()}</Avatar>
+            <Avatar sx={{ bgcolor: '#209cee' }}>{auth.currentUser?.email[0].toUpperCase()}</Avatar>
             <p> placeholder icon</p>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <FormControl>
                     <FormLabel>Bio</FormLabel>
                     <TextField value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Your bio..." />
-                    <Button onClick={handleBioUpdate}>Update Bio</Button>
+                    <Button onClick={handleBioUpdate} style={{ color: '#209cee' }} >Update Bio</Button>
                 </FormControl>
-                <div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <Typography variant="h6" style={{ cursor: 'pointer' }} onClick={() => setOpenFollowers(true)}>
-                            Followers: <span style={{ color: '#209cee' }}>{followers.length}</span>
-                        </Typography>
-                        <Typography variant="h6" style={{ marginLeft: '1em', cursor: 'pointer' }} onClick={() => setOpenFollowings(true)}>
-                            Following: <span style={{ color: '#209cee' }}>{followings.length}</span>
-                        </Typography>
-                    </div>
-                    <Dialog onClose={() => setOpenFollowings(false)} open={openFollowings}>
-                        <DialogTitle>Followings</DialogTitle>
-                        <TextField
-                            value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
-                            placeholder="Search followings..."
-                            fullWidth
-                        />
-                        <List>
-                            {filteredFollowings.map((following) => (
-                                <ListItem key={following.id}>
-                                    <Typography>{users.find(user => user.id === following.following)?.email}</Typography>
-                                    {followers.includes(following.following) && <StarIcon />}
-                                    <Button onClick={() => goToProfile(following.following)} style={{ color: '#209cee' }}>Profile</Button>
-                                    <Button onClick={() => handleUnfollow(following.id)} style={{ color: '#209cee' }}>Unfollow</Button>
-                                </ListItem>
-                            ))}
-
-                        </List>
-                    </Dialog>
-                    <Dialog onClose={() => setOpenFollowers(false)} open={openFollowers}>
-                        <DialogTitle>Followers</DialogTitle>
-                        <TextField
-                            value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
-                            placeholder="Search followers..."
-                            fullWidth
-                        />
-                        <List>
-                            {filteredFollowers.map((followerId) => (
-                                <ListItem key={followerId}>
-                                    <Typography>{users.find(user => user.id === followerId)?.email}</Typography>
-                                    {followings.find(following => following.following === followerId) && <StarIcon />}
-                                    <Button onClick={() => goToProfile(followerId)} style={{ color: '#209cee' }}>Profile</Button>
-                                </ListItem>
-                            ))}
-
-                        </List>
-                    </Dialog>
-                </div>
+                <Box display="flex" justifyContent="space-between" width={200}>
+                    <Box display="flex" flexDirection="column" alignItems="center" onClick={() => setOpenFollowers(true)}>
+                        <CountText variant="h2">{followers.length}</CountText>
+                        <LabelText variant="body1">Followers</LabelText>
+                    </Box>
+                    <Box display="flex" flexDirection="column" alignItems="center" onClick={() => setOpenFollowings(true)}>
+                        <CountText variant="h2">{followings.length}</CountText>
+                        <LabelText variant="body1">Following</LabelText>
+                    </Box>
+                </Box>
             </div>
+            <Dialog onClose={() => setOpenFollowers(false)} open={openFollowers}>
+                {/* User Profile Dialog */}
+                <Dialog open={openProfile} onClose={handleCloseProfile}>
+                    <DialogTitle>User Profile</DialogTitle>
+                    <DialogContent>
+                        {/* Here you should render the user profile information */}
+                        <DialogContentText>
+                            User ID: {profileUserId}
+                            {/* Add the rest of the user information here */}
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseProfile}>Close</Button>
+                    </DialogActions>
+                </Dialog>
+
+                <DialogTitle>Followers</DialogTitle>
+                <TextField
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    placeholder="Search followers..."
+                    fullWidth
+                />
+                <List>
+                    {filteredFollowers.map((followerId) => (
+                        <ListItem key={followerId}>
+                            <Typography>{users.find(user => user.id === followerId)?.email}</Typography>
+                            {followings.find(following => following.following === followerId) && <StarIcon />}
+                            <Button onClick={() => handleOpenProfile(followerId)} style={{ color: '#209cee' }}>Profile</Button>
+                        </ListItem>
+                    ))}
+                </List>
+            </Dialog>
+
+            <Dialog onClose={() => setOpenFollowings(false)} open={openFollowings}>
+                {/* User Profile Dialog */}
+                <Dialog open={openProfile} onClose={handleCloseProfile}>
+                    <DialogTitle>User Profile</DialogTitle>
+                    <DialogContent>
+                        {/* Here you should render the user profile information */}
+                        <DialogContentText>
+                            User ID: {profileUserId}
+                            {/* Add the rest of the user information here */}
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseProfile}>Close</Button>
+                    </DialogActions>
+                </Dialog>
+                <DialogTitle>Followings</DialogTitle>
+                <TextField
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    placeholder="Search followings..."
+                    fullWidth
+                />
+                <List>
+                    {filteredFollowings.map((following) => (
+                        <ListItem key={following.id}>
+                            <Typography>{users.find(user => user.id === following.following)?.email}</Typography>
+                            {followers.includes(following.following) && <StarIcon />}
+                            <Button onClick={() => handleOpenProfile(following.following)} style={{ color: '#209cee' }}>Profile</Button>
+                            <Button onClick={() => handleUnfollow(following.id)} style={{ color: '#209cee' }}>Unfollow</Button>
+                        </ListItem>
+                    ))}
+                </List>
+            </Dialog>
+
             <div style={{ marginTop: '2em' }}>
                 <Typography variant="h5">Will be adding user badges and water streak here !!!</Typography>
             </div>

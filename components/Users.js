@@ -199,11 +199,11 @@ export default function Users() {
                   {user.email}
                   {followings.find(following => following.following === user.id) && followers.includes(user.id) && <StarIcon />}
                   {(followings.find(following => following.following === user.id)
-                    ? <Button onClick={() => handleUnfollow(followings.find(following => following.following === user.id).id)}>Unfollow</Button>
-                    : <Button onClick={() => handleFollow(user.id)}>Follow</Button>
+                    ? <Button onClick={() => handleUnfollow(followings.find(following => following.following === user.id).id)} style={{ color: '#209cee' }}>Unfollow</Button>
+                    : <Button onClick={() => handleFollow(user.id)} style={{ color: '#209cee' }}>Follow</Button>
                   )}
-                  <Button onClick={() => handleReport(user.id)}>Report</Button>
-                  <Button onClick={() => handleOpenProfile(user.id)}>Profile</Button>
+                  <Button onClick={() => handleReport(user.id)} style={{ color: '#209cee' }}>Report</Button>
+                  <Button onClick={() => handleOpenProfile(user.id)} style={{ color: '#209cee' }}>Profile</Button>
                 </ListItem>
               ))}
 
