@@ -89,7 +89,7 @@ export default function Index() {
                   <Typography variant="subtitle1">
                     Don't have an account yet?{' '}
                     <a href="#" onClick={() => setIsSignup(true)}>
-                      Sign up
+                      Create a HydroTag account.
                     </a>
                   </Typography>
                 </Grid>
