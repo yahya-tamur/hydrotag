@@ -213,7 +213,6 @@ export default function Users() {
           )}
         </div>
         <div>
-          <h2>Open up a users profile here on right hand side!! </h2>
         </div>
         <div>
         </div>
