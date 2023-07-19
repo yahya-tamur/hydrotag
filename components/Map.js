@@ -134,6 +134,8 @@ useEffect(() => {
         const email = await getDoc(doc(db, "users", el.poster));
         el.poster = email.data().email;
       }
+      filteredReviews.sort((a, b) => b.timestamp - a.timestamp);
+      
       setReviews(filteredReviews);
     } catch (error) {
       alert("Error getting data!");
