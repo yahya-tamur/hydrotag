@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import ListItem from '@mui/material/ListItem';
 import StarIcon from '@mui/icons-material/Star';
-import Avatar from '@mui/material/Avatar';
+import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -86,15 +86,6 @@ export default function Profile() {
         }
     }, []);
 
-    const handleFollow = async (userId) => {
-        const time = serverTimestamp();
-        await addDoc(collection(db, "connections"), {
-            follower: auth.currentUser.uid,
-            following: userId,
-            timestamp: time
-        });
-    };
-
     const handleUnfollow = async (connectionId) => {
         await deleteDoc(doc(db, "connections", connectionId));
     };
@@ -125,26 +116,40 @@ export default function Profile() {
         : followers;
 
     return (
-        <div>
-            <Avatar sx={{ bgcolor: '#209cee' }}>{auth.currentUser?.email[0].toUpperCase()}</Avatar>
-            <p> placeholder icon</p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <FormControl>
-                    <FormLabel>Bio</FormLabel>
-                    <TextField value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Your bio..." />
-                    <Button onClick={handleBioUpdate} style={{ color: '#209cee' }} >Update Bio</Button>
-                </FormControl>
-                <Box display="flex" justifyContent="space-between" width={200}>
-                    <Box display="flex" flexDirection="column" alignItems="center" onClick={() => setOpenFollowers(true)}>
-                        <CountText variant="h2">{followers.length}</CountText>
+        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Box sx={{ flex: '1 1', p: 2 }}>
+                <Box display="flex" flexDirection="column" alignItems="center">
+                    <AccountCircleSharpIcon sx={{ width: 200, height: 200, color: '#808080', fontSize: '2.5rem', margin: '0 auto' }}>
+                        {auth.currentUser?.email[0].toUpperCase()}
+                    </AccountCircleSharpIcon>
+                    <Typography variant="h6" align="center" style={{ marginTop: '1em', fontWeight: 'bold' }}>
+                        {auth.currentUser?.email}
+                    </Typography>
+                </Box>
+                <Box display="flex" justifyContent="center" flexDirection="row" alignItems="center" marginTop="2em">
+                    <Box display="flex" flexDirection="column" alignItems="center" onClick={() => setOpenFollowers(true)} marginX="1em">
+                        <CountText variant="h2" sx={{ fontWeight: 'bold' }}>{followers.length} </CountText>
                         <LabelText variant="body1">Followers</LabelText>
                     </Box>
-                    <Box display="flex" flexDirection="column" alignItems="center" onClick={() => setOpenFollowings(true)}>
-                        <CountText variant="h2">{followings.length}</CountText>
+                    <Box display="flex" flexDirection="column" alignItems="center" onClick={() => setOpenFollowings(true)} marginX="1em">
+                        <CountText variant="h2" sx={{ fontWeight: 'bold' }}>{followings.length}</CountText>
                         <LabelText variant="body1">Following</LabelText>
                     </Box>
                 </Box>
-            </div>
+                <FormControl fullWidth>
+                    <FormLabel>Bio</FormLabel>
+                    <TextField value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Your bio..." />
+                    <Box display="flex" justifyContent="center" style={{ marginTop: '1em' }}>
+                        <Button onClick={handleBioUpdate} style={{ color: '#209cee', fontWeight: 'bold', whiteSpace: 'nowrap' }} sx={{ fontSize: '1.2rem', p: '1em', width: '150px' }}>Update Bio</Button>
+                    </Box>
+                </FormControl>
+
+            </Box>
+            <Box sx={{ flex: '1 1', p: 2 }}>
+                <Typography variant="h5">Will be adding user badges and water streak here !!!</Typography>
+            </Box>
+
+            {/* The rest of your Dialogs and Dialog components here */}
             <Dialog onClose={() => setOpenFollowers(false)} open={openFollowers}>
                 {/* User Profile Dialog */}
                 <Dialog open={openProfile} onClose={handleCloseProfile}>
@@ -194,6 +199,7 @@ export default function Profile() {
                         <Button onClick={handleCloseProfile}>Close</Button>
                     </DialogActions>
                 </Dialog>
+
                 <DialogTitle>Followings</DialogTitle>
                 <TextField
                     value={searchText}
@@ -213,9 +219,10 @@ export default function Profile() {
                 </List>
             </Dialog>
 
-            <div style={{ marginTop: '2em' }}>
-                <Typography variant="h5">Will be adding user badges and water streak here !!!</Typography>
-            </div>
-        </div>
-    )
+        </Box >
+    );
 }
+
+
+
+
