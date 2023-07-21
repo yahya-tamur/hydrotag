@@ -220,7 +220,7 @@ export default function Profile() {
             </Dialog>
 
             {/* The rest of your Dialogs and Dialog components here */}
-            <Dialog onClose={() => setOpenFollowers(false)} open={openFollowers}>
+            <Dialog onClose={() => { setOpenFollowers(false); setSearchText("") }} open={openFollowers}>
                 {/* User Profile Dialog */}
                 <Dialog open={openProfile} onClose={handleCloseProfile}>
                     <DialogTitle>User Profile</DialogTitle>
@@ -256,7 +256,7 @@ export default function Profile() {
                 </List>
             </Dialog>
 
-            <Dialog onClose={() => setOpenFollowings(false)} open={openFollowings}>
+            <Dialog onClose={() => { setOpenFollowings(false); setSearchText("") }} open={openFollowings}>
                 {/* User Profile Dialog */}
                 <Dialog open={openProfile} onClose={handleCloseProfile}>
                     <DialogTitle>User Profile</DialogTitle>

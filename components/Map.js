@@ -201,8 +201,8 @@ export default function Map() {
           </Typography>
         </ToggleButton>
         <FormGroup>
-          <FormControlLabel control={<Switch checked={pin_fr} onChange={(e) => setpin_fr(e.target.checked)} />} label="Friends Pins Filter" />
-          <FormControlLabel control={<Switch checked={review_fr} onChange={(e) => setreview_fr(e.target.checked)} />} label="Friends Reviews Filter" />
+          <FormControlLabel control={<Switch checked={pin_fr} onChange={(e) => setpin_fr(e.target.checked)} />} label="Markers from People You Follow Only" />
+          <FormControlLabel control={<Switch checked={review_fr} onChange={(e) => setreview_fr(e.target.checked)} />} label="Reviews from People You Follow Only" />
         </FormGroup>
         {showroute ? (
 
@@ -297,12 +297,13 @@ export default function Map() {
         zoom={15}
         center={center}
         mapContainerStyle={{
-          width: 'calc(100vw - 350pt)',
-          height: 'calc(100vh - 350pt)',
+          width: 'calc(100vw - 360pt)',
+          height: 'calc(100vh - 250pt)',
           padding: '1000pxm',
           fontWeight: 'bold',
           flex: 40,
           border: '4mm ridge rgba(211, 220, 50, .6)',
+          marginRight: '-240px',
           overflow: 'visible',
         }}
         options={options}
