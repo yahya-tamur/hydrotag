@@ -5,27 +5,10 @@
 //ex. <UserProfile user={user} />
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { getAuth } from 'firebase/auth';
-import { updateDoc, increment, getFirestore, collection, getDocs, onSnapshot, where, query, doc, serverTimestamp, addDoc, deleteDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { app } from '../app';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import ListItem from '@mui/material/ListItem';
-import StarIcon from '@mui/icons-material/Star';
 import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import DirectionsBoatFilledSharpIcon from '@mui/icons-material/DirectionsBoatFilledSharp';
 import Diversity1SharpIcon from '@mui/icons-material/Diversity1Sharp';
 import WaterDropSharpIcon from '@mui/icons-material/WaterDropSharp';
@@ -37,15 +20,15 @@ import { Box } from '@mui/system';
 import { styled } from '@mui/system';
 
 const CountText = styled(Typography)(({ theme }) => ({
-  fontSize: '2rem',
-  color: '#209cee',
-  cursor: 'pointer',
+    fontSize: '2rem',
+    color: '#209cee',
+    cursor: 'pointer',
 }));
 
 const LabelText = styled(Typography)(({ theme }) => ({
-  fontSize: '1rem',
-  color: 'black',
-  cursor: 'pointer',
+    fontSize: '1rem',
+    color: 'black',
+    cursor: 'pointer',
 }));
 
 const db = getFirestore(app);
@@ -67,9 +50,9 @@ export default function UserProfile(props) {
         fetchUsersData();
     }, []);
 
-  return props.user && (
-    <div>
-                  <Box sx={{ flex: '1 1', p: 2 }}>
+    return props.user && (
+        <div>
+            <Box sx={{ flex: '1 1', p: 2 }}>
                 <Box display="flex" flexDirection="column" alignItems="center">
                     <AccountCircleSharpIcon sx={{ width: 200, height: 200, color: '#808080', fontSize: '2.5rem', margin: '0 auto' }}>
                         {props.user.name}
@@ -93,7 +76,7 @@ export default function UserProfile(props) {
                 </Box>
 
             </Box>
-            <Typography variant="p" sx={{marginLeft: '50px'}}>{props.user.bio}</Typography>
+            <Typography variant="p" sx={{ marginLeft: '50px' }}>{props.user.bio}</Typography>
             <Box sx={{ flex: '1 1', p: 2 }}>
                 <Typography variant="h5">Badges</Typography>
                 <Box display="flex" flexDirection="column" alignItems="center" marginTop="2em">
@@ -116,7 +99,7 @@ export default function UserProfile(props) {
                         {/* Badge 3 */}
                         < Tooltip title="Given for pinning their first water marker" >
                             <Box display="flex" flexDirection="column" alignItems="center" marginX="2em" onClick={() => handleOpenBadgeDetails("Water Tracker Pioneer")} style={{ cursor: "pointer" }}>
-                                <WaterDropSharpIcon sx={{ fontSize: '3rem', color: props.user.markers > 0 ? 'gold' : 'grey'  }} />
+                                <WaterDropSharpIcon sx={{ fontSize: '3rem', color: props.user.markers > 0 ? 'gold' : 'grey' }} />
                                 <Typography variant="h6">Water Tracker Pioneer</Typography>
                             </Box>
                         </Tooltip >
@@ -140,7 +123,7 @@ export default function UserProfile(props) {
                         {/* Badge 6 */}
                         <Tooltip title="Awarded for being number 1 on the HydroTag leaderboard">
                             <Box display="flex" flexDirection="column" alignItems="center" marginX="2em" onClick={() => handleOpenBadgeDetails("Aquatic Ace")} style={{ cursor: "pointer" }}>
-                                <EmojiEventsSharpIcon sx={{ fontSize: '3rem', color: props.user.markers >= Math.max(...users.map(user =>user.markers ?? 0)) ? 'gold' : 'grey' }} />
+                                <EmojiEventsSharpIcon sx={{ fontSize: '3rem', color: props.user.markers >= Math.max(...users.map(user => user.markers ?? 0)) ? 'gold' : 'grey' }} />
                                 <Typography variant="h6">Aquatic Ace</Typography>
                             </Box>
                         </Tooltip>
@@ -148,6 +131,6 @@ export default function UserProfile(props) {
                 </Box>
             </Box>
 
-    </div>
-  );
+        </div>
+    );
 }

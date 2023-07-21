@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, getByText, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import Home from '../pages/index';
 import Map from '../components/Map';
 import '@testing-library/jest-dom';
@@ -16,7 +16,6 @@ describe('Index Renders when Logged Out', () => {
 describe('Map Loads', () => {
   it('starts loading', async () => {
     render(<Map />);
-
     const heading = screen.getByText("Loading...");
     expect(heading).toBeInTheDocument();
   })
