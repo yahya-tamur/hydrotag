@@ -20,12 +20,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 //map otions setting
-const options = {
-  streetViewControl: false,
-  disableDefaultUI: true,
-  clickableIcons: false,
-  minZoom: 5, maxZoom: 16
-}
+
 
 //san Francisco
 const defaultmapCenter = {
@@ -46,6 +41,7 @@ export default function Map() {
   const [selectedMarker, setSelectedMarker] = useState(undefined);
   const [pin_fr, setpin_fr] = useState(false);
   const [review_fr, setreview_fr] = useState(false);
+  const [cursor, setCursor] = useState('pointer');
 
   async function getroute() {
     if (currentPosition === '' || destination === '') {
@@ -146,6 +142,15 @@ export default function Map() {
     }
   }, []);
 
+  const changeCursor = () => {
+    setCursor(prevCursor => {
+      if(prevCursor === 'pointer'){
+        return 'crosshair';
+      }
+      return 'pointer';
+    });
+  }
+  
   const [text, setText] = React.useState("");
   const [reviews, setReviews] = useState([]);
   const [adding, setAdding] = useState(false);
@@ -178,6 +183,7 @@ export default function Map() {
   );
 
   return (
+    <div style={{ cursor: cursor }}>
     <div style={{
       display: 'flex',
     }}>
@@ -194,7 +200,9 @@ export default function Map() {
           selected={adding}
           onChange={() => {
             setAdding(!adding);
-          }}
+            changeCursor();
+          }
+          }
         >
           <Typography>
             Add Marker
@@ -302,11 +310,16 @@ export default function Map() {
           padding: '1000pxm',
           fontWeight: 'bold',
           flex: 40,
-          border: '4mm ridge rgba(211, 220, 50, .6)',
           marginRight: '-240px',
           overflow: 'visible',
         }}
-        options={options}
+        options={{
+          streetViewControl: false,
+          disableDefaultUI: true,
+          clickableIcons: false,
+          draggableCursor: cursor,
+          minZoom: 5, maxZoom: 16
+        }}
         onClick={async (e) => {
           if (!adding) {
             setSelectedMarker(undefined);
@@ -321,6 +334,7 @@ export default function Map() {
               });
               await getMarkers();
               setAdding(false);
+              changeCursor();
             } catch (e) {
               console.log(e);
             }
@@ -354,6 +368,7 @@ export default function Map() {
           />
         )}
       </GoogleMap>
+    </div>
     </div>
 
   );
