@@ -42,16 +42,15 @@ export default function Map() {
   const [center, setCenter] = useState(defaultmapCenter);
   const [currentPosition, setCurrentPosition] = useState('');
   const [destination, setdestination] = useState('');
-  const [zoom, setzoom] = useState(11);
   const [directionresponse, setdirectionResponse] = useState(null);
   const [selectedMarker, setSelectedMarker] = useState(undefined);
   const [pin_fr, setpin_fr] = useState(false);
   const [review_fr, setreview_fr] = useState(false);
 
- async function getroute(){
-  if (currentPosition === '' || destination === ''){
-    return
-  }
+  async function getroute() {
+    if (currentPosition === '' || destination === '') {
+      return
+    }
     const directionservice = new google.maps.DirectionsService();
     const results = await directionservice.route({
       origin: currentPosition,
@@ -61,88 +60,75 @@ export default function Map() {
     setdirectionResponse(results);
     console.log(results);
     setshowroute(true);
- }
+  }
 
- function deleteroute(){
-  setshowroute(false);
-  setdirectionResponse(null);
- }
+  function deleteroute() {
+    setshowroute(false);
+    setdirectionResponse(null);
+  }
 
- useEffect(() => {
-  const getfollowerlist = async () => {
-    if (!auth.currentUser?.uid) {
-      alert("You must be logged in to get your friends pin and review!");
-    } else {
-      try {
-        const q = query(collection(db, "connections"), where("follower", "==", auth.currentUser.uid));
-        const snapshot = await getDocs(q);
-        let arr = [];
-        snapshot.forEach((doc) => {
-          arr.push(doc.data().following);
-        });
-        arr.push(auth.currentUser.uid);
-        setfriendList(arr);
-      } catch {
-        alert("Error getting data from connection!");
-      }
-    }
-  };
-  getfollowerlist();
-}, []); 
-
-useEffect(() => {
   const getMarkers = async () => {
     try {
       const snapshot = await getDocs(collection(db, 'markers'));
-      const arr = snapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
+      const arr = snapshot.docs.map((doc) => (
+        {
           id: doc.id,
-          name: data.name,
-          lat: data.location._lat,
-          lng: data.location._long,
-          poster: data.poster,
-        };
-      });
-
-      const filteredMarkers = pin_fr ? arr.filter(marker => friendlist.includes(marker.poster)) : arr;
-      setMarkerList(filteredMarkers);
+          name: doc.data().name,
+          lat: doc.data().location._lat,
+          lng: doc.data().location._long,
+          poster: doc.data().poster,
+        }
+      ));
+      setMarkerList(arr);
     } catch (error) {
-      alert("Error getting data!");
       console.error(error);
     }
   };
-  getMarkers();
-}, [pin_fr, friendlist]);
 
-  const getReviews = async (sel_marker) => {
-    try {
-      const snapshot = await getDocs(collection(db, 'reviews'));
-      const arr = snapshot.docs
-        .filter((d) => d.data().marker === sel_marker)
+  useEffect(() => {
+
+    getMarkers();
+  }, []);
+
+  //use these if you ever need to detDocs(users) or getDocs(connections)!!!!
+  let [users, setUsers] = useState([]);
+  const [connections, setConnections] = useState([]);
+  const getData = async () => {
+    const user_snapshot = await getDocs(collection(db, 'users'));
+    const user_arr = user_snapshot.docs
+      .map((d) => ({
+        id: d.id,
+        ...d.data()
+      }));
+      setUsers(user_arr);
+
+      const conn_snapshot = await getDocs(collection(db, "connections"));
+      const conn_arr = conn_snapshot.docs
         .map((d) => ({
           id: d.id,
-          poster: d.data().poster,
+          ...d.data()
+        }));
+      setConnections(conn_arr);
+      setfriendList(conn_arr.filter(conn => conn.follower === auth.currentUser.uid ).map(conn => conn.following));
+
+      const review_snapshot = await getDocs(collection(db, 'reviews'));
+      const review_arr = review_snapshot.docs
+        .map((d) => ({
+          id: d.id,
+          poster: user_arr.filter(u => u.id === d.data().poster)[0],
           marker: d.data().marker,
           text: d.data().text,
           timestamp: d.data().timestamp ? d.data().timestamp.toDate() : null,
         }));
-  
-      const filteredReviews = review_fr ? arr.filter(review => friendlist.includes(review.poster)) : arr;
-  
-      for (const el of filteredReviews) {
-        const email = await getDoc(doc(db, "users", el.poster));
-        el.poster = email.data().email;
-      }
-      filteredReviews.sort((a, b) => b.timestamp - a.timestamp);
-      
-      setReviews(filteredReviews);
-    } catch (error) {
-      alert("Error getting data!");
-      console.error(error);
-    }
-  };
-  
+        console.log(review_snapshot.docs.map(d => d.data()));
+        setReviews(review_arr);
+  }
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+
   //Get current location
   useEffect(() => {
     if (navigator.geolocation) {
@@ -150,33 +136,21 @@ useEffect(() => {
         (position) => {
           setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
           setCurrentPosition({ lat: position.coords.latitude, lng: position.coords.longitude });
-          setzoom(15)
         },
         () => {
-          alert("Error: The Geolocation service failed");
+          console.log("Error: The Geolocation service failed");
         }
       );
     } else {
-      alert("Error: The Geolocation service is not supported");
+      console.log("Error: The Geolocation service is not supported");
     }
   }, []);
 
   const [text, setText] = React.useState("");
-  const [reviews, setReviews] = useState([]);//displays the the reviews as a list
+  const [reviews, setReviews] = useState([]);
   const [adding, setAdding] = useState(false);
   const [showroute, setshowroute] = useState(false);
 
-  const handleChangepin = (event) => {
-    setpin_fr(event.target.checked);
-  };
-
-  useEffect(() => {
-    getReviews(selectedMarker);
-  }, [selectedMarker, review_fr]);
-
-  const handlereview = (event) => {
-    setreview_fr(event.target.checked);
-  };
 
   if (!isLoaded) return <div>Loading...</div>;
   let iconMarker = new google.maps.MarkerImage(
@@ -227,58 +201,62 @@ useEffect(() => {
           </Typography>
         </ToggleButton>
         <FormGroup>
-          <FormControlLabel control={<Switch checked={pin_fr}  onChange={handleChangepin} />} label="Friends Pins Filter" />
-          <FormControlLabel control={<Switch checked={review_fr}  onChange={handlereview}/>} label="Friends Reviews Filter" />
+          <FormControlLabel control={<Switch checked={pin_fr} onChange={(e) => setpin_fr(e.target.checked)} />} label="Friends Pins Filter" />
+          <FormControlLabel control={<Switch checked={review_fr} onChange={(e) => setreview_fr(e.target.checked)} /> } label="Friends Reviews Filter" />
         </FormGroup>
         {showroute ? (
-          
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-        }}>
-          <Button
-                variant="contained"
-                color='error'
-                onClick={() => {
-                  deleteroute();
-                }}
-              >
-                <Typography>
+
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+          }}>
+            <Button
+              variant="contained"
+              color='error'
+              onClick={() => {
+                deleteroute();
+              }}
+            >
+              <Typography>
                 Delete Route
-                </Typography>
-              </Button>
-        </div>
-      ) : null}
-      
+              </Typography>
+            </Button>
+          </div>
+        ) : null}
+
 
         {selectedMarker ? (
           <div style={{
             display: 'flex',
             flexDirection: 'column',
           }}>
-            
-          <Button
-          variant="contained"
-          color='success'
-          onClick={() => {
-            getroute();
-          }}
-        >
-          <Typography>
-          Find Route
-          </Typography>
-         </Button>
+
+            <Button
+              variant="contained"
+              color='success'
+              onClick={() => {
+                getroute();
+              }}
+            >
+              <Typography>
+                Find Route
+              </Typography>
+            </Button>
 
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
               Reviews:
             </Typography>
             <List>
-              {reviews.map(review => (
-                <ListItemText key={review.id} primary={review.poster} secondary={`${review.text} (${review.timestamp ? review.timestamp.toLocaleString() : 'No timestamp'})`} />
+              {(!review_fr ? reviews : reviews.filter(r => friendlist.includes(r.poster.id) || r.poster.id === auth.currentUser.uid))
+                .filter(r => r.marker === selectedMarker)
+                .sort((a, b) => b.timestamp - a.timestamp)
+                
+                .map(review => (
+                <ListItemText key={review.id} primary={review.poster.email} secondary={`${review.text} (${review.timestamp ? review.timestamp.toLocaleString() : 'No timestamp'})`} />
 
               ))}
             </List>
-            
+
             <TextField variant="standard" value={text} onChange={e => { setText(e.target.value) }} placeholder="write a review..." />
             <Button
               sx={{ alignSelf: 'flex-start', margin: '10px', marginLeft: '0px' }}
@@ -296,10 +274,11 @@ useEffect(() => {
                       text: text,
                       timestamp: Timestamp.now(), // added server time stamp
                     });
-                    await getReviews(selectedMarker);
                     setText("");
-                  } catch {
-                    alert("error adding data!");
+                    getData();
+                  } catch (e) {
+                    console.log(e);
+                    console.log("error adding data!");
                   }
                 }
 
@@ -310,7 +289,7 @@ useEffect(() => {
       </Paper>
 
       <GoogleMap
-        zoom={zoom}
+        zoom={15}
         center={center}
         mapContainerStyle={{
           width: 'calc(100vw - 350pt)',
@@ -325,43 +304,38 @@ useEffect(() => {
         onClick={async (e) => {
           if (!adding) {
             setSelectedMarker(undefined);
-            getReviews(undefined);
           } else {
-            if (!auth.currentUser?.uid) {
-              alert("You must be logged in to place a marker!");
-            } else {
-              try {
-                await addDoc(collection(db, "markers"), {
-                  location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
-                  poster: auth.currentUser.uid,
-                });
-                await getMarkers();
-                setAdding(false);
-              } catch {
-                alert("error submitting data!");
-              }
+            try {
+              console.log(await addDoc(collection(db, "markers"), {
+                location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
+                poster: auth.currentUser.uid,
+              }));
+              await getMarkers();
+              console.log(markerlist);
+              setAdding(false);
+              console.log("added!")
+            } catch (e) {
+              console.log(e);
+              alert("error submitting data!");
             }
           }
         }}
-      >     
-          {directionresponse && (
-            <DirectionsRenderer 
+      >
+        {directionresponse && (
+          <DirectionsRenderer
             directions={directionresponse}
-            options = {{suppressMarkers: true}} 
-            />
-          )}
+            options={{ suppressMarkers: true }}
+          />
+        )}
         <PanningComponent targetLocation={center} />
 
-      
-
-        {markerlist.map((marker, i) => (
+        {(!pin_fr ? markerlist : markerlist.filter(marker => friendlist.includes(marker.poster) || marker.poster == auth.currentUser.uid)).map((marker, i) => (
           <Marker
             icon={marker.id == selectedMarker ? iconSelectedMarker : iconMarker}
             position={marker}
             key={i}
             onClick={(e) => {
               setSelectedMarker(marker.id);
-              getReviews(marker.id);
               setdestination({ lat: marker.lat, lng: marker.lng });
             }}
           />
