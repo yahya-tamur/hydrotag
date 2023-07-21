@@ -309,7 +309,8 @@ export default function Map() {
           height: 'calc(100vh - 350pt)',
           padding: '1000pxm',
           fontWeight: 'bold',
-          flex: 40,
+          flex: 40, 
+          marginRight: '-240px',
           overflow: 'visible',
         }}
         options={{
