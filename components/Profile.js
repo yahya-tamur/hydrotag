@@ -30,20 +30,12 @@ import Tooltip from '@mui/material/Tooltip';
 import { Box } from '@mui/system';
 import { styled } from '@mui/system';
 
+import UserProfile from './UserProfile';
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const CountText = styled(Typography)(({ theme }) => ({
-    fontSize: '2rem',
-    color: '#209cee',
-    cursor: 'pointer',
-}));
 
-const LabelText = styled(Typography)(({ theme }) => ({
-    fontSize: '1rem',
-    color: 'black',
-    cursor: 'pointer',
-}));
 
 export default function Profile() {
     const [bio, setBio] = useState("");
@@ -62,18 +54,17 @@ export default function Profile() {
     const reportTypes = ["Falsely pinning a water source", "Inappropriate reviews", "Spamming", "Being a bully"];
     const router = useRouter();
 
+    const fetchUsersData = async () => {
+        const q = await getDocs(collection(db, "users"));
+        const usersArray = q.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        setUsers(usersArray);
+        setBio(usersArray.find(user => user.id === auth.currentUser.uid).bio);
+    };
+
     useEffect(() => {
-        const fetchUsersData = async () => {
-            const q = await getDocs(collection(db, "users"));
-            const usersArray = q.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            console.log(usersArray);
-            setUsers(usersArray);
-            console.log(usersArray.find(user => user.id === auth.currentUser.uid));
-            setBio(usersArray.find(user => user.id === auth.currentUser.uid).bio);
-        };
         fetchUsersData();
     }, []);
 
@@ -120,7 +111,6 @@ export default function Profile() {
     };
 
     const handleUnfollow = async (connection) => {
-        console.log(connection);
         await deleteDoc(doc(db, "connections", connection.id));
         await updateDoc(doc(db, 'users', auth.currentUser.uid), {
             following: increment(-1)
@@ -133,6 +123,7 @@ export default function Profile() {
         await updateDoc(doc(db, 'users', auth.currentUser.uid), {
             bio: bio
         });
+        fetchUsersData();
     }
 
     const handleCloseProfile = () => {
@@ -174,106 +165,36 @@ export default function Profile() {
 
     const filteredFollowings = searchText
         ? followings.filter((following) =>
-            users.find(user => user.id === following.following)?.email.toLowerCase().includes(searchText.toLowerCase())
+            (users.find(user => user.id === following.following)?.name ?? "no name").toLowerCase().includes(searchText.toLowerCase())
         )
         : followings;
 
     const filteredFollowers = searchText
         ? followers.filter((follower) =>
-            users.find(user => user.id === follower.follower)?.email.toLowerCase().includes(searchText.toLowerCase())
+            (users.find(user => user.id === follower.follower)?.name ?? "no name").toLowerCase().includes(searchText.toLowerCase())
         )
         : followers;
-        console.log(filteredFollowers);
     const handleReport = (userId) => {
         handleOpenReport(userId);
-    };
-    const handleOpenBadgeDetails = (badgeName) => {
-        console.log(`Clicked on ${badgeName}`);
     };
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-            <Box sx={{ flex: '1 1', p: 2 }}>
-                <Box display="flex" flexDirection="column" alignItems="center">
-                    <AccountCircleSharpIcon sx={{ width: 200, height: 200, color: '#808080', fontSize: '2.5rem', margin: '0 auto' }}>
-                        {auth.currentUser?.email[0].toUpperCase()}
-                    </AccountCircleSharpIcon>
-                    <Typography variant="h6" align="center" style={{ marginTop: '1em', fontWeight: 'bold' }}>
-                        {auth.currentUser?.email}
-                    </Typography>
-                </Box>
-                <Box display="flex" justifyContent="center" flexDirection="row" alignItems="center" marginTop="2em">
-                    <Box display="flex" flexDirection="column" alignItems="center" onClick={() => setOpenFollowers(true)} marginX="1em">
-                        <CountText variant="h2" sx={{ fontWeight: 'bold' }}>{followers.length} </CountText>
-                        <LabelText variant="body1">Followers</LabelText>
-                    </Box>
-                    <Box display="flex" flexDirection="column" alignItems="center" onClick={() => setOpenFollowings(true)} marginX="1em">
-                        <CountText variant="h2" sx={{ fontWeight: 'bold' }}>{followings.length}</CountText>
-                        <LabelText variant="body1">Following</LabelText>
-                    </Box>
-                </Box>
-                <FormControl fullWidth>
-                    <FormLabel>Bio</FormLabel>
+            <div>
+            <Button onClick={() => setOpenFollowers(true)}>
+                Followers
+            </Button>
+            <Button onClick={() => setOpenFollowings(true)}>
+                Following
+            </Button>
+            <FormControl fullWidth>
+                    <FormLabel>Update Your Bio</FormLabel>
                     <TextField value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Your bio..." />
                     <Box display="flex" justifyContent="center" style={{ marginTop: '1em' }}>
                         <Button onClick={handleBioUpdate} style={{ color: '#209cee', fontWeight: 'bold', whiteSpace: 'nowrap' }} sx={{ fontSize: '1.2rem', p: '1em', width: '150px' }}>Update Bio</Button>
                     </Box>
                 </FormControl>
-
-            </Box>
-            <Box sx={{ flex: '1 1', p: 2 }}>
-                <Typography variant="h5">Badges</Typography>
-                <Box display="flex" flexDirection="column" alignItems="center" marginTop="2em">
-                    {/* First Row */}
-                    <Box display="flex" justifyContent="center" alignItems="center">
-                        {/* Badge 1 */}
-                        <Tooltip title="Awarded for joining the HydroTag community">
-                            <Box display="flex" flexDirection="column" alignItems="center" marginX="2em" onClick={() => handleOpenBadgeDetails("Welcome Aboard")} style={{ cursor: "pointer" }}>
-                                <DirectionsBoatFilledSharpIcon sx={{ fontSize: '3rem', color: 'gold' }} />
-                                <Typography variant="h6">Welcome Aboard</Typography>
-                            </Box>
-                        </Tooltip>
-                        {/* Badge 2 */}
-                        <Tooltip title="Given for adding a new friend on HydroTag">
-                            <Box display="flex" flexDirection="column" alignItems="center" marginX="2em" onClick={() => handleOpenBadgeDetails("Social Hydrator")} style={{ cursor: "pointer" }}>
-                                <Diversity1SharpIcon sx={{ fontSize: '3rem', color: 'gold' }} />
-                                <Typography variant="h6">Social Hydrator</Typography>
-                            </Box>
-                        </Tooltip>
-                        {/* Badge 3 */}
-                        < Tooltip title="Given for pinning their first water marker" >
-                            <Box display="flex" flexDirection="column" alignItems="center" marginX="2em" onClick={() => handleOpenBadgeDetails("Water Tracker Pioneer")} style={{ cursor: "pointer" }}>
-                                <WaterDropSharpIcon sx={{ fontSize: '3rem', color: 'gold' }} />
-                                <Typography variant="h6">Water Tracker Pioneer</Typography>
-                            </Box>
-                        </Tooltip >
-                    </Box>
-                    {/* Second Row */}
-                    <Box display="flex" justifyContent="center" alignItems="center" marginTop="2em" onClick={() => handleOpenBadgeDetails("Hydro Influencer")} style={{ cursor: "pointer" }}>
-                        {/* Badge 4 */}
-                        < Tooltip title="Awarded for having five followers on HydroTag" >
-                            <Box display="flex" flexDirection="column" alignItems="center" marginX="2em">
-                                <VerifiedSharpIcon sx={{ fontSize: '3rem', color: 'gold' }} />
-                                <Typography variant="h6">Hydro Influencer</Typography>
-                            </Box>
-                        </Tooltip >
-                        {/* Badge 5 */}
-                        < Tooltip title="Given for writing their first review on HydroTag" >
-                            <Box display="flex" flexDirection="column" alignItems="center" marginX="2em" onClick={() => handleOpenBadgeDetails("Hydro Critic")} style={{ cursor: "pointer" }}>
-                                <RateReviewSharpIcon sx={{ fontSize: '3rem', color: 'gold' }} />
-                                <Typography variant="h6">Hydro Critic</Typography>
-                            </Box>
-                        </Tooltip >
-                        {/* Badge 6 */}
-                        <Tooltip title="Awarded for being number 1 on the HydroTag leaderboard">
-                            <Box display="flex" flexDirection="column" alignItems="center" marginX="2em" onClick={() => handleOpenBadgeDetails("Aquatic Ace")} style={{ cursor: "pointer" }}>
-                                <EmojiEventsSharpIcon sx={{ fontSize: '3rem', color: 'gold' }} />
-                                <Typography variant="h6">Aquatic Ace</Typography>
-                            </Box>
-                        </Tooltip>
-                    </Box>
-                </Box>
-            </Box>
+            </div>
 
             {/* Report User Dialog */}
             <Dialog open={openReport} onClose={handleCloseReport}>
@@ -312,10 +233,7 @@ export default function Profile() {
                     <DialogTitle>User Profile</DialogTitle>
                     <DialogContent>
                         {/* Here you should render the user profile information */}
-                        <DialogContentText>
-                            User ID: {profileUserId}
-                            {/* Add the rest of the user information here */}
-                        </DialogContentText>
+                        <UserProfile user={users.find(user => user.id === profileUserId)} />
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleCloseProfile}>Close</Button>
@@ -332,7 +250,7 @@ export default function Profile() {
                 <List>
                     {filteredFollowers.map((follower) => (
                         <ListItem key={follower.id}>
-                            <Typography>{users.find(user => user.id === follower.follower)?.email}</Typography>
+                            <Typography>{users.find(user => user.id === follower.follower)?.name}</Typography>
                             {followings.find(following => following.following === follower.follower) && <StarIcon />}
                             {(followings.find(following => following.following === follower.follower)
                                 ? <Button onClick={() => handleUnfollow(followings.find(following => following.following === follower.follower))} style={{ color: '#209cee' }}>Unfollow</Button>
@@ -352,8 +270,7 @@ export default function Profile() {
                     <DialogContent>
                         {/* Here you should render the user profile information */}
                         <DialogContentText>
-                            User ID: {profileUserId}
-                            {/* Add the rest of the user information here */}
+                            <UserProfile user={users.find(user => user.id === profileUserId)} />
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
@@ -361,17 +278,17 @@ export default function Profile() {
                     </DialogActions>
                 </Dialog>
 
-                <DialogTitle>Followings</DialogTitle>
+                <DialogTitle>Following</DialogTitle>
                 <TextField
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
-                    placeholder="Search followings..."
+                    placeholder="Search people you follow..."
                     fullWidth
                 />
                 <List>
                     {filteredFollowings.map((following) => (
                         <ListItem key={following.id}>
-                            <Typography>{users.find(user => user.id === following.following)?.email}</Typography>
+                            <Typography>{users.find(user => user.id === following.following)?.name}</Typography>
                             {followers.find(follower => follower.fallower = following.following) && <StarIcon />}
                             <Button onClick={() => handleUnfollow(following)} style={{ color: '#209cee' }}>Unfollow</Button>
                             <Button onClick={() => handleReport(following.following)} style={{ color: '#209cee' }}>Report</Button>
@@ -380,7 +297,7 @@ export default function Profile() {
                     ))}
                 </List>
             </Dialog>
-
+            <UserProfile user={users.find(user => user.id === auth.currentUser.uid)} />
         </Box >
     );
 }

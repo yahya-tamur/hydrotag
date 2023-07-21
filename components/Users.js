@@ -21,7 +21,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 export default function Users() {
-  const [emailtext, setEmailText] = useState("");
+  const [nametext, setNameText] = useState("");
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [followings, setFollowings] = useState([]);
@@ -87,12 +87,12 @@ export default function Users() {
   useEffect(() => {
     const filterUsers = () => {
       const filteredResults = users.filter((user) =>
-        user.email.toLowerCase().includes(emailtext.toLowerCase()) && user.id !== auth.currentUser.uid
+        (user.name ?? "no name").toLowerCase().includes(nametext.toLowerCase()) && user.id !== auth.currentUser.uid
       );
       setFilteredUsers(filteredResults);
     };
     filterUsers();
-  }, [users, emailtext]);
+  }, [users, nametext]);
 
   useEffect(() => {
     const fetchFollowings = () => {
@@ -123,37 +123,27 @@ export default function Users() {
 
   const handleFollow = async (userId) => {
     const time = serverTimestamp();
-    console.log("AAAa")
     await addDoc(collection(db, "connections"), {
       follower: auth.currentUser.uid,
       following: userId,
       timestamp: time
     });
-    console.log("FFFF")
     await updateDoc(doc(db, 'users', auth.currentUser.uid), {
       following: increment(1)
     });
-    console.log("AAA")
     await updateDoc(doc(db, 'users', userId), {
       followers: increment(1)
     });
-    console.log("BBB");
   };
 
   const handleUnfollow = async (connection) => {
-    console.log(connection)
-    console.log((await getDoc(doc(db, "connections", connection.id))).data());
-    console.log(auth.currentUser.uid)
     await deleteDoc(doc(db, "connections", connection.id));
-    console.log("ff")
     await updateDoc(doc(db, 'users', auth.currentUser.uid), {
       following: increment(-1)
     });
-    console.log("gg")
     await updateDoc(doc(db, 'users', connection.following), {
       followers: increment(-1)
     });
-    console.log("DhhD")
   };
 
   const handleReport = (userId) => {
@@ -209,7 +199,7 @@ export default function Users() {
 
       <FormControl>
         <FormLabel>Find People to follow!</FormLabel>
-        <TextField value={emailtext} onChange={e => setEmailText(e.target.value)} placeholder="Search users..." />
+        <TextField value={nametext} onChange={e => setNameText(e.target.value)} placeholder="Search users..." />
       </FormControl>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <div>
@@ -218,7 +208,7 @@ export default function Users() {
             <ul>
               {filteredUsers.map((user) => (
                 <ListItem key={user.id}>
-                  {user.email}
+                  {user.name}
                   {followings.find(following => following.following === user.id) && followers.includes(user.id) && <StarIcon />}
                   {(followings.find(following => following.following === user.id)
                     ? <Button onClick={() => handleUnfollow(followings.find(following => following.following === user.id))} style={{ color: '#209cee' }}>Unfollow</Button>

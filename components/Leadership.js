@@ -8,7 +8,6 @@ const db = getFirestore(app);
 
 export default function Leadership() {
   const [users, setUsers] = useState([]);
-  const [leaderboardData, setLeaderboardData] = useState([]);
 
   useEffect(() => {
     const fetchUsersData = async () => {
@@ -17,42 +16,20 @@ export default function Leadership() {
         id: doc.id,
         ...doc.data(),
       }));
+      console.log(users);
       setUsers(usersArray);
     };
     fetchUsersData();
   }, []);
 
-  useEffect(() => {
-    const fetchLeaderboardData = async () => {
-      let data = [];
-      for (let user of users) {
-        const markersSnap = await getDocs(query(collection(db, "markers"), where('poster', '==', user.id)));
-        const markersCount = markersSnap.size;
-
-        const connectionsSnap = await getDocs(query(collection(db, "connections"), where('userId', '==', user.id)));
-        const connectionsCount = connectionsSnap.size;
-
-        data.push({
-          userId: user.id,
-          email: user.email,
-          markersCount,
-          connectionsCount
-        });
-      }
-      data.sort((a, b) => b.markersCount - a.markersCount);
-      setLeaderboardData(data);
-    };
-    fetchLeaderboardData();
-  }, [users]);
-
   return (
     <div>
       <h2>Leader board:</h2>
-      {leaderboardData.map((user, index) => (
+      {users.filter(user => user.markers ?? 0 !== 0).sort((a, b) => b.markers - a.markers).map((user, index) => (
         <ListItem key={index}>
           {`${index + 1}. ${user.email}`}
-          {user.markersCount > 0 && <Badge badgeContent={user.markersCount} color="primary"> Markers</Badge>}
-          {user.connectionsCount > 0 && <Badge badgeContent={user.connectionsCount} color="secondary">Connections</Badge>}
+          {user.markers > 0 && <Badge badgeContent={user.markers} color="primary"> Markers</Badge>}
+          {user.followers > 0 && <Badge badgeContent={user.followers} color="secondary">Connections</Badge>}
         </ListItem>
       ))}
     </div>

@@ -242,7 +242,9 @@ export default function Map() {
                 Find Route
               </Typography>
             </Button>
-
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
+              Marker by {users.find(user => user.id === markerlist.find(m => m.id === selectedMarker).poster).name ?? "no name"}
+            </Typography>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
               Reviews:
             </Typography>
@@ -252,7 +254,7 @@ export default function Map() {
                 .sort((a, b) => b.timestamp - a.timestamp)
                 
                 .map(review => (
-                <ListItemText key={review.id} primary={review.poster.email} secondary={`${review.text} (${review.timestamp ? review.timestamp.toLocaleString() : 'No timestamp'})`} />
+                <ListItemText key={review.id} primary={review.poster.name ?? "no name"} secondary={`${review.text} (${review.timestamp ? review.timestamp.toLocaleString() : 'No timestamp'})`} />
 
               ))}
             </List>
@@ -339,6 +341,7 @@ export default function Map() {
             key={i}
             onClick={(e) => {
               setSelectedMarker(marker.id);
+              console.log(selectedMarker);
               setdestination({ lat: marker.lat, lng: marker.lng });
             }}
           />
