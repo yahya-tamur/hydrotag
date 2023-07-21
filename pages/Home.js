@@ -52,7 +52,7 @@ export default function Home() {
         {(() => {switch (selected) {
           case 'Map': return (<Map />);
           case 'Add Users': return (<Users />);
-          case 'Leader Board': return (<Leadership />);
+          case 'Leaderboard': return (<Leadership />);
           case 'Profile': return (<Profile />);
           default: return (
             <Typography paragraph>
@@ -79,7 +79,7 @@ export default function Home() {
           {[
             ["Map", <TravelExploreIcon />],
             ["Add Users", <Diversity1Icon />],
-            ["Leader Board", <StarIcon />],
+            ["Leaderboard", <StarIcon />],
             ["Profile", <PersonIcon />],
           ].map((tuple, index) => (
           <ListItem key={tuple[0]} disablePadding>

@@ -17,6 +17,8 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 
+import UserProfile from './UserProfile';
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -189,7 +191,7 @@ export default function Users() {
           {/* Here you should render the user profile information */}
           <DialogContentText>
             User ID: {profileUserId}
-            {/* Add the rest of the user information here */}
+            <UserProfile user={users.find(user => user.id === profileUserId)} />
           </DialogContentText>
         </DialogContent>
         <DialogActions>

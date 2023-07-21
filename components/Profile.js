@@ -52,7 +52,6 @@ export default function Profile() {
     const [reportText, setReportText] = useState("");
     const [userIdToReport, setUserIdToReport] = useState(null);
     const reportTypes = ["Falsely pinning a water source", "Inappropriate reviews", "Spamming", "Being a bully"];
-    const router = useRouter();
 
     const fetchUsersData = async () => {
         const q = await getDocs(collection(db, "users"));
@@ -108,6 +107,7 @@ export default function Profile() {
         await updateDoc(doc(db, 'users', userId), {
             followers: increment(1)
         });
+        fetchUsersData();
     };
 
     const handleUnfollow = async (connection) => {
@@ -118,6 +118,7 @@ export default function Profile() {
         await updateDoc(doc(db, 'users', connection.following), {
             followers: increment(-1)
         });
+        fetchUsersData();
     };
     const handleBioUpdate = async () => {
         await updateDoc(doc(db, 'users', auth.currentUser.uid), {

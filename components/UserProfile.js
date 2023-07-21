@@ -48,7 +48,25 @@ const LabelText = styled(Typography)(({ theme }) => ({
   cursor: 'pointer',
 }));
 
+const db = getFirestore(app);
+
 export default function UserProfile(props) {
+
+    //didn't want to get data here but it's necessary to check if you're at the top of the leaderboard
+    const [users, setUsers] = useState([]);
+    const fetchUsersData = async () => {
+        const q = await getDocs(collection(db, "users"));
+        const usersArray = q.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        setUsers(usersArray);
+    };
+
+    useEffect(() => {
+        fetchUsersData();
+    }, []);
+
   return props.user && (
     <div>
                   <Box sx={{ flex: '1 1', p: 2 }}>
@@ -89,16 +107,16 @@ export default function UserProfile(props) {
                             </Box>
                         </Tooltip>
                         {/* Badge 2 */}
-                        <Tooltip title="Given for adding a new friend on HydroTag">
+                        <Tooltip title="Given for following someone on HydroTag">
                             <Box display="flex" flexDirection="column" alignItems="center" marginX="2em" onClick={() => handleOpenBadgeDetails("Social Hydrator")} style={{ cursor: "pointer" }}>
-                                <Diversity1SharpIcon sx={{ fontSize: '3rem', color: 'gold' }} />
+                                <Diversity1SharpIcon sx={{ fontSize: '3rem', color: props.user.following > 0 ? 'gold' : 'grey' }} />
                                 <Typography variant="h6">Social Hydrator</Typography>
                             </Box>
                         </Tooltip>
                         {/* Badge 3 */}
                         < Tooltip title="Given for pinning their first water marker" >
                             <Box display="flex" flexDirection="column" alignItems="center" marginX="2em" onClick={() => handleOpenBadgeDetails("Water Tracker Pioneer")} style={{ cursor: "pointer" }}>
-                                <WaterDropSharpIcon sx={{ fontSize: '3rem', color: 'gold' }} />
+                                <WaterDropSharpIcon sx={{ fontSize: '3rem', color: props.user.markers > 0 ? 'gold' : 'grey'  }} />
                                 <Typography variant="h6">Water Tracker Pioneer</Typography>
                             </Box>
                         </Tooltip >
@@ -108,21 +126,21 @@ export default function UserProfile(props) {
                         {/* Badge 4 */}
                         < Tooltip title="Awarded for having five followers on HydroTag" >
                             <Box display="flex" flexDirection="column" alignItems="center" marginX="2em">
-                                <VerifiedSharpIcon sx={{ fontSize: '3rem', color: 'gold' }} />
+                                <VerifiedSharpIcon sx={{ fontSize: '3rem', color: props.user.followers >= 5 ? 'gold' : 'grey' }} />
                                 <Typography variant="h6">Hydro Influencer</Typography>
                             </Box>
                         </Tooltip >
                         {/* Badge 5 */}
                         < Tooltip title="Given for writing their first review on HydroTag" >
                             <Box display="flex" flexDirection="column" alignItems="center" marginX="2em" onClick={() => handleOpenBadgeDetails("Hydro Critic")} style={{ cursor: "pointer" }}>
-                                <RateReviewSharpIcon sx={{ fontSize: '3rem', color: 'gold' }} />
+                                <RateReviewSharpIcon sx={{ fontSize: '3rem', color: props.user.reviews > 0 ? 'gold' : 'grey' }} />
                                 <Typography variant="h6">Hydro Critic</Typography>
                             </Box>
                         </Tooltip >
                         {/* Badge 6 */}
                         <Tooltip title="Awarded for being number 1 on the HydroTag leaderboard">
                             <Box display="flex" flexDirection="column" alignItems="center" marginX="2em" onClick={() => handleOpenBadgeDetails("Aquatic Ace")} style={{ cursor: "pointer" }}>
-                                <EmojiEventsSharpIcon sx={{ fontSize: '3rem', color: 'gold' }} />
+                                <EmojiEventsSharpIcon sx={{ fontSize: '3rem', color: props.user.markers >= Math.max(...users.map(user =>user.markers ?? 0)) ? 'gold' : 'grey' }} />
                                 <Typography variant="h6">Aquatic Ace</Typography>
                             </Box>
                         </Tooltip>
