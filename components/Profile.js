@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { getAuth, updateProfile } from 'firebase/auth';
-import { getFirestore, collection, getDocs, onSnapshot, where, query, doc, serverTimestamp, addDoc, deleteDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { updateDoc, increment, getFirestore, collection, getDocs, onSnapshot, where, query, doc, serverTimestamp, addDoc, deleteDoc } from 'firebase/firestore';
 import { app } from '../app';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
@@ -69,7 +69,10 @@ export default function Profile() {
                 id: doc.id,
                 ...doc.data(),
             }));
+            console.log(usersArray);
             setUsers(usersArray);
+            console.log(usersArray.find(user => user.id === auth.currentUser.uid));
+            setBio(usersArray.find(user => user.id === auth.currentUser.uid).bio);
         };
         fetchUsersData();
     }, []);
@@ -85,7 +88,7 @@ export default function Profile() {
 
         const fetchFollowers = () => {
             const unsub = onSnapshot(query(collection(db, "connections"), where('following', '==', auth.currentUser.uid)), (snapshot) => {
-                const followersArray = snapshot.docs.map((doc) => doc.data().follower);
+                const followersArray = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
                 setFollowers(followersArray);
             });
             return unsub;
@@ -101,12 +104,35 @@ export default function Profile() {
         }
     }, []);
 
-    const handleUnfollow = async (connectionId) => {
-        await deleteDoc(doc(db, "connections", connectionId));
+    const handleFollow = async (userId) => {
+        const time = serverTimestamp();
+        await addDoc(collection(db, "connections"), {
+            follower: auth.currentUser.uid,
+            following: userId,
+            timestamp: time
+        });
+        await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+            following: increment(1)
+        });
+        await updateDoc(doc(db, 'users', userId), {
+            followers: increment(1)
+        });
     };
 
+    const handleUnfollow = async (connection) => {
+        console.log(connection);
+        await deleteDoc(doc(db, "connections", connection.id));
+        await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+            following: increment(-1)
+        });
+        await updateDoc(doc(db, 'users', connection.following), {
+            followers: increment(-1)
+        });
+    };
     const handleBioUpdate = async () => {
-        await updateProfile(auth.currentUser, { displayName: bio });
+        await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+            bio: bio
+        });
     }
 
     const handleCloseProfile = () => {
@@ -153,10 +179,11 @@ export default function Profile() {
         : followings;
 
     const filteredFollowers = searchText
-        ? followers.filter((followerId) =>
-            users.find(user => user.id === followerId)?.email.toLowerCase().includes(searchText.toLowerCase())
+        ? followers.filter((follower) =>
+            users.find(user => user.id === follower.follower)?.email.toLowerCase().includes(searchText.toLowerCase())
         )
         : followers;
+        console.log(filteredFollowers);
     const handleReport = (userId) => {
         handleOpenReport(userId);
     };
@@ -303,12 +330,16 @@ export default function Profile() {
                     fullWidth
                 />
                 <List>
-                    {filteredFollowers.map((followerId) => (
-                        <ListItem key={followerId}>
-                            <Typography>{users.find(user => user.id === followerId)?.email}</Typography>
-                            {followings.find(following => following.following === followerId) && <StarIcon />}
-                            <Button onClick={() => handleReport(followerId)} style={{ color: '#209cee' }}>Report</Button>
-                            <Button onClick={() => handleOpenProfile(followerId)} style={{ color: '#209cee' }}>Profile</Button>
+                    {filteredFollowers.map((follower) => (
+                        <ListItem key={follower.id}>
+                            <Typography>{users.find(user => user.id === follower.follower)?.email}</Typography>
+                            {followings.find(following => following.following === follower.follower) && <StarIcon />}
+                            {(followings.find(following => following.following === follower.follower)
+                                ? <Button onClick={() => handleUnfollow(followings.find(following => following.following === follower.follower))} style={{ color: '#209cee' }}>Unfollow</Button>
+                                : <Button onClick={() => handleFollow(follower.follower)} style={{ color: '#209cee' }}>Follow</Button>
+                            )}
+                            <Button onClick={() => handleReport(follower.follower)} style={{ color: '#209cee' }}>Report</Button>
+                            <Button onClick={() => handleOpenProfile(follower.follower)} style={{ color: '#209cee' }}>Profile</Button>
                         </ListItem>
                     ))}
                 </List>
@@ -341,8 +372,8 @@ export default function Profile() {
                     {filteredFollowings.map((following) => (
                         <ListItem key={following.id}>
                             <Typography>{users.find(user => user.id === following.following)?.email}</Typography>
-                            {followers.includes(following.following) && <StarIcon />}
-                            <Button onClick={() => handleUnfollow(following.id)} style={{ color: '#209cee' }}>Unfollow</Button>
+                            {followers.find(follower => follower.fallower = following.following) && <StarIcon />}
+                            <Button onClick={() => handleUnfollow(following)} style={{ color: '#209cee' }}>Unfollow</Button>
                             <Button onClick={() => handleReport(following.following)} style={{ color: '#209cee' }}>Report</Button>
                             <Button onClick={() => handleOpenProfile(following.following)} style={{ color: '#209cee' }}>Profile</Button>
                         </ListItem>

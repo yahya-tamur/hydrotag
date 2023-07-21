@@ -10,6 +10,7 @@ const db = getFirestore(app);
 export default function Index() {
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [check, setCheck] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -161,6 +162,17 @@ export default function Index() {
                 </Grid>
                 <Grid item>
                   <TextField
+                    label="Username"
+                    type="text"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                    }}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
                     label="Password"
                     type="password"
                     value={password}
@@ -197,7 +209,7 @@ export default function Index() {
                       }
                       try {
                         let x = await createUserWithEmailAndPassword(auth, email, password);
-                        await setDoc(doc(db, 'users', x.user.uid), { email: email });
+                        await setDoc(doc(db, 'users', x.user.uid), { email: email, name: name, markers: 0, reviews: 0, following: 0, followers: 0, bio: "" });
                         setErrorMsg('');
                         setSuccessMsg('Your account has been created. You can now log in.');
                       } catch (error) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, where, query, onSnapshot } from 'firebase/firestore';
+import { getDoc, updateDoc, increment, getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, where, query, onSnapshot } from 'firebase/firestore';
 import { app } from '../app';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
@@ -123,15 +123,37 @@ export default function Users() {
 
   const handleFollow = async (userId) => {
     const time = serverTimestamp();
+    console.log("AAAa")
     await addDoc(collection(db, "connections"), {
       follower: auth.currentUser.uid,
       following: userId,
       timestamp: time
     });
+    console.log("FFFF")
+    await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+      following: increment(1)
+    });
+    console.log("AAA")
+    await updateDoc(doc(db, 'users', userId), {
+      followers: increment(1)
+    });
+    console.log("BBB");
   };
 
-  const handleUnfollow = async (connectionId) => {
-    await deleteDoc(doc(db, "connections", connectionId));
+  const handleUnfollow = async (connection) => {
+    console.log(connection)
+    console.log((await getDoc(doc(db, "connections", connection.id))).data());
+    console.log(auth.currentUser.uid)
+    await deleteDoc(doc(db, "connections", connection.id));
+    console.log("ff")
+    await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+      following: increment(-1)
+    });
+    console.log("gg")
+    await updateDoc(doc(db, 'users', connection.following), {
+      followers: increment(-1)
+    });
+    console.log("DhhD")
   };
 
   const handleReport = (userId) => {
@@ -199,7 +221,7 @@ export default function Users() {
                   {user.email}
                   {followings.find(following => following.following === user.id) && followers.includes(user.id) && <StarIcon />}
                   {(followings.find(following => following.following === user.id)
-                    ? <Button onClick={() => handleUnfollow(followings.find(following => following.following === user.id).id)} style={{ color: '#209cee' }}>Unfollow</Button>
+                    ? <Button onClick={() => handleUnfollow(followings.find(following => following.following === user.id))} style={{ color: '#209cee' }}>Unfollow</Button>
                     : <Button onClick={() => handleFollow(user.id)} style={{ color: '#209cee' }}>Follow</Button>
                   )}
                   <Button onClick={() => handleReport(user.id)} style={{ color: '#209cee' }}>Report</Button>

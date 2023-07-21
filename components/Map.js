@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { GoogleMap, useLoadScript, Marker, useGoogleMap, DirectionsRenderer } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
-import { getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, serverTimestamp, query, where, Timestamp, } from 'firebase/firestore';
+import { increment, updateDoc, getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, serverTimestamp, query, where, Timestamp, FieldValue, } from 'firebase/firestore';
 
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -274,6 +274,9 @@ export default function Map() {
                       text: text,
                       timestamp: Timestamp.now(), // added server time stamp
                     });
+                    updateDoc(doc(db, 'users', auth.currentUser.uid), {
+                      reviews: increment(1)
+                    });
                     setText("");
                     getData();
                   } catch (e) {
@@ -310,13 +313,13 @@ export default function Map() {
                 location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
                 poster: auth.currentUser.uid,
               }));
+              updateDoc(doc(db, 'users', auth.currentUser.uid), {
+                markers: increment(1)
+              });
               await getMarkers();
-              console.log(markerlist);
               setAdding(false);
-              console.log("added!")
             } catch (e) {
               console.log(e);
-              alert("error submitting data!");
             }
           }
         }}
