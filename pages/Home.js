@@ -1,5 +1,4 @@
 import { getAuth } from "firebase/auth";
-import { useRouter } from 'next/router';
 import Map from '../components/Map';
 import Users from '../components/Users';
 import * as React from 'react';
@@ -36,12 +35,12 @@ export default function Home() {
       <CssBaseline />
       <AppBar
         position="fixed"
-        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px`, bgcolor: '#209cee'}}
+        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px`, bgcolor: '#209cee' }}
       >
         <Toolbar>
           <Typography variant="h6" noWrap component="div">
             {selected}
-          </Typography>   
+          </Typography>
         </Toolbar>
       </AppBar>
       <Box
@@ -49,17 +48,19 @@ export default function Home() {
         sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3, ml: `${drawerWidth}px` }}
       >
         <Toolbar />
-        {(() => {switch (selected) {
-          case 'Map': return (<Map />);
-          case 'Add Users': return (<Users />);
-          case 'Leaderboard': return (<Leadership />);
-          case 'Profile': return (<Profile />);
-          default: return (
-            <Typography paragraph>
-              not implemented yet!
-            </Typography>
-          );
-        } })()}
+        {(() => {
+          switch (selected) {
+            case 'Map': return (<Map />);
+            case 'Add Users': return (<Users />);
+            case 'Leaderboard': return (<Leadership />);
+            case 'Profile': return (<Profile />);
+            default: return (
+              <Typography paragraph>
+                not implemented yet!
+              </Typography>
+            );
+          }
+        })()}
       </Box>
       <Drawer
         sx={{
@@ -82,16 +83,16 @@ export default function Home() {
             ["Leaderboard", <StarIcon />],
             ["Profile", <PersonIcon />],
           ].map((tuple, index) => (
-          <ListItem key={tuple[0]} disablePadding>
-          <ListItemButton onClick={() => setSelected(tuple[0])}>
-            <ListItemIcon>
-              {tuple[1]}
-            </ListItemIcon>
-            <ListItemText primary={tuple[0]} />
-          </ListItemButton>
-        </ListItem>
+            <ListItem key={tuple[0]} disablePadding>
+              <ListItemButton onClick={() => setSelected(tuple[0])}>
+                <ListItemIcon>
+                  {tuple[1]}
+                </ListItemIcon>
+                <ListItemText primary={tuple[0]} />
+              </ListItemButton>
+            </ListItem>
           ))
-        }
+          }
         </List>
         <Divider />
         <List>

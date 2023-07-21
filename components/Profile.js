@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { getAuth } from 'firebase/auth';
 import { updateDoc, increment, getFirestore, collection, getDocs, onSnapshot, where, query, doc, serverTimestamp, addDoc, deleteDoc } from 'firebase/firestore';
 import { app } from '../app';
@@ -9,7 +8,6 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import ListItem from '@mui/material/ListItem';
 import StarIcon from '@mui/icons-material/Star';
-import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -20,15 +18,8 @@ import Typography from '@mui/material/Typography';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import DirectionsBoatFilledSharpIcon from '@mui/icons-material/DirectionsBoatFilledSharp';
-import Diversity1SharpIcon from '@mui/icons-material/Diversity1Sharp';
-import WaterDropSharpIcon from '@mui/icons-material/WaterDropSharp';
-import VerifiedSharpIcon from '@mui/icons-material/VerifiedSharp';
-import RateReviewSharpIcon from '@mui/icons-material/RateReviewSharp';
-import EmojiEventsSharpIcon from '@mui/icons-material/EmojiEventsSharp';
-import Tooltip from '@mui/material/Tooltip';
+import Divider from '@mui/material/Divider';
 import { Box } from '@mui/system';
-import { styled } from '@mui/system';
 
 import UserProfile from './UserProfile';
 
@@ -182,20 +173,21 @@ export default function Profile() {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'row' }}>
             <div>
-            <Button onClick={() => setOpenFollowers(true)}>
-                Followers
-            </Button>
-            <Button onClick={() => setOpenFollowings(true)}>
-                Following
-            </Button>
-            <FormControl fullWidth>
+                <Button onClick={() => setOpenFollowers(true)}>
+                    Followers
+                </Button>
+                <Button onClick={() => setOpenFollowings(true)}>
+                    Following
+                </Button>
+                <FormControl fullWidth>
                     <FormLabel>Update Your Bio</FormLabel>
-                    <TextField value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Your bio..." />
+                    <TextField sx={{ mr: '22px' }} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Your bio..." />
                     <Box display="flex" justifyContent="center" style={{ marginTop: '1em' }}>
                         <Button onClick={handleBioUpdate} style={{ color: '#209cee', fontWeight: 'bold', whiteSpace: 'nowrap' }} sx={{ fontSize: '1.2rem', p: '1em', width: '150px' }}>Update Bio</Button>
                     </Box>
                 </FormControl>
             </div>
+            <Divider orientation="vertical" flexItem />
 
             {/* Report User Dialog */}
             <Dialog open={openReport} onClose={handleCloseReport}>

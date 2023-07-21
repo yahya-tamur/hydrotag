@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker, useGoogleMap, DirectionsRenderer } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
-import { increment, updateDoc, getFirestore, collection, getDocs, addDoc, GeoPoint, getDoc, doc, serverTimestamp, query, where, Timestamp, FieldValue, } from 'firebase/firestore';
+import { increment, updateDoc, getFirestore, collection, getDocs, addDoc, GeoPoint, doc, Timestamp, } from 'firebase/firestore';
 
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -100,28 +100,28 @@ export default function Map() {
         id: d.id,
         ...d.data()
       }));
-      setUsers(user_arr);
+    setUsers(user_arr);
 
-      const conn_snapshot = await getDocs(collection(db, "connections"));
-      const conn_arr = conn_snapshot.docs
-        .map((d) => ({
-          id: d.id,
-          ...d.data()
-        }));
-      setConnections(conn_arr);
-      setfriendList(conn_arr.filter(conn => conn.follower === auth.currentUser.uid ).map(conn => conn.following));
+    const conn_snapshot = await getDocs(collection(db, "connections"));
+    const conn_arr = conn_snapshot.docs
+      .map((d) => ({
+        id: d.id,
+        ...d.data()
+      }));
+    setConnections(conn_arr);
+    setfriendList(conn_arr.filter(conn => conn.follower === auth.currentUser.uid).map(conn => conn.following));
 
-      const review_snapshot = await getDocs(collection(db, 'reviews'));
-      const review_arr = review_snapshot.docs
-        .map((d) => ({
-          id: d.id,
-          poster: user_arr.filter(u => u.id === d.data().poster)[0],
-          marker: d.data().marker,
-          text: d.data().text,
-          timestamp: d.data().timestamp ? d.data().timestamp.toDate() : null,
-        }));
-        console.log(review_snapshot.docs.map(d => d.data()));
-        setReviews(review_arr);
+    const review_snapshot = await getDocs(collection(db, 'reviews'));
+    const review_arr = review_snapshot.docs
+      .map((d) => ({
+        id: d.id,
+        poster: user_arr.filter(u => u.id === d.data().poster)[0],
+        marker: d.data().marker,
+        text: d.data().text,
+        timestamp: d.data().timestamp ? d.data().timestamp.toDate() : null,
+      }));
+    console.log(review_snapshot.docs.map(d => d.data()));
+    setReviews(review_arr);
   }
 
   useEffect(() => {
@@ -202,7 +202,7 @@ export default function Map() {
         </ToggleButton>
         <FormGroup>
           <FormControlLabel control={<Switch checked={pin_fr} onChange={(e) => setpin_fr(e.target.checked)} />} label="Friends Pins Filter" />
-          <FormControlLabel control={<Switch checked={review_fr} onChange={(e) => setreview_fr(e.target.checked)} /> } label="Friends Reviews Filter" />
+          <FormControlLabel control={<Switch checked={review_fr} onChange={(e) => setreview_fr(e.target.checked)} />} label="Friends Reviews Filter" />
         </FormGroup>
         {showroute ? (
 
@@ -252,11 +252,11 @@ export default function Map() {
               {(!review_fr ? reviews : reviews.filter(r => friendlist.includes(r.poster.id) || r.poster.id === auth.currentUser.uid))
                 .filter(r => r.marker === selectedMarker)
                 .sort((a, b) => b.timestamp - a.timestamp)
-                
-                .map(review => (
-                <ListItemText key={review.id} primary={review.poster.name ?? "no name"} secondary={`${review.text} (${review.timestamp ? review.timestamp.toLocaleString() : 'No timestamp'})`} />
 
-              ))}
+                .map(review => (
+                  <ListItemText key={review.id} primary={review.poster.name ?? "no name"} secondary={`${review.text} (${review.timestamp ? review.timestamp.toLocaleString() : 'No timestamp'})`} />
+
+                ))}
             </List>
 
             <TextField variant="standard" value={text} onChange={e => { setText(e.target.value) }} placeholder="write a review..." />

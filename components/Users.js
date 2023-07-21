@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getDoc, updateDoc, increment, getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, where, query, onSnapshot } from 'firebase/firestore';
+import { getAuth } from "firebase/auth";
+import { updateDoc, increment, getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, where, query, onSnapshot } from 'firebase/firestore';
 import { app } from '../app';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
