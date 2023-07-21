@@ -25,6 +25,10 @@ app.
 You only need to run `npm install` if we change dependencies -- you can
 usually just run `npm run dev` to start the server.
 
+To run the tests:
+
+```npm run test```
+
 To run an optimized
 production version locally, first build:
 
