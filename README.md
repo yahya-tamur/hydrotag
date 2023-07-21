@@ -38,4 +38,4 @@ Then start the server:
 
 ```npm start```
 
-Pushes to the main branch are deployed automatically.
+Pushes to the main branch are tested and deployed automatically.
