@@ -1,4 +1,6 @@
-Instructions on getting started:
+Hosted on [hydrotag.vercel.app](https://hydrotag.vercel.app/)
+
+Instructions for contributing:
 
 * Clone the repository:
 
@@ -22,3 +24,14 @@ app.
 
 You only need to run `npm install` if we change dependencies -- you can
 usually just run `npm run dev` to start the server.
+
+To run an optimized
+production version locally, first build:
+
+```npm run build```
+
+Then start the server:
+
+```npm start```
+
+Pushes to the main branch are deployed automatically.
