@@ -238,7 +238,7 @@ export default function Profile() {
     useEffect(() => {
         const unsub = onSnapshot(
             query(collection(db, 'waterIntake'), 
-            //where('userId', '==', auth.currentUser.uid),
+            where('userId', '==', auth.currentUser.uid),
             orderBy('timestamp', 'desc')), 
             (snapshot) => {
                 const logData = snapshot.docs.map((doc) => doc.data());
