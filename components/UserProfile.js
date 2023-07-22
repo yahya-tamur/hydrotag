@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getAuth } from "firebase/auth";
-import { getFirestore, collection, getDocs, serverTimestamp, Timestamp, getDoc} from 'firebase/firestore';
+import { getFirestore, collection, getDocs, Timestamp, onSchedule, increment, updateDoc} from 'firebase/firestore';
 import { app } from '../app';
 import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
 import Typography from '@mui/material/Typography';
@@ -17,9 +17,44 @@ import VerifiedSharpIcon from '@mui/icons-material/VerifiedSharp';
 import RateReviewSharpIcon from '@mui/icons-material/RateReviewSharp';
 import EmojiEventsSharpIcon from '@mui/icons-material/EmojiEventsSharp';
 import Tooltip from '@mui/material/Tooltip';
-import { Box } from '@mui/system';
-import { styled } from '@mui/system';
+import { Box, borders, styled} from '@mui/system';
 import { ContactSupportOutlined } from '@mui/icons-material';
+
+exports.updateStreak = onSchedule("every day 00:00", async (event) => {
+    // fetch all users, 
+    const time = Timestamp.now();
+    const q = await getDocs(collection(db, "users"));
+    const usersArray = q.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+    }));
+    usersArray.forEach(async (user) => {
+        /*if(OneDayAgo(user.lastActive.toDate(), time)) { // if latest activity exceeds 24 hours, 
+            await updateDoc(doc(db, 'users', user.uid), {
+                streak: 0
+            });
+        }
+        else {
+            await updateDoc(doc(db, 'users', user.uid), {
+                streak: increment(1)
+            })
+        }*/
+        {user.lastActive ? (
+            await updateDoc(doc(db, 'users', user.uid), {
+                streak: `${OneDayAgo(user.lastActive.toDate(), time) ? 0 : increment(1)}` // if one day ago, return
+            })
+        ) : (console.log("Error updating " + user.uid + ", no lastActive attribute available"))};
+    })
+})
+
+const OneDayAgo = (date, time) => { // returns True if date passed is within one day of current date, False otherwise
+    const day= 1000 * 60 * 60 * 24; // 1 day in milliseconds
+    const hours = moment().diff(moment(date), 'hours');
+    const dayago= time - day;
+    console.log('Day in milliseconds: ' + day)
+    console.log('Hours: ' + hours)
+    return date > dayago;
+}
 
 const CountText = styled(Typography)(({ theme }) => ({
     fontSize: '2rem',
@@ -40,8 +75,7 @@ export default function UserProfile(props) {
     //didn't want to get data here but it's necessary to check if you're at the top of the leaderboard
     // want to get data of most recent timestamp
     const [users, setUsers] = useState([]);
-    const [recentTime, setRecent] = useState('');
-    const userLatest = getDoc(collection(db, 'users', auth.currentUser.uid));
+    const [endUser, setEndUser] = useState([]);
 
 
     const fetchUsersData = async () => {
@@ -50,31 +84,16 @@ export default function UserProfile(props) {
             id: doc.id,
             ...doc.data(),
         }));
+        let user = usersArray.filter(user => user.id === auth.currentUser.uid)
+        setEndUser(user);
         setUsers(usersArray);
-        console.log('Users:' + users)
+        console.log('Users:' + users);
+        console.log('Current End User: ' + endUser);
     };
 
-    const handleLastActive = async () => {
-        const difference = current - userLatest;
-        const recent = userLatest.lastActive()
-        let minutes = Math.round(difference / 60)
-        // difference is in seconds. if difference / 60 less than 1, then express in minutes. if minutes / 60 less than 1, say just now.
-        console.log(recent)
-        if (minutes > 1) {
-            setRecent(Math.round(minutes).toString() + ' minutes ago')
-            //console.log('Around ' + Math.round(minutes) + ' minutes ago' );
-        }
-        else if ((minutes / 60) > 1) {
-            let hours = minutes / 60;
-            setRecent(Math.round(hours).toString() + ' hours ago')
-            //console.log('Around ' + Math.round(hours) + ' hours ago' );
-        }
-        else {
-            setRecent('Now')
-        }
-        console.log('Current time: ' + current + '\nLast Active: ' + recent + '\nDifference: ' + difference);
+    const handleActive = async () => {
+
     }
-    handleLastActive();
 
     useEffect(() => {
         fetchUsersData();
@@ -87,7 +106,9 @@ export default function UserProfile(props) {
                     <AccountCircleSharpIcon sx={{ width: 200, height: 200, color: '#808080', fontSize: '2.5rem', margin: '0 auto' }}>
                         {props.user.name}
                     </AccountCircleSharpIcon>
-                    <Typography variant="h4" align="center" style={{ marginTop: '1em', fontWeight: 'bold' }}>
+                    <CountText variant="h2" sx={{ fontWeight: 'bold', fontSize: '0.75em', color: 'grey'}}>
+                        {auth.currentUser.uid === props.user.id ? `Last Active ${props.user.lastActive.toDate().toLocaleTimeString('en-US')}` : ` ` } </CountText>
+                    <Typography variant="h4" align="center" style={{ marginTop: '0.5em', fontWeight: 'bold' }}>
                         {props.user.name}
                     </Typography>
                     <Typography variant="h6" align="center" style={{ marginTop: '1em', fontWeight: 'bold' }}>
@@ -95,26 +116,31 @@ export default function UserProfile(props) {
                     </Typography>
                 </Box>
                 <Box display="flex" justifyContent="center" flexDirection="row" alignItems="center" marginTop="2em">
-                    <Box display="flex" flexDirection="column" alignItems="center" marginX="1em">
+                    <Box display="flex" flexDirection="column" alignItems="center" marginX="2em">
                         <CountText variant="h2" sx={{ fontWeight: 'bold' }}>{props.user.followers} </CountText>
                         <LabelText variant="body1">Followers</LabelText>
                     </Box>
-                    <Box display="flex" flexDirection="column" alignItems="center" marginX="1em">
+                    <Box display="flex" flexDirection="column" alignItems="center" marginX="2em">
                         <CountText variant="h2" sx={{ fontWeight: 'bold' }}>{props.user.following}</CountText>
                         <LabelText variant="body1">Following</LabelText>
                     </Box>
-                    <Box display="flex" flexDirection="column" alignItems="center" marginX="1em">
-                        <CountText variant="h2" sx={{ fontWeight: 'bold' }}>{props.user.streak} </CountText>
-                        <LabelText variant="body1">🔥Daily Streak🔥</LabelText>
-                        <CountText variant="h3">{recentTime}</CountText>
-                        <LabelText variant="body2" color="secondary">Last Active</LabelText>
+                    <Box display="flex" flexDirection="column" alignItems="center" marginX="2em">
+                        <CountText variant="h2" sx={{ fontWeight: 'bold', color: 'red'}}>{props.user.streak > 0 ? `${props.user.streak} 📅` : 0} </CountText>
+                        <LabelText variant="body1">💧Streak🔥</LabelText>
                     </Box>
                 </Box>
-
             </Box>
-            <Typography variant="p" sx={{ marginLeft: '50px' }}>{props.user.bio}</Typography>
+            <Box display="flex" flexDirection="column" marginTop="2em">
+                <Typography variant="h6" sx={{ marginLeft: '20px'}}><b>About Me</b></Typography>
+            </Box>
+            <Box display="flex" flexDirection="column" alignItems="center">
+                <CountText variant="h2" border={2} borderRadius='16px' sx={{color: "black", fontSize: "1.5rem"}}> &nbsp;{props.user.bio}&nbsp; </CountText>
+            </Box>
+            <Typography variant="title" color="inherit" noWrap>
+                &nbsp;
+            </Typography>
             <Box sx={{ flex: '1 1', p: 2 }}>
-                <Typography variant="h5">Badges</Typography>
+                <Typography variant="h6" sx={{ marginLeft: '5px'}}><b>Badges</b></Typography>
                 <Box display="flex" flexDirection="column" alignItems="center" marginTop="2em">
                     {/* First Row */}
                     <Box display="flex" justifyContent="center" alignItems="center">

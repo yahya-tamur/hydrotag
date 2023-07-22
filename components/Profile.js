@@ -19,12 +19,23 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
-import { Box } from '@mui/system';
+import { Box, borders, styled} from '@mui/system';
 import UserProfile from './UserProfile';
 
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const CountText = styled(Typography)(({ theme }) => ({
+    fontSize: '2rem',
+    color: '#209cee',
+    cursor: 'pointer',
+}));
+
+const LabelText = styled(Typography)(({ theme }) => ({
+    fontSize: '1rem',
+    color: 'black',
+    cursor: 'pointer',
+}));
 
 export default function Profile() {
     const [bio, setBio] = useState("");
@@ -222,12 +233,14 @@ export default function Profile() {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'row' }}>
             <div>
-                <Button onClick={() => setOpenFollowers(true)}>
-                    Followers
-                </Button>
-                <Button onClick={() => setOpenFollowings(true)}>
-                    Following
-                </Button>
+                <Box display="flex" justifyContent="center" style={{ marginTop: '1em' }}>
+                    <Button onClick={() => setOpenFollowers(true)}>
+                        <LabelText border={2} borderRadius="16px" style={{color: '#209cee'}}>&nbsp;Followers&nbsp;</LabelText>
+                    </Button>
+                    <Button onClick={() => setOpenFollowings(true)}>
+                        <LabelText border={2} borderRadius="16px" style={{color: '#209cee'}}>&nbsp;Following&nbsp;</LabelText>
+                    </Button>
+                </Box>
                 <FormControl fullWidth>
                     <FormLabel>Update Your Bio</FormLabel>
                     <TextField sx={{ mr: '22px' }} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Your bio..." />
@@ -237,16 +250,17 @@ export default function Profile() {
                 </FormControl>
                 <div>
                     <br></br>
-                    <p> <b>Enter the amount of water you drank in ounces.</b></p>
-                    <button onClick={handleDecrease} style={{ fontSize: '32px' }}>-</button>
-                    <input type="number" value={oz} onChange={handleInput} style={{ textAlign: 'center', fontSize: '32px', width: '50%' }} />
-                    <button onClick={handleIncrease} style={{ fontSize: '32px' }}>+</button>
-                    <br></br>
-                    {/*<button onClick={() => addWaterIntake(oz)} style={{ fontSize: '22px' }}>Submit</button>*/}
-                     <button onClick={handleSubmitIntake} style={{ fontSize: '22px' }}>Submit</button>
-
+                    <FormLabel>Record water intake (oz):</FormLabel>
+                    <Box display="flex" justifyContent="center" style={{ marginTop: '1em' }}>
+                        <button onClick={handleDecrease} style={{ fontSize: '28px' }}>–</button>
+                        <input type="number" value={oz} onChange={handleInput} style={{ textAlign: 'center', fontSize: '28px', width: '50%' }} />
+                        <button onClick={handleIncrease} style={{ fontSize: '28px' }}>+</button>
+                        <br></br>
+                        {/*<button onClick={() => addWaterIntake(oz)} style={{ fontSize: '22px' }}>Submit</button>*/}
+                        <button onClick={handleSubmitIntake} style={{ fontSize: '20px' }}>Record</button>
+                    </Box>
                     {waterIntakelog.map((entry, index) => (
-                        <p key={index}>{`${entry.amount} oz at ${entry.timestamp}`}</p>
+                        <p key={index} style={{}}>{`Thirst Quenched 💦 — ${entry.amount} oz at ${entry.timestamp.toDate().toLocaleTimeString('en-US')}`}</p>
                     ))}
                 </div>
             </div>
