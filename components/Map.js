@@ -20,12 +20,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 //map otions setting
-const options = {
-  streetViewControl: false,
-  disableDefaultUI: true,
-  clickableIcons: false,
-  minZoom: 5, maxZoom: 16
-}
+
 
 //san Francisco
 const defaultmapCenter = {
@@ -46,6 +41,7 @@ export default function Map() {
   const [selectedMarker, setSelectedMarker] = useState(undefined);
   const [pin_fr, setpin_fr] = useState(false);
   const [review_fr, setreview_fr] = useState(false);
+  const [cursor, setCursor] = useState('pointer');
 
   async function getroute() {
     if (currentPosition === '' || destination === '') {
@@ -146,6 +142,15 @@ export default function Map() {
     }
   }, []);
 
+  const changeCursor = () => {
+    setCursor(prevCursor => {
+      if(prevCursor === 'pointer'){
+        return 'crosshair';
+      }
+      return 'pointer';
+    });
+  }
+  
   const [text, setText] = React.useState("");
   const [reviews, setReviews] = useState([]);
   const [adding, setAdding] = useState(false);
@@ -178,6 +183,7 @@ export default function Map() {
   );
 
   return (
+    <div style={{ cursor: cursor }}>
     <div style={{
       display: 'flex',
       cursor: 'default'
@@ -194,16 +200,18 @@ export default function Map() {
           color='primary'
           selected={adding}
           onChange={() => {
-            setAdding(!adding)
-          }}
+            setAdding(!adding);
+            changeCursor();
+          }
+          }
         >
           <Typography>
             Add Marker
           </Typography>
         </ToggleButton>
         <FormGroup>
-          <FormControlLabel control={<Switch checked={pin_fr} onChange={(e) => setpin_fr(e.target.checked)} />} label="Friends Pins Filter" />
-          <FormControlLabel control={<Switch checked={review_fr} onChange={(e) => setreview_fr(e.target.checked)} />} label="Friends Reviews Filter" />
+          <FormControlLabel control={<Switch checked={pin_fr} onChange={(e) => setpin_fr(e.target.checked)} />} label="Markers from People You Follow Only" />
+          <FormControlLabel control={<Switch checked={review_fr} onChange={(e) => setreview_fr(e.target.checked)} />} label="Reviews from People You Follow Only" />
         </FormGroup>
         {showroute ? (
 
@@ -255,9 +263,24 @@ export default function Map() {
                 .sort((a, b) => b.timestamp - a.timestamp)
 
                 .map(review => (
-                  <ListItemText key={review.id} primary={review.poster.name ?? "no name"} secondary={`${review.text} (${review.timestamp ? review.timestamp.toLocaleString() : 'No timestamp'})`} />
+                  <ListItemText
+                  key={review.id} 
+                  primary={review.poster.name ?? "no name"} 
+                  primaryTypographyProps={{ fontSize: "small" }}
+                  secondary={
+                    `${review.text} (${review.timestamp ? review.timestamp.toLocaleString() : 'No timestamp'})`
+                  } 
+                  secondaryTypographyProps={{ fontSize: "medium" }}
+                  sx={{
+                    bgcolor: 'background.paper',
+                    boxShadow: 1,
+                    borderRadius: 1,
+                    p: 1,
+                    minWidth: 250,
+                  }}/>
 
                 ))}
+                
             </List>
 
             <TextField variant="standard" value={text} onChange={e => { setText(e.target.value) }} placeholder="write a review..." />
@@ -299,15 +322,21 @@ export default function Map() {
         zoom={15}
         center={center}
         mapContainerStyle={{
-          width: 'calc(100vw - 350pt)',
-          height: 'calc(100vh - 350pt)',
+          width: 'calc(100vw - 360pt)',
+          height: 'calc(100vh - 250pt)',
           padding: '1000pxm',
           fontWeight: 'bold',
           flex: 40,
-          border: '4mm ridge rgba(211, 220, 50, .6)',
+          marginRight: '-240px',
           overflow: 'visible',
         }}
-        options={options}
+        options={{
+          streetViewControl: false,
+          disableDefaultUI: true,
+          clickableIcons: false,
+          draggableCursor: cursor,
+          minZoom: 5, maxZoom: 16
+        }}
         onClick={async (e) => {
           if (!adding) {
             setSelectedMarker(undefined);
@@ -323,6 +352,7 @@ export default function Map() {
               });
               await getMarkers();
               setAdding(false);
+              changeCursor();
             } catch (e) {
               console.log(e);
             }
@@ -356,6 +386,7 @@ export default function Map() {
           />
         )}
       </GoogleMap>
+    </div>
     </div>
 
   );

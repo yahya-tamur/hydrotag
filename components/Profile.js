@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
-import { updateDoc, increment, getFirestore, collection, getDocs, onSnapshot, where, query, doc, serverTimestamp, addDoc, deleteDoc } from 'firebase/firestore';
+import { updateDoc, increment, getFirestore, collection, getDocs, onSnapshot, where, query, doc, serverTimestamp, addDoc, deleteDoc, orderBy, Timestamp } from 'firebase/firestore';
 import { app } from '../app';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
@@ -20,12 +20,10 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
 import { Box } from '@mui/system';
-
 import UserProfile from './UserProfile';
 
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 
 
 export default function Profile() {
@@ -169,6 +167,57 @@ export default function Profile() {
     const handleReport = (userId) => {
         handleOpenReport(userId);
     };
+    const [oz, setOz] = useState(0); // amount of water intake in ounces
+    const [waterIntakelog, setWaterIntakelog] = useState([]);// array to intake log entries
+    const [resultValue, setResultVal] = useState('');// display the result
+
+
+    // collects data on water intake
+    const addWaterIntake = async () => {
+        try {
+            await addDoc(collection(db, 'waterIntake'), {
+                amount: oz,
+                timestamp: Timestamp.now(),
+                userId: auth.currentUser.uid,
+            });
+
+            console.log('water intake added successfully');
+            return Promise.resolve();
+        } catch (error) {
+            console.error('error in adding water intake', error);
+            return Promise.reject(error);
+        }
+    };
+    const handleSubmitIntake = () => {
+        addWaterIntake().then(() => {
+        console.log('Water intake submitted successfully.');
+        }).catch((error) => {
+            console.error('Error in handleSubmitIntake:', error);
+        });
+    };
+
+    const handleIncrease = () => {
+        setOz(prevValue => prevValue + 1);
+    };
+    const handleDecrease = () => {
+        setOz(prevValue => prevValue - 1);
+    };
+    const handleInput = (event) => {
+        const newValue = parseInt(event.target.value);
+        setOz(isNaN(newValue) ? 0 : newValue);
+    };
+
+    useEffect(() => {
+        const unsub = onSnapshot(query(collection(db, 'waterIntake'), orderBy('timestamp', 'desc')), (snapshot) => {
+        const logData = snapshot.docs.map((doc) => doc.data());
+        setWaterIntakelog(logData);
+        });
+  
+        return () => unsub();
+    }, [oz]);
+
+
+
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'row' }}>
@@ -186,6 +235,20 @@ export default function Profile() {
                         <Button onClick={handleBioUpdate} style={{ color: '#209cee', fontWeight: 'bold', whiteSpace: 'nowrap' }} sx={{ fontSize: '1.2rem', p: '1em', width: '150px' }}>Update Bio</Button>
                     </Box>
                 </FormControl>
+                <div>
+                    <br></br>
+                    <p> <b>Enter the amount of water you drank in ounces.</b></p>
+                    <button onClick={handleDecrease} style={{ fontSize: '32px' }}>-</button>
+                    <input type="number" value={oz} onChange={handleInput} style={{ textAlign: 'center', fontSize: '32px', width: '50%' }} />
+                    <button onClick={handleIncrease} style={{ fontSize: '32px' }}>+</button>
+                    <br></br>
+                    {/*<button onClick={() => addWaterIntake(oz)} style={{ fontSize: '22px' }}>Submit</button>*/}
+                     <button onClick={handleSubmitIntake} style={{ fontSize: '22px' }}>Submit</button>
+
+                    {waterIntakelog.map((entry, index) => (
+                        <p key={index}>{`${entry.amount} oz at ${entry.timestamp}`}</p>
+                    ))}
+                </div>
             </div>
             <Divider orientation="vertical" flexItem />
 
@@ -220,7 +283,7 @@ export default function Profile() {
             </Dialog>
 
             {/* The rest of your Dialogs and Dialog components here */}
-            <Dialog onClose={() => setOpenFollowers(false)} open={openFollowers}>
+            <Dialog onClose={() => { setOpenFollowers(false); setSearchText("") }} open={openFollowers}>
                 {/* User Profile Dialog */}
                 <Dialog open={openProfile} onClose={handleCloseProfile}>
                     <DialogTitle>User Profile</DialogTitle>
@@ -256,7 +319,7 @@ export default function Profile() {
                 </List>
             </Dialog>
 
-            <Dialog onClose={() => setOpenFollowings(false)} open={openFollowings}>
+            <Dialog onClose={() => { setOpenFollowings(false); setSearchText("") }} open={openFollowings}>
                 {/* User Profile Dialog */}
                 <Dialog open={openProfile} onClose={handleCloseProfile}>
                     <DialogTitle>User Profile</DialogTitle>
@@ -291,7 +354,7 @@ export default function Profile() {
                 </List>
             </Dialog>
             <UserProfile user={users.find(user => user.id === auth.currentUser.uid)} />
-        </Box >
+        </Box >       
     );
 }
 

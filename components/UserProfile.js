@@ -37,12 +37,12 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 export default function UserProfile(props) {
-
     //didn't want to get data here but it's necessary to check if you're at the top of the leaderboard
     // want to get data of most recent timestamp
     const [users, setUsers] = useState([]);
     const [recentTime, setRecent] = useState('');
-    const userLatest = getDoc(collection(db, 'users', auth.currentUser.uid, 'lastActive'));
+    const userLatest = getDoc(collection(db, 'users', auth.currentUser.uid));
+
 
     const fetchUsersData = async () => {
         const q = await getDocs(collection(db, "users"));
@@ -55,9 +55,8 @@ export default function UserProfile(props) {
     };
 
     const handleLastActive = async () => {
-        const current = Timestamp.now();
-        const recent = u.lastActive;
-        const difference = current - recent;
+        const difference = current - userLatest;
+        const recent = userLatest.lastActive()
         let minutes = Math.round(difference / 60)
         // difference is in seconds. if difference / 60 less than 1, then express in minutes. if minutes / 60 less than 1, say just now.
         console.log(recent)
