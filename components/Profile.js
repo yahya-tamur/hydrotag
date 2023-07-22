@@ -182,6 +182,7 @@ export default function Profile() {
             });
 
             console.log('water intake added successfully');
+            setOz(0);
             return Promise.resolve();
         } catch (error) {
             console.error('error in adding water intake', error);

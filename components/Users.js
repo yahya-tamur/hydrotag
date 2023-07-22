@@ -190,7 +190,6 @@ export default function Users() {
         <DialogContent>
           {/* Here you should render the user profile information */}
           <DialogContentText>
-            User ID: {profileUserId}
             <UserProfile user={users.find(user => user.id === profileUserId)} />
           </DialogContentText>
         </DialogContent>

@@ -293,7 +293,7 @@ export default function Map() {
                   primary={review.poster.name ?? "no name"} 
                   primaryTypographyProps={{ fontSize: "small" }}
                   secondary={
-                    `${review.text} (${formatTimestamp(review.timestamp)}))`
+                    `${review.text} (${formatTimestamp(review.timestamp)})`
                   } 
                   secondaryTypographyProps={{ fontSize: "medium" }}
                   sx={{
