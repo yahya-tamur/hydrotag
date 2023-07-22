@@ -262,9 +262,24 @@ export default function Map() {
                 .sort((a, b) => b.timestamp - a.timestamp)
 
                 .map(review => (
-                  <ListItemText key={review.id} primary={review.poster.name ?? "no name"} secondary={`${review.text} (${review.timestamp ? review.timestamp.toLocaleString() : 'No timestamp'})`} />
+                  <ListItemText
+                  key={review.id} 
+                  primary={review.poster.name ?? "no name"} 
+                  primaryTypographyProps={{ fontSize: "small" }}
+                  secondary={
+                    `${review.text} (${review.timestamp ? review.timestamp.toLocaleString() : 'No timestamp'})`
+                  } 
+                  secondaryTypographyProps={{ fontSize: "medium" }}
+                  sx={{
+                    bgcolor: 'background.paper',
+                    boxShadow: 1,
+                    borderRadius: 1,
+                    p: 1,
+                    minWidth: 250,
+                  }}/>
 
                 ))}
+                
             </List>
 
             <TextField variant="standard" value={text} onChange={e => { setText(e.target.value) }} placeholder="write a review..." />
