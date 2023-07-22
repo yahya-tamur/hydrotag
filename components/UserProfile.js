@@ -34,9 +34,12 @@ const LabelText = styled(Typography)(({ theme }) => ({
 const db = getFirestore(app);
 
 export default function UserProfile(props) {
-
     //didn't want to get data here but it's necessary to check if you're at the top of the leaderboard
     const [users, setUsers] = useState([]);
+    const [recentTime, setRecent] = useState('');
+    const userLatest = getDoc(collection(db, 'users', auth.currentUser.uid));
+
+
     const fetchUsersData = async () => {
         const q = await getDocs(collection(db, "users"));
         const usersArray = q.docs.map((doc) => ({
@@ -45,6 +48,28 @@ export default function UserProfile(props) {
         }));
         setUsers(usersArray);
     };
+
+    const handleLastActive = async () => {
+        const difference = current - userLatest;
+        const recent = userLatest.lastActive()
+        let minutes = Math.round(difference / 60)
+        // difference is in seconds. if difference / 60 less than 1, then express in minutes. if minutes / 60 less than 1, say just now.
+        console.log(recent)
+        if (minutes > 1) {
+            setRecent(Math.round(minutes).toString() + ' minutes ago')
+            //console.log('Around ' + Math.round(minutes) + ' minutes ago' );
+        }
+        else if ((minutes / 60) > 1) {
+            let hours = minutes / 60;
+            setRecent(Math.round(hours).toString() + ' hours ago')
+            //console.log('Around ' + Math.round(hours) + ' hours ago' );
+        }
+        else {
+            setRecent('Now')
+        }
+        console.log('Current time: ' + current + '\nLast Active: ' + recent + '\nDifference: ' + difference);
+    }
+    handleLastActive();
 
     useEffect(() => {
         fetchUsersData();
