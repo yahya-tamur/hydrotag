@@ -5,7 +5,8 @@
 //ex. <UserProfile user={user} />
 
 import React, { useState, useEffect } from 'react';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getAuth } from "firebase/auth";
+import { getFirestore, collection, getDocs, serverTimestamp, Timestamp, getDoc} from 'firebase/firestore';
 import { app } from '../app';
 import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
 import Typography from '@mui/material/Typography';
@@ -18,6 +19,7 @@ import EmojiEventsSharpIcon from '@mui/icons-material/EmojiEventsSharp';
 import Tooltip from '@mui/material/Tooltip';
 import { Box } from '@mui/system';
 import { styled } from '@mui/system';
+import { ContactSupportOutlined } from '@mui/icons-material';
 
 const CountText = styled(Typography)(({ theme }) => ({
     fontSize: '2rem',
@@ -31,12 +33,17 @@ const LabelText = styled(Typography)(({ theme }) => ({
     cursor: 'pointer',
 }));
 
+const auth = getAuth(app);
 const db = getFirestore(app);
 
 export default function UserProfile(props) {
 
     //didn't want to get data here but it's necessary to check if you're at the top of the leaderboard
+    // want to get data of most recent timestamp
     const [users, setUsers] = useState([]);
+    const [recentTime, setRecent] = useState('');
+    const userLatest = getDoc(collection(db, 'users', auth.currentUser.uid, 'lastActive'));
+
     const fetchUsersData = async () => {
         const q = await getDocs(collection(db, "users"));
         const usersArray = q.docs.map((doc) => ({
@@ -44,7 +51,31 @@ export default function UserProfile(props) {
             ...doc.data(),
         }));
         setUsers(usersArray);
+        console.log('Users:' + users)
     };
+
+    const handleLastActive = async () => {
+        const current = Timestamp.now();
+        const recent = u.lastActive;
+        const difference = current - recent;
+        let minutes = Math.round(difference / 60)
+        // difference is in seconds. if difference / 60 less than 1, then express in minutes. if minutes / 60 less than 1, say just now.
+        console.log(recent)
+        if (minutes > 1) {
+            setRecent(Math.round(minutes).toString() + ' minutes ago')
+            //console.log('Around ' + Math.round(minutes) + ' minutes ago' );
+        }
+        else if ((minutes / 60) > 1) {
+            let hours = minutes / 60;
+            setRecent(Math.round(hours).toString() + ' hours ago')
+            //console.log('Around ' + Math.round(hours) + ' hours ago' );
+        }
+        else {
+            setRecent('Now')
+        }
+        console.log('Current time: ' + current + '\nLast Active: ' + recent + '\nDifference: ' + difference);
+    }
+    handleLastActive();
 
     useEffect(() => {
         fetchUsersData();
@@ -72,6 +103,12 @@ export default function UserProfile(props) {
                     <Box display="flex" flexDirection="column" alignItems="center" marginX="1em">
                         <CountText variant="h2" sx={{ fontWeight: 'bold' }}>{props.user.following}</CountText>
                         <LabelText variant="body1">Following</LabelText>
+                    </Box>
+                    <Box display="flex" flexDirection="column" alignItems="center" marginX="1em">
+                        <CountText variant="h2" sx={{ fontWeight: 'bold' }}>{props.user.streak} </CountText>
+                        <LabelText variant="body1">🔥Daily Streak🔥</LabelText>
+                        <CountText variant="h3">{recentTime}</CountText>
+                        <LabelText variant="body2" color="secondary">Last Active</LabelText>
                     </Box>
                 </Box>
 

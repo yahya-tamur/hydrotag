@@ -180,6 +180,7 @@ export default function Map() {
   return (
     <div style={{
       display: 'flex',
+      cursor: 'default'
     }}>
 
       <Paper style={{
@@ -193,7 +194,7 @@ export default function Map() {
           color='primary'
           selected={adding}
           onChange={() => {
-            setAdding(!adding);
+            setAdding(!adding)
           }}
         >
           <Typography>
@@ -277,7 +278,8 @@ export default function Map() {
                       timestamp: Timestamp.now(), // added server time stamp
                     });
                     updateDoc(doc(db, 'users', auth.currentUser.uid), {
-                      reviews: increment(1)
+                      reviews: increment(1),
+                      lastActive: Timestamp.now()
                     });
                     setText("");
                     getData();
@@ -316,7 +318,8 @@ export default function Map() {
                 poster: auth.currentUser.uid,
               }));
               updateDoc(doc(db, 'users', auth.currentUser.uid), {
-                markers: increment(1)
+                markers: increment(1),
+                lastActive: Timestamp.now()
               });
               await getMarkers();
               setAdding(false);
