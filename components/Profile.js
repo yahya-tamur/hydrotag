@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
-import { updateDoc, increment, getFirestore, collection, getDocs, onSnapshot, where, query, doc, serverTimestamp, addDoc, deleteDoc, orderBy } from 'firebase/firestore';
+import { updateDoc, increment, getFirestore, collection, getDocs, onSnapshot, where, query, doc, serverTimestamp, addDoc, deleteDoc, orderBy, Timestamp } from 'firebase/firestore';
 import { app } from '../app';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
@@ -175,11 +175,12 @@ export default function Profile() {
     // collects data on water intake
     const addWaterIntake = async () => {
         try {
-            await addDoc(collection(db, 'intake'), {
+            await addDoc(collection(db, 'waterIntake'), {
                 amount: oz,
-                timestamp: serverTimestamp(),
+                timestamp: Timestamp.now(),
                 userId: auth.currentUser.uid,
             });
+
             console.log('water intake added successfully');
             return Promise.resolve();
         } catch (error) {
@@ -194,10 +195,7 @@ export default function Profile() {
             console.error('Error in handleSubmitIntake:', error);
         });
     };
-    const updateResult = () => {
-        console.log('current val: ' + oz + ' oz.')
-        //setResultVal('current val: ' +  oz + ' oz.');
-    };
+
     const handleIncrease = () => {
         setOz(prevValue => prevValue + 1);
     };
@@ -209,9 +207,6 @@ export default function Profile() {
         setOz(isNaN(newValue) ? 0 : newValue);
     };
 
-    //useEffect(() => {
-    //    updateResult
-    //}, [oz]);
     useEffect(() => {
         const unsub = onSnapshot(query(collection(db, 'waterIntake'), orderBy('timestamp', 'desc')), (snapshot) => {
         const logData = snapshot.docs.map((doc) => doc.data());
@@ -219,7 +214,7 @@ export default function Profile() {
         });
   
         return () => unsub();
-    }, []);
+    }, [oz]);
 
 
 
@@ -247,8 +242,8 @@ export default function Profile() {
                     <input type="number" value={oz} onChange={handleInput} style={{ textAlign: 'center', fontSize: '32px', width: '50%' }} />
                     <button onClick={handleIncrease} style={{ fontSize: '32px' }}>+</button>
                     <br></br>
-                    <button onClick={() => addWaterIntake(oz)} style={{ fontSize: '22px' }}>Submit</button>
-                    {/* <button onClick={handleSubmitIntake} style={{ fontSize: '22px' }}>Submit</button>*/}
+                    {/*<button onClick={() => addWaterIntake(oz)} style={{ fontSize: '22px' }}>Submit</button>*/}
+                     <button onClick={handleSubmitIntake} style={{ fontSize: '22px' }}>Submit</button>
 
                     {waterIntakelog.map((entry, index) => (
                         <p key={index}>{`${entry.amount} oz at ${entry.timestamp}`}</p>
