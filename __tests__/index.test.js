@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
-import Home from '../pages/index';
+import Index from '../pages/index';
 import Map from '../components/Map';
 import '@testing-library/jest-dom';
 
 describe('Index Renders when Logged Out', () => {
   it('renders a heading', () => {
-    render(<Home />);
+    render(<Index />);
     const heading = screen.getByText('HydroTag App');
     expect(heading).toBeInTheDocument();
   });

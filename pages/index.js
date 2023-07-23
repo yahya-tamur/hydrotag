@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { Timestamp, doc, updateDoc, getDocs, setDoc, getFirestore } from 'firebase/firestore';
-import { getFunctions, onSchedule } from 'firebase/functions';
+import { doc, setDoc, getFirestore } from 'firebase/firestore';
 import { Box, Typography, Grid, TextField, Button, GlobalStyles } from '@mui/material';
 import { app } from '../app';
 
