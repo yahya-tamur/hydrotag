@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { Timestamp, doc, updateDoc, getDocs, setDoc, getFirestore} from 'firebase/firestore';
-import { getFunctions, onSchedule} from 'firebase/functions'
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { Timestamp, doc, updateDoc, getDocs, setDoc, getFirestore } from 'firebase/firestore';
+import { getFunctions, onSchedule } from 'firebase/functions';
 import { Box, Typography, Grid, TextField, Button, GlobalStyles } from '@mui/material';
 import { app } from '../app';
 
@@ -24,25 +24,27 @@ export default function Index() {
 
   return (
     <>
-      <GlobalStyles styles={{
-        body: {
-          margin: 0,
-          padding: 0,
-          boxSizing: 'border-box',
-          fontFamily: 'sans-serif',
-        },
-        'h1, h2, h3, h4, h5, h6, p, ul, ol, li, a, button, input, select, textarea': {
-          margin: 0,
-          padding: 0,
-        }
-      }} />
+      <GlobalStyles
+        styles={{
+          body: {
+            margin: 0,
+            padding: 0,
+            boxSizing: 'border-box',
+            fontFamily: 'sans-serif',
+          },
+          'h1, h2, h3, h4, h5, h6, p, ul, ol, li, a, button, input, select, textarea': {
+            margin: 0,
+            padding: 0,
+          },
+        }}
+      />
 
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           minHeight: '100vh',
-          backgroundColor: 'white'
+          backgroundColor: 'white',
         }}
       >
         <Box
@@ -52,7 +54,7 @@ export default function Index() {
             alignItems: 'center',
             backgroundColor: '#209cee',
             color: 'white',
-            padding: '10px'
+            padding: '10px',
           }}
         >
           <Typography variant="h3">HydroTag App</Typography>
@@ -63,7 +65,7 @@ export default function Index() {
             display: 'flex',
             flexDirection: 'row',
             padding: '1em',
-            flexGrow: 1
+            flexGrow: 1,
           }}
         >
           <Box
@@ -75,17 +77,12 @@ export default function Index() {
               padding: '30px',
               margin: '5%',
               maxWidth: '450px',
-              width: '100%'
+              width: '100%',
             }}
           >
             <img src="/logo.png" alt="Logo" />
-            {!isSignup ?
-              <Grid
-                container
-                direction="column"
-                alignItems="stretch"
-                spacing={2}
-              >
+            {!isSignup ? (
+              <Grid container direction="column" alignItems="stretch" spacing={2}>
                 <Grid item>
                   <Typography variant="h4">Login</Typography>
                   <Typography variant="subtitle1">
@@ -100,7 +97,7 @@ export default function Index() {
                     label="Email Address"
                     type="text"
                     value={email}
-                    onChange={(e) => {
+                    onChange={e => {
                       setEmail(e.target.value);
                     }}
                     fullWidth
@@ -111,7 +108,7 @@ export default function Index() {
                     label="Password"
                     type="password"
                     value={password}
-                    onChange={(e) => {
+                    onChange={e => {
                       setPassword(e.target.value);
                     }}
                     fullWidth
@@ -140,13 +137,8 @@ export default function Index() {
                   <p style={{ color: 'red' }}>{errorMsg}</p>
                 </Grid>
               </Grid>
-              :
-              <Grid
-                container
-                direction="column"
-                alignItems="stretch"
-                spacing={2}
-              >
+            ) : (
+              <Grid container direction="column" alignItems="stretch" spacing={2}>
                 <Grid item>
                   <Typography variant="h4">Sign Up</Typography>
                 </Grid>
@@ -155,7 +147,7 @@ export default function Index() {
                     label="Email Address"
                     type="text"
                     value={email}
-                    onChange={(e) => {
+                    onChange={e => {
                       setEmail(e.target.value);
                     }}
                     fullWidth
@@ -166,7 +158,7 @@ export default function Index() {
                     label="Username"
                     type="text"
                     value={name}
-                    onChange={(e) => {
+                    onChange={e => {
                       setName(e.target.value);
                     }}
                     fullWidth
@@ -177,19 +169,23 @@ export default function Index() {
                     label="Password"
                     type="password"
                     value={password}
-                    onChange={(e) => {
+                    onChange={e => {
                       setPassword(e.target.value);
                     }}
                     fullWidth
                   />
-                  <p style={{ color: 'red' }}>{passwordCheck() ? '' : 'Password must be at least 6 characters, with at least one letter and one number.'}</p>
+                  <p style={{ color: 'red' }}>
+                    {passwordCheck()
+                      ? ''
+                      : 'Password must be at least 6 characters, with at least one letter and one number.'}
+                  </p>
                 </Grid>
                 <Grid item>
                   <TextField
                     label="Confirm Password"
                     type="password"
                     value={check}
-                    onChange={(e) => {
+                    onChange={e => {
                       setCheck(e.target.value);
                     }}
                     fullWidth
@@ -198,7 +194,7 @@ export default function Index() {
                 <Grid item>
                   <Button
                     variant="contained"
-                    onClick={async (e) => {
+                    onClick={async e => {
                       e.preventDefault();
                       if (!passwordCheck()) {
                         setErrorMsg('Password does not meet the requirements.');
@@ -210,7 +206,15 @@ export default function Index() {
                       }
                       try {
                         let x = await createUserWithEmailAndPassword(auth, email, password);
-                        await setDoc(doc(db, 'users', x.user.uid), { email: email, name: name, markers: 0, reviews: 0, following: 0, followers: 0, bio: "" });
+                        await setDoc(doc(db, 'users', x.user.uid), {
+                          email: email,
+                          name: name,
+                          markers: 0,
+                          reviews: 0,
+                          following: 0,
+                          followers: 0,
+                          bio: '',
+                        });
                         setErrorMsg('');
                         setSuccessMsg('Your account has been created. You can now log in.');
                       } catch (error) {
@@ -229,13 +233,16 @@ export default function Index() {
                   <p style={{ color: 'red' }}>{errorMsg}</p>
                 </Grid>
                 <Grid item>
-                  <Button variant="contained" onClick={() => setIsSignup(false)}
-                    sx={{ bgcolor: '#209cee', color: 'white' }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => setIsSignup(false)}
+                    sx={{ bgcolor: '#209cee', color: 'white' }}
+                  >
                     Go Back
                   </Button>
                 </Grid>
               </Grid>
-            }
+            )}
           </Box>
 
           <Box sx={{ flex: 1, padding: '0 2em' }}>
@@ -243,17 +250,12 @@ export default function Index() {
               Welcome to the HydroTag App!
             </Typography>
             <Typography variant="h5" sx={{ lineHeight: 2, textAlign: 'justify' }}>
-              HydroTag is your comprehensive companion for discovering,
-              tracking, and reviewing water sources in your vicinity.
-              With an aim to make finding quality water convenient and
-              personalized, HydroTag provides a platform to explore
-              water sources around you, along with valuable insights on
-              their quality, based on user reviews. You can easily pin
-              your findings on the map, see pins from your friends, and
-              contribute to the community through your own reviews.
-              HydroTag isn't just an app, it's a community-driven endeavor
-              to promote safe and quality water for everyone. Join the
-              HydroTag community today!
+              HydroTag is your comprehensive companion for discovering, tracking, and reviewing water sources in your
+              vicinity. With an aim to make finding quality water convenient and personalized, HydroTag provides a
+              platform to explore water sources around you, along with valuable insights on their quality, based on user
+              reviews. You can easily pin your findings on the map, see pins from your friends, and contribute to the
+              community through your own reviews. HydroTag isn't just an app, it's a community-driven endeavor to
+              promote safe and quality water for everyone. Join the HydroTag community today!
             </Typography>
           </Box>
         </Box>
@@ -265,7 +267,7 @@ export default function Index() {
             alignItems: 'center',
             backgroundColor: '#209cee',
             color: 'white',
-            padding: '10px'
+            padding: '10px',
           }}
         >
           <Typography>© Copyright 2023 HydroTag - All Rights Reserved </Typography>

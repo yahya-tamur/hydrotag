@@ -2,22 +2,22 @@ Hosted on [hydrotag.vercel.app](https://hydrotag.vercel.app/)
 
 Instructions for contributing:
 
-* Clone the repository:
+- Clone the repository:
 
-```git clone git@github.com:yahya-tamur/hydrotag.git```
+`git clone git@github.com:yahya-tamur/hydrotag.git`
 
-* Go into the project directory:
+- Go into the project directory:
 
-```cd hydrotag```
+`cd hydrotag`
 
-* Copy the `.env.local` file from discord into the project directory. Make sure
+- Copy the `.env.local` file from discord into the project directory. Make sure
   you don't change the name of the file.
 
-*  Run the following commands to install the necessary files and start the app:
+- Run the following commands to install the necessary files and start the app:
 
-```npm install```
+`npm install`
 
-```npm run dev```
+`npm run dev`
 
 You should be able to go to `http://localhost:3000` and see the
 app.
@@ -27,15 +27,21 @@ usually just run `npm run dev` to start the server.
 
 To run the tests:
 
-```npm run test```
+`npm run test`
 
 To run an optimized
 production version locally, first build:
 
-```npm run build```
+`npm run build`
 
 Then start the server:
 
-```npm start```
+`npm start`
+
+To format:
+
+`npm run format`
+
+Please format before committing any changes!
 
 Pushes to the main branch are tested and deployed automatically.
