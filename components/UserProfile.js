@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, collection, getDocs, setDoc, Timestamp, increment, doc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, Timestamp, increment, doc, updateDoc } from 'firebase/firestore';
 import { app } from '../app';
 import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
 import Typography from '@mui/material/Typography';
@@ -18,9 +18,7 @@ import VerifiedSharpIcon from '@mui/icons-material/VerifiedSharp';
 import RateReviewSharpIcon from '@mui/icons-material/RateReviewSharp';
 import EmojiEventsSharpIcon from '@mui/icons-material/EmojiEventsSharp';
 import Tooltip from '@mui/material/Tooltip';
-import { Box, borders, styled } from '@mui/system';
-import { ContactSupportOutlined } from '@mui/icons-material';
-import { getFunctions, onSchedule } from 'firebase/functions';
+import { Box, styled } from '@mui/system';
 
 const CountText = styled(Typography)(({ theme }) => ({
   fontSize: '2rem',
@@ -54,8 +52,10 @@ export default function UserProfile(props) {
   //didn't want to get data here but it's necessary to check if you're at the top of the leaderboard
   // want to get data of most recent timestamp
   const [users, setUsers] = useState([]);
-  const [endUser, setEndUser] = useState([]);
 
+  //this was for the streaks functionality, and should run every 24 hours.
+  //But we didn't figure out how to do that in time.
+  /*
   const isolatedFunction = async () => {
     const time = Timestamp.now();
     const q = await getDocs(collection(db, 'users'));
@@ -80,6 +80,7 @@ export default function UserProfile(props) {
       }
     }
   };
+  */
 
   const fetchUsersData = async () => {
     const q = await getDocs(collection(db, 'users'));
@@ -87,14 +88,8 @@ export default function UserProfile(props) {
       id: doc.id,
       ...doc.data(),
     }));
-    let user = usersArray.filter(user => user.id === auth.currentUser.uid);
-    setEndUser(user);
     setUsers(usersArray);
-    console.log('Users:' + users);
-    console.log('Current End User: ' + endUser);
   };
-
-  const handleActive = async () => {};
 
   useEffect(() => {
     fetchUsersData();
@@ -103,7 +98,6 @@ export default function UserProfile(props) {
   return (
     props.user && (
       <div>
-        <Button onClick={isolatedFunction}>Button</Button>
         <Box sx={{ flex: '1 1', p: 2 }}>
           <Box display="flex" flexDirection="column" alignItems="center">
             <AccountCircleSharpIcon
@@ -172,7 +166,6 @@ export default function UserProfile(props) {
                   flexDirection="column"
                   alignItems="center"
                   marginX="2em"
-                  onClick={() => handleOpenBadgeDetails('Welcome Aboard')}
                   style={{ cursor: 'pointer' }}
                 >
                   <DirectionsBoatFilledSharpIcon sx={{ fontSize: '3rem', color: 'gold' }} />
@@ -186,7 +179,6 @@ export default function UserProfile(props) {
                   flexDirection="column"
                   alignItems="center"
                   marginX="2em"
-                  onClick={() => handleOpenBadgeDetails('Social Hydrator')}
                   style={{ cursor: 'pointer' }}
                 >
                   <Diversity1SharpIcon sx={{ fontSize: '3rem', color: props.user.following > 0 ? 'gold' : 'grey' }} />
@@ -200,7 +192,6 @@ export default function UserProfile(props) {
                   flexDirection="column"
                   alignItems="center"
                   marginX="2em"
-                  onClick={() => handleOpenBadgeDetails('Water Tracker Pioneer')}
                   style={{ cursor: 'pointer' }}
                 >
                   <WaterDropSharpIcon sx={{ fontSize: '3rem', color: props.user.markers > 0 ? 'gold' : 'grey' }} />
@@ -214,7 +205,6 @@ export default function UserProfile(props) {
               justifyContent="center"
               alignItems="center"
               marginTop="2em"
-              onClick={() => handleOpenBadgeDetails('Hydro Influencer')}
               style={{ cursor: 'pointer' }}
             >
               {/* Badge 4 */}
@@ -231,7 +221,6 @@ export default function UserProfile(props) {
                   flexDirection="column"
                   alignItems="center"
                   marginX="2em"
-                  onClick={() => handleOpenBadgeDetails('Hydro Critic')}
                   style={{ cursor: 'pointer' }}
                 >
                   <RateReviewSharpIcon sx={{ fontSize: '3rem', color: props.user.reviews > 0 ? 'gold' : 'grey' }} />
@@ -245,7 +234,6 @@ export default function UserProfile(props) {
                   flexDirection="column"
                   alignItems="center"
                   marginX="2em"
-                  onClick={() => handleOpenBadgeDetails('Aquatic Ace')}
                   style={{ cursor: 'pointer' }}
                 >
                   <EmojiEventsSharpIcon

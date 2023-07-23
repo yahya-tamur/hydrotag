@@ -159,30 +159,24 @@ export default function Map() {
   const [showroute, setshowroute] = useState(false);
 
   if (!isLoaded) return <div>Loading...</div>;
-  let iconMarker = new google.maps.MarkerImage(
-    "/water-pin.png", 
-    null,
-    null,
-    null,
-    new google.maps.Size(60, 50)
-  );
+  let iconMarker = new google.maps.MarkerImage('/water-pin.png', null, null, null, new google.maps.Size(60, 50));
 
   let iconSelectedMarker = new google.maps.MarkerImage(
-    "/selected-pin.png",
+    '/selected-pin.png',
     null,
     null,
     null,
-  new google.maps.Size(85, 75)
+    new google.maps.Size(85, 75)
   );
 
   let iconCurrentPosition = new google.maps.MarkerImage(
-    "/current-pin.png",
+    '/current-pin.png',
     null,
     null,
     null,
     new google.maps.Size(100, 85)
   );
-  const formatTimestamp = (timestamp) => {
+  const formatTimestamp = timestamp => {
     if (timestamp instanceof Date) {
       const options = {
         year: 'numeric',
@@ -211,219 +205,234 @@ export default function Map() {
   };
   return (
     <div style={{ cursor: cursor }}>
-    <div style={{
-      display: 'flex',
-      cursor: 'default'
-    }}>
-
-      <Paper style={{
-        flex: 10,
-        margin: '20px',
-        marginLeft: '0px',
-        padding: '20px',
-        minWidth: 300
-      }}>
-        <ToggleButton
-          value="Add Marker"
-          color='primary'
-          selected={adding}
-          onChange={() => {
-            setAdding(!adding);
-            changeCursor();
-          }
-          }
-        >
-          <Typography>
-            Add Marker
-          </Typography>
-        </ToggleButton>
-        <FormGroup>
-          <FormControlLabel control={<Switch checked={pin_fr} onChange={(e) => setpin_fr(e.target.checked)} />} label="Markers from Following" />
-          <FormControlLabel control={<Switch checked={review_fr} onChange={(e) => setreview_fr(e.target.checked)} />} label="Reviews from Following" />
-        </FormGroup>
-        {showroute ? (
-
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-          }}>
-            <Button
-              variant="contained"
-              color='error'
-              onClick={() => {
-                deleteroute();
-              }}
-            >
-              <Typography>
-                Delete Route
-              </Typography>
-            </Button>
-          </div>
-        ) : null}
-
-
-        {selectedMarker ? (
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-          }}>
-
-            <Button
-              variant="contained"
-              color='success'
-              onClick={() => {
-                getroute();
-              }}
-            >
-              <Typography>
-                Find Route
-              </Typography>
-            </Button>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
-              Marker by {users.find(user => user.id === markerlist.find(m => m.id === selectedMarker).poster).name ?? "no name"}
-            </Typography>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
-              Reviews:
-            </Typography>
-            <List>
-              {(!review_fr ? reviews : reviews.filter(r => friendlist.includes(r.poster.id) || r.poster.id === auth.currentUser.uid))
-                .filter(r => r.marker === selectedMarker)
-                .sort((a, b) => b.timestamp - a.timestamp)
-
-                .map(review => (
-                  <ListItemText
-                  key={review.id} 
-                  primary={review.poster.name ?? "no name"} 
-                  primaryTypographyProps={{ fontSize: "small" }}
-                  secondary={
-                    `${review.text} (${formatTimestamp(review.timestamp)})`
-                  } 
-                  secondaryTypographyProps={{ fontSize: "medium" }}
-                  sx={{
-                    bgcolor: 'background.paper',
-                    boxShadow: 1,
-                    borderRadius: 1,
-                    p: 1,
-                    minWidth: 250
-                  }}/>
-
-                ))}
-                
-            </List>
-
-            <TextField variant="standard" value={text} onChange={e => { setText(e.target.value) }} placeholder="write a review..." />
-            <Button
-              sx={{ alignSelf: 'flex-start', margin: '10px', marginLeft: '0px' }}
-              variant='outlined'
-              onClick={
-                async () => {
-                  if (selectedMarker == undefined) {
-                    alert("no marker selected!");
-                    return;
-                  }
-                  try {
-                    await addDoc(collection(db, "reviews"), {
-                      marker: selectedMarker,
-                      poster: auth.currentUser.uid,
-                      text: text,
-                      timestamp: Timestamp.now(), // added server time stamp
-                    });
-                    const u = users.find(user => user.id === auth.currentUser.uid);
-                    console.log(u);
-                    updateDoc(doc(db, 'users', auth.currentUser.uid), {
-                      reviews: increment(1),
-                      lastActive: Timestamp.now(),
-                      isstreak: false,
-                      streak: u.isstreak ? u.streak+1 : u.streak,
-                    });
-                    setText("");
-                    getData();
-                  } catch (e) {
-                    console.log(e);
-                    console.log("error adding data!");
-                  }
-                }
-
-              }>Submit</Button>
-          </div>
-
-        ) : (<div />)}
-      </Paper>
-
-      <GoogleMap
-        zoom={15}
-        center={center}
-        mapContainerStyle={{
-          width: 'calc(100vw - 360pt)',
-          height: 'calc(100vh - 250pt)',
-          padding: '1000pxm',
-          fontWeight: 'bold',
-          flex: 40,
-          marginRight: '-240px',
-          overflow: 'visible',
-        }}
-        options={{
-          streetViewControl: false,
-          disableDefaultUI: true,
-          clickableIcons: false,
-          draggableCursor: cursor,
-          minZoom: 5, maxZoom: 16
-        }}
-        onClick={async (e) => {
-          if (!adding) {
-            setSelectedMarker(undefined);
-          } else {
-            try {
-              console.log(await addDoc(collection(db, "markers"), {
-                location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
-                poster: auth.currentUser.uid,
-              }));
-              const u = users.find(user => user.id === auth.currentUser.uid);
-              updateDoc(doc(db, 'users', auth.currentUser.uid), {
-                markers: increment(1),
-                lastActive: Timestamp.now(),
-                isstreak: false,
-                streak: u.isstreak ? u.streak+1 : u.streak,
-              });
-              await getMarkers();
-              setAdding(false);
-              changeCursor();
-            } catch (e) {
-              console.log(e);
-            }
-          }
+      <div
+        style={{
+          display: 'flex',
+          cursor: 'default',
         }}
       >
-        {directionresponse && (
-          <DirectionsRenderer
-            directions={directionresponse}
-            options={{ suppressMarkers: true }}
-          />
-        )}
-        <PanningComponent targetLocation={center} />
-
-        {(!pin_fr ? markerlist : markerlist.filter(marker => friendlist.includes(marker.poster) || marker.poster == auth.currentUser.uid)).map((marker, i) => (
-          <Marker
-            icon={marker.id == selectedMarker ? iconSelectedMarker : iconMarker}
-            position={marker}
-            key={i}
-            onClick={(e) => {
-              setSelectedMarker(marker.id);
-              console.log(selectedMarker);
-              setdestination({ lat: marker.lat, lng: marker.lng });
+        <Paper
+          style={{
+            flex: 10,
+            margin: '20px',
+            marginLeft: '0px',
+            paddingTop: '20px',
+            marginTop: '0px',
+            padding: '20px',
+            width: '400px',
+          }}
+        >
+          <ToggleButton
+            value="Add Marker"
+            color="primary"
+            selected={adding}
+            onChange={() => {
+              setAdding(!adding);
+              changeCursor();
             }}
-          />
-        ))}
-        {currentPosition && (
-          <Marker
-            icon={iconCurrentPosition}
-            position={currentPosition}
-          />
-        )}
-      </GoogleMap>
-    </div>
-    </div>
+          >
+            <Typography>Add Marker</Typography>
+          </ToggleButton>
+          <FormGroup>
+            <FormControlLabel
+              control={<Switch checked={pin_fr} onChange={e => setpin_fr(e.target.checked)} />}
+              label="Markers from Following"
+            />
+            <FormControlLabel
+              control={<Switch checked={review_fr} onChange={e => setreview_fr(e.target.checked)} />}
+              label="Reviews from Following"
+            />
+          </FormGroup>
+          {showroute ? (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => {
+                  deleteroute();
+                }}
+              >
+                <Typography>Delete Route</Typography>
+              </Button>
+            </div>
+          ) : null}
 
+          {selectedMarker ? (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => {
+                  getroute();
+                }}
+              >
+                <Typography>Find Route</Typography>
+              </Button>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
+                Marker by{' '}
+                {users.find(user => user.id === markerlist.find(m => m.id === selectedMarker).poster).name ?? 'no name'}
+              </Typography>
+              <TextField
+                variant="standard"
+                sx={{ mt: '30px' }}
+                value={text}
+                onChange={e => {
+                  setText(e.target.value);
+                }}
+                placeholder="write a review..."
+                InputProps={{
+                  endAdornment: (
+                    <Button
+                      onClick={async () => {
+                        if (selectedMarker == undefined) {
+                          alert('no marker selected!');
+                          return;
+                        }
+                        try {
+                          await addDoc(collection(db, 'reviews'), {
+                            marker: selectedMarker,
+                            poster: auth.currentUser.uid,
+                            text: text,
+                            timestamp: Timestamp.now(), // added server time stamp
+                          });
+                          const u = users.find(user => user.id === auth.currentUser.uid);
+                          console.log(u);
+                          updateDoc(doc(db, 'users', auth.currentUser.uid), {
+                            reviews: increment(1),
+                            lastActive: Timestamp.now(),
+                            isstreak: false,
+                            streak: u.isstreak ? u.streak + 1 : u.streak,
+                          });
+                          setText('');
+                          getData();
+                        } catch (e) {
+                          console.log(e);
+                          console.log('error adding data!');
+                        }
+                      }}
+                    >
+                      {' '}
+                      submit{' '}
+                    </Button>
+                  ),
+                }}
+              />
+
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
+                Reviews:
+              </Typography>
+              <List sx={{ height: 'calc(100vh - 378pt)', overflow: 'auto' }}>
+                {(!review_fr
+                  ? reviews
+                  : reviews.filter(r => friendlist.includes(r.poster.id) || r.poster.id === auth.currentUser.uid)
+                )
+                  .filter(r => r.marker === selectedMarker)
+                  .sort((a, b) => b.timestamp - a.timestamp)
+
+                  .map(review => (
+                    <ListItemText
+                      key={review.id}
+                      primary={review.poster.name ?? 'no name'}
+                      primaryTypographyProps={{ fontSize: 'small' }}
+                      secondary={`${review.text} (${formatTimestamp(review.timestamp)})`}
+                      secondaryTypographyProps={{ fontSize: 'medium' }}
+                      sx={{
+                        bgcolor: 'background.paper',
+                        boxShadow: 1,
+                        borderRadius: 1,
+                        p: 1,
+                        minWidth: 250,
+                      }}
+                    />
+                  ))}
+              </List>
+            </div>
+          ) : (
+            <div />
+          )}
+        </Paper>
+
+        <GoogleMap
+          zoom={15}
+          center={center}
+          mapContainerStyle={{
+            width: 'calc(100vw - 600pt)',
+            height: 'calc(100vh - 100pt)',
+            padding: '1000pxm',
+            fontWeight: 'bold',
+            flex: 40,
+            marginRight: '-240px',
+            overflow: 'visible',
+          }}
+          options={{
+            streetViewControl: false,
+            disableDefaultUI: true,
+            clickableIcons: false,
+            draggableCursor: cursor,
+            minZoom: 5,
+            maxZoom: 16,
+          }}
+          onClick={async e => {
+            if (!adding) {
+              setSelectedMarker(undefined);
+            } else {
+              try {
+                console.log(
+                  await addDoc(collection(db, 'markers'), {
+                    location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
+                    poster: auth.currentUser.uid,
+                  })
+                );
+                const u = users.find(user => user.id === auth.currentUser.uid);
+                updateDoc(doc(db, 'users', auth.currentUser.uid), {
+                  markers: increment(1),
+                  lastActive: Timestamp.now(),
+                  isstreak: false,
+                  streak: u.isstreak ? u.streak + 1 : u.streak,
+                });
+                await getMarkers();
+                setAdding(false);
+                changeCursor();
+              } catch (e) {
+                console.log(e);
+              }
+            }
+          }}
+        >
+          {directionresponse && (
+            <DirectionsRenderer directions={directionresponse} options={{ suppressMarkers: true }} />
+          )}
+          <PanningComponent targetLocation={center} />
+
+          {(!pin_fr
+            ? markerlist
+            : markerlist.filter(marker => friendlist.includes(marker.poster) || marker.poster == auth.currentUser.uid)
+          ).map((marker, i) => (
+            <Marker
+              icon={marker.id == selectedMarker ? iconSelectedMarker : iconMarker}
+              position={marker}
+              key={i}
+              onClick={e => {
+                setSelectedMarker(marker.id);
+                console.log(selectedMarker);
+                setdestination({ lat: marker.lat, lng: marker.lng });
+              }}
+            />
+          ))}
+          {currentPosition && <Marker icon={iconCurrentPosition} position={currentPosition} />}
+        </GoogleMap>
+      </div>
+    </div>
   );
 }
 

@@ -15,20 +15,27 @@ import {
   onSnapshot,
 } from 'firebase/firestore';
 import { app } from '../app';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+import {
+  Box,
+  FormControl,
+  FormLabel,
+  TextField,
+  Button,
+  ListItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Select,
+  MenuItem,
+  InputLabel,
+  List,
+  ListItemText,
+  ListItemIcon,
+  Typography,
+} from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
-import ListItem from '@mui/material/ListItem';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import InputLabel from '@mui/material/InputLabel';
 
 import UserProfile from './UserProfile';
 
@@ -226,25 +233,37 @@ export default function Users() {
         <div>
           <h2>Search Results:</h2>
           {filteredUsers.length > 0 ? (
-            <ul>
+            <List>
               {filteredUsers.map(user => (
                 <ListItem key={user.id}>
-                  {user.name}
-                  {followings.find(following => following.following === user.id) && followers.includes(user.id) && (
-                    <StarIcon />
-                  )}
-                  {followings.find(following => following.following === user.id) ? (
-                    <Button
-                      onClick={() => handleUnfollow(followings.find(following => following.following === user.id))}
-                      style={{ color: '#209cee' }}
-                    >
-                      Unfollow
-                    </Button>
-                  ) : (
-                    <Button onClick={() => handleFollow(user.id)} style={{ color: '#209cee' }}>
-                      Follow
-                    </Button>
-                  )}
+                  <ListItemText
+                    primary={
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        <span>{user.name}</span>
+                        {followings.find(following => following.following === user.id) &&
+                          followers.includes(user.id) && <StarIcon sx={{ ml: '10px' }} />}
+                      </div>
+                    }
+                    sx={{ width: '160px' }}
+                  />
+                  <ListItemIcon sx={{ mr: '-30px', pr: '0px' }}></ListItemIcon>
+                  <Button
+                    sx={{ width: '100px' }}
+                    onClick={() =>
+                      followings.find(following => following.following === user.id)
+                        ? handleUnfollow(followings.find(following => following.following === user.id))
+                        : handleFollow(user.id)
+                    }
+                    style={{ color: '#209cee' }}
+                  >
+                    {followings.find(following => following.following === user.id) ? 'Unfollow' : 'Follow'}
+                  </Button>
                   <Button onClick={() => handleReport(user.id)} style={{ color: '#209cee' }}>
                     Report
                   </Button>
@@ -253,7 +272,7 @@ export default function Users() {
                   </Button>
                 </ListItem>
               ))}
-            </ul>
+            </List>
           ) : (
             <p>No results</p>
           )}

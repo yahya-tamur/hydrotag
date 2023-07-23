@@ -17,34 +17,32 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { app } from '../app';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import ListItem from '@mui/material/ListItem';
+import {
+  FormControl,
+  FormLabel,
+  TextField,
+  Button,
+  ListItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  List,
+  Typography,
+  InputLabel,
+  MenuItem,
+  Select,
+  Divider,
+  ListItemText,
+  ListItemIcon,
+} from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import Divider from '@mui/material/Divider';
 import { Box, borders, styled } from '@mui/system';
 import UserProfile from './UserProfile';
 
 const auth = getAuth(app);
 const db = getFirestore(app);
-
-const CountText = styled(Typography)(({ theme }) => ({
-  fontSize: '2rem',
-  color: '#209cee',
-  cursor: 'pointer',
-}));
 
 const LabelText = styled(Typography)(({ theme }) => ({
   fontSize: '1rem',
@@ -205,7 +203,6 @@ export default function Profile() {
   };
   const [oz, setOz] = useState(0); // amount of water intake in ounces
   const [waterIntakelog, setWaterIntakelog] = useState([]); // array to intake log entries
-  const [resultValue, setResultVal] = useState(''); // display the result
 
   // collects data on water intake
   const addWaterIntake = async () => {
@@ -225,13 +222,15 @@ export default function Profile() {
     }
   };
   const handleSubmitIntake = () => {
-    addWaterIntake()
-      .then(() => {
-        console.log('Water intake submitted successfully.');
-      })
-      .catch(error => {
-        console.error('Error in handleSubmitIntake:', error);
-      });
+    if (oz > 0) {
+      addWaterIntake()
+        .then(() => {
+          console.log('Water intake submitted successfully.');
+        })
+        .catch(error => {
+          console.error('Error in handleSubmitIntake:', error);
+        });
+    }
   };
 
   const handleIncrease = () => {
@@ -244,6 +243,7 @@ export default function Profile() {
     const newValue = parseInt(event.target.value);
     setOz(isNaN(newValue) ? 0 : newValue);
   };
+
   const formatTimestamp = timestamp => {
     if (timestamp instanceof Date) {
       const options = {
@@ -273,13 +273,13 @@ export default function Profile() {
   };
 
   useEffect(() => {
-    const unsub = onSnapshot(
-      query(collection(db, 'waterIntake'), where('userId', '==', auth.currentUser.uid), orderBy('timestamp', 'desc')),
-      snapshot => {
-        const logData = snapshot.docs.map(doc => doc.data());
-        setWaterIntakelog(logData);
-      }
-    );
+    const unsub = onSnapshot(query(collection(db, 'waterIntake'), orderBy('timestamp', 'desc')), snapshot => {
+      console.log(snapshot.docs.map(doc => doc.data()));
+      const logData = snapshot.docs
+        .map(doc => doc.data())
+        .filter(intake => followings.find(f => f.following == intake.userId) || intake.userId == auth.currentUser.uid);
+      setWaterIntakelog(logData);
+    });
     return () => unsub();
   }, []);
 
@@ -333,11 +333,17 @@ export default function Profile() {
               Record
             </button>
           </Box>
-          {waterIntakelog.map((entry, index) => (
-            <p key={index} style={{}}>{`Thirst Quenched 💦 — ${entry.amount} oz at ${entry.timestamp
-              .toDate()
-              .toLocaleTimeString('en-US')}`}</p>
-          ))}
+          <List sx={{ height: 'calc(100vh - 450px)', overflow: 'auto' }}>
+            {waterIntakelog.map((entry, index) => (
+              <ListItemText
+                primary={`${
+                  entry.userId == auth.currentUser.uid
+                    ? 'You'
+                    : users.find(user => user.id == entry.userId)?.name ?? 'unknown'
+                } drank ${entry.amount} oz at ${entry.timestamp?.toDate().toLocaleTimeString('en-US') ?? 'loading'}`}
+              />
+            ))}
+          </List>
         </div>
       </div>
       <Divider orientation="vertical" flexItem />
@@ -402,22 +408,35 @@ export default function Profile() {
         <List>
           {filteredFollowers.map(follower => (
             <ListItem key={follower.id}>
-              <Typography>{users.find(user => user.id === follower.follower)?.name}</Typography>
-              {followings.find(following => following.following === follower.follower) && <StarIcon />}
-              {followings.find(following => following.following === follower.follower) ? (
-                <Button
-                  onClick={() =>
-                    handleUnfollow(followings.find(following => following.following === follower.follower))
-                  }
-                  style={{ color: '#209cee' }}
-                >
-                  Unfollow
-                </Button>
-              ) : (
-                <Button onClick={() => handleFollow(follower.follower)} style={{ color: '#209cee' }}>
-                  Follow
-                </Button>
-              )}
+              <ListItemText
+                primary={
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <span>{users.find(user => user.id === follower.follower)?.name}</span>
+                    {followings.find(following => following.following === follower.follower) && (
+                      <StarIcon sx={{ ml: '10px' }} />
+                    )}
+                  </div>
+                }
+                sx={{ width: '160px' }}
+              />
+              <ListItemIcon sx={{ mr: '-30px', pr: '0px' }}></ListItemIcon>
+              <Button
+                sx={{ width: '100px' }}
+                onClick={() =>
+                  followings.find(following => following.following === follower.follower)
+                    ? handleUnfollow(followings.find(following => following.following === follower.follower))
+                    : handleFollow(follower.follower)
+                }
+                style={{ color: '#209cee' }}
+              >
+                {followings.find(following => following.following === follower.follower) ? 'Unfollow' : 'Follow'}
+              </Button>
               <Button onClick={() => handleReport(follower.follower)} style={{ color: '#209cee' }}>
                 Report
               </Button>
@@ -460,9 +479,26 @@ export default function Profile() {
         <List>
           {filteredFollowings.map(following => (
             <ListItem key={following.id}>
-              <Typography>{users.find(user => user.id === following.following)?.name}</Typography>
-              {followers.find(follower => (follower.fallower = following.following)) && <StarIcon />}
-              <Button onClick={() => handleUnfollow(following)} style={{ color: '#209cee' }}>
+              <ListItemText
+                primary={
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <span>{users.find(user => user.id === following.following)?.name}</span>
+                    {followers.find(follower => (follower.fallower = following.following)) && (
+                      <StarIcon sx={{ ml: '10px' }} />
+                    )}
+                  </div>
+                }
+                sx={{ width: '160px' }}
+              />
+              <ListItemIcon sx={{ mr: '-30px', pr: '0px' }}></ListItemIcon>
+
+              <Button sx={{ width: '100px' }} onClick={() => handleUnfollow(following)} style={{ color: '#209cee' }}>
                 Unfollow
               </Button>
               <Button onClick={() => handleReport(following.following)} style={{ color: '#209cee' }}>
@@ -475,7 +511,9 @@ export default function Profile() {
           ))}
         </List>
       </Dialog>
-      <UserProfile user={users.find(user => user.id === auth.currentUser.uid)} />
+      <Box sx={{ height: 'calc(100vh - 120px)', overflow: 'auto' }}>
+        <UserProfile user={users.find(user => user.id === auth.currentUser.uid)} />
+      </Box>
     </Box>
   );
 }

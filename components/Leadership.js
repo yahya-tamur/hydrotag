@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { app } from '../app';
-import ListItem from '@mui/material/ListItem';
-import { Chip, Button, Dialog, DialogContent, DialogActions, DialogTitle } from '@mui/material';
+import {
+  Chip,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogActions,
+  DialogTitle,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  List,
+} from '@mui/material';
 import UserProfile from './UserProfile';
 
 const db = getFirestore(app);
@@ -28,26 +38,30 @@ export default function Leadership() {
   return (
     <div>
       <h2>Top Marker Placement:</h2>
-      {users
-        .filter(user => user.markers ?? 0 !== 0)
-        .sort((a, b) => b.markers - a.markers)
-        .map((user, index) => (
-          <ListItem key={index}>
-            {`${index + 1}. ${user.email}`}
-            <Button
-              onClick={() => {
-                setProfileUser(user);
-                setDialogOpen(true);
-              }}
-              style={{ color: '#209cee' }}
-            >
-              Profile
-            </Button>
-            {/*user.markers > 0 && <Badge badgeContent={user.markers} color="primary"> Markers</Badge>*/}
-            <Chip label={user.markers} color="primary" variant="outlined" sx={{ ml: '20px' }} />
-            {/*user.followers > 0 && <Badge badgeContent={user.followers} color="secondary">Connections</Badge>*/}
-          </ListItem>
-        ))}
+      <List sx={{ width: '400px' }}>
+        {users
+          .filter(user => user.markers ?? 0 !== 0)
+          .sort((a, b) => b.markers - a.markers)
+          .map((user, index) => (
+            <ListItem key={index}>
+              <ListItemText primary={`${index + 1}.`} sx={{ width: '20px' }} />
+              <ListItemText primary={user.name} sx={{ width: '200px' }} />
+              <ListItemButton
+                sx={{ width: '85px', mr: '-30px' }}
+                onClick={() => {
+                  setProfileUser(user);
+                  setDialogOpen(true);
+                }}
+                style={{ color: '#209cee' }}
+              >
+                Profile
+              </ListItemButton>
+              {/*user.markers > 0 && <Badge badgeContent={user.markers} color="primary"> Markers</Badge>*/}
+              <Chip label={user.markers} color="primary" variant="outlined" sx={{ ml: '50px', width: '50px' }} />
+              {/*user.followers > 0 && <Badge badgeContent={user.followers} color="secondary">Connections</Badge>*/}
+            </ListItem>
+          ))}
+      </List>
 
       <Dialog
         open={dialogOpen}
