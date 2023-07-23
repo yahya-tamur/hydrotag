@@ -20,42 +20,6 @@ import Tooltip from '@mui/material/Tooltip';
 import { Box, borders, styled} from '@mui/system';
 import { ContactSupportOutlined } from '@mui/icons-material';
 
-exports.updateStreak = onSchedule("every day 00:00", async (event) => {
-    // fetch all users, 
-    const time = Timestamp.now();
-    const q = await getDocs(collection(db, "users"));
-    const usersArray = q.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-    }));
-    usersArray.forEach(async (user) => {
-        /*if(OneDayAgo(user.lastActive.toDate(), time)) { // if latest activity exceeds 24 hours, 
-            await updateDoc(doc(db, 'users', user.uid), {
-                streak: 0
-            });
-        }
-        else {
-            await updateDoc(doc(db, 'users', user.uid), {
-                streak: increment(1)
-            })
-        }*/
-        {user.lastActive ? (
-            await updateDoc(doc(db, 'users', user.uid), {
-                streak: `${OneDayAgo(user.lastActive.toDate(), time) ? 0 : increment(1)}` // if one day ago, return
-            })
-        ) : (console.log("Error updating " + user.uid + ", no lastActive attribute available"))};
-    })
-})
-
-const OneDayAgo = (date, time) => { // returns True if date passed is within one day of current date, False otherwise
-    const day= 1000 * 60 * 60 * 24; // 1 day in milliseconds
-    const hours = moment().diff(moment(date), 'hours');
-    const dayago= time - day;
-    console.log('Day in milliseconds: ' + day)
-    console.log('Hours: ' + hours)
-    return date > dayago;
-}
-
 const CountText = styled(Typography)(({ theme }) => ({
     fontSize: '2rem',
     color: '#209cee',
@@ -77,6 +41,34 @@ export default function UserProfile(props) {
     const [users, setUsers] = useState([]);
     const [endUser, setEndUser] = useState([]);
 
+    const isolatedFunction = async () => {
+        const time = Timestamp.now();
+        const q = await getDocs(collection(db, "users"));
+        const usersArray = q.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        usersArray.forEach(async (user) => {
+            /*if(OneDayAgo(user.lastActive.toDate(), time)) { // if latest activity exceeds 24 hours, 
+                await updateDoc(doc(db, 'users', user.uid), {
+                    streak: 0
+                });
+            }
+            else {
+                await updateDoc(doc(db, 'users', user.uid), {
+                    streak: increment(1)
+                })
+            }*/
+            console.log('Updating streaks')
+            {user.lastActive ? (
+                await updateDoc(doc(db, 'users', user.uid), {
+                    streak: `${OneDayAgo(user.lastActive.toDate(), time) ? 0 : increment(1)}` // if one day ago, return
+                })
+            ) : (console.log("Error updating " + user.uid + ", no lastActive attribute available"))};
+        })
+      }
+      isolatedFunction();
+      
 
     const fetchUsersData = async () => {
         const q = await getDocs(collection(db, "users"));

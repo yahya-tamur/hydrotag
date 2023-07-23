@@ -1,11 +1,48 @@
 import { useState } from 'react';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, getFirestore } from 'firebase/firestore';
+import { Timestamp, doc, getDocs, setDoc, getFirestore} from 'firebase/firestore';
+import { getFunctions, onSchedule} from 'firebase/functions'
 import { Box, Typography, Grid, TextField, Button, GlobalStyles } from '@mui/material';
 import { app } from '../app';
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+exports.updateStreak = onSchedule("every 2 minutes", async (event) => {
+  // fetch all users, 
+  const time = Timestamp.now();
+  const q = await getDocs(collection(db, "users"));
+  const usersArray = q.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+  }));
+  usersArray.forEach(async (user) => {
+      /*if(OneDayAgo(user.lastActive.toDate(), time)) { // if latest activity exceeds 24 hours, 
+          await updateDoc(doc(db, 'users', user.uid), {
+              streak: 0
+          });
+      }
+      else {
+          await updateDoc(doc(db, 'users', user.uid), {
+              streak: increment(1)
+          })
+      }*/
+      {user.lastActive ? (
+          await updateDoc(doc(db, 'users', user.uid), {
+              streak: `${OneDayAgo(user.lastActive.toDate(), time) ? 0 : increment(1)}` // if one day ago, return
+          })
+      ) : (console.log("Error updating " + user.uid + ", no lastActive attribute available"))};
+  })
+})
+
+const OneDayAgo = (date, time) => { // returns True if date passed is within one day of current date, False otherwise
+  const day= 1000 * 60 * 60 * 24; // 1 day in milliseconds
+  const hours = moment().diff(moment(date), 'hours');
+  const dayago= time - day;
+  console.log('Day in milliseconds: ' + day)
+  console.log('Hours: ' + hours)
+  return date > dayago;
+}
 
 export default function Index() {
   const [isSignup, setIsSignup] = useState(false);
