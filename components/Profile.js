@@ -66,51 +66,43 @@ export default function Profile() {
   const [userIdToReport, setUserIdToReport] = useState(null);
   const reportTypes = ['Falsely pinning a water source', 'Inappropriate reviews', 'Spamming', 'Being a bully'];
 
-  const fetchUsersData = async () => {
-    const q = await getDocs(collection(db, 'users'));
-    const usersArray = q.docs.map(doc => ({
+  const fetchData = async () => {
+    const usersQuery = await getDocs(collection(db, 'users'));
+    const usersArray = usersQuery.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
     }));
     setUsers(usersArray);
     setBio(usersArray.find(user => user.id === auth.currentUser.uid).bio);
+
+    const connectionsQuery = await getDocs(collection(db, 'connections'));
+    const connectionsArray = connectionsQuery.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setFollowers(connectionsArray.filter(conn => conn.following == auth.currentUser.uid));
+    const followingsArray = connectionsArray.filter(conn => conn.follower == auth.currentUser.uid);
+    setFollowings(followingsArray);
+
+    const intakeQuery = await getDocs(collection(db, 'waterIntake'));
+    const intakeArray = intakeQuery.docs
+      .map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+      .sort((a, b) => b.timestamp - a.timestamp);
+
+    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAA');
+    console.log(intakeArray);
+    setWaterIntakelog(
+      intakeArray.filter(
+        intake => followingsArray.find(f => f.following == intake.userId) || intake.userId == auth.currentUser.uid
+      )
+    );
   };
 
   useEffect(() => {
-    fetchUsersData();
-  }, []);
-
-  useEffect(() => {
-    const fetchFollowings = () => {
-      const unsub = onSnapshot(
-        query(collection(db, 'connections'), where('follower', '==', auth.currentUser.uid)),
-        snapshot => {
-          const followingArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setFollowings(followingArray);
-        }
-      );
-      return unsub;
-    };
-
-    const fetchFollowers = () => {
-      const unsub = onSnapshot(
-        query(collection(db, 'connections'), where('following', '==', auth.currentUser.uid)),
-        snapshot => {
-          const followersArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setFollowers(followersArray);
-        }
-      );
-      return unsub;
-    };
-
-    if (auth.currentUser) {
-      const unsubFollowings = fetchFollowings();
-      const unsubFollowers = fetchFollowers();
-      return () => {
-        unsubFollowings();
-        unsubFollowers();
-      };
-    }
+    fetchData();
   }, []);
 
   const handleFollow = async userId => {
@@ -126,7 +118,7 @@ export default function Profile() {
     await updateDoc(doc(db, 'users', userId), {
       followers: increment(1),
     });
-    fetchUsersData();
+    fetchData();
   };
 
   const handleUnfollow = async connection => {
@@ -137,13 +129,13 @@ export default function Profile() {
     await updateDoc(doc(db, 'users', connection.following), {
       followers: increment(-1),
     });
-    fetchUsersData();
+    fetchData();
   };
   const handleBioUpdate = async () => {
     await updateDoc(doc(db, 'users', auth.currentUser.uid), {
       bio: bio,
     });
-    fetchUsersData();
+    fetchData();
   };
 
   const handleCloseProfile = () => {
@@ -225,6 +217,7 @@ export default function Profile() {
     if (oz > 0) {
       addWaterIntake()
         .then(() => {
+          fetchData();
           console.log('Water intake submitted successfully.');
         })
         .catch(error => {
@@ -271,17 +264,6 @@ export default function Profile() {
       return 'Invalid Date';
     }
   };
-
-  useEffect(() => {
-    const unsub = onSnapshot(query(collection(db, 'waterIntake'), orderBy('timestamp', 'desc')), snapshot => {
-      console.log(snapshot.docs.map(doc => doc.data()));
-      const logData = snapshot.docs
-        .map(doc => doc.data())
-        .filter(intake => followings.find(f => f.following == intake.userId) || intake.userId == auth.currentUser.uid);
-      setWaterIntakelog(logData);
-    });
-    return () => unsub();
-  }, []);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'row' }}>
