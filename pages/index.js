@@ -8,65 +8,6 @@ import { app } from '../app';
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-<<<<<<< HEAD
-exports.updateStreak = onSchedule("every 2 minutes", async (event) => {
-  const time = Timestamp.now();
-=======
-exports.updateStreak = onSchedule("2 * * * *", async (event) => {
-  // fetch all users, 
->>>>>>> f7dc5c9c0566f7fcd2f697131be68b115fc2658a
-  const q = await getDocs(collection(db, "users"));
-  const usersArray = q.docs.map((doc) => ({
-      id: doc.id,
-      lastActive: doc.lastActive,
-      streak: doc.streak
-  }));
-<<<<<<< HEAD
-
-  for(let i = 0; i < usersArray.length; i++) {
-      console.log(usersArray[i].lastActive);
-      let active = usersArray[i].lastActive;
-      let update = OneDayAgo(active, time);
-      if (!update) {
-          await updateDoc(doc(db, 'users', usersArray[i].id), {
-              "streak": increment(1)
-          })
-      }
-      else {
-          await updateDoc(doc(db, 'users', usersArray[i].id), {
-              "streak": 0
-          })
-      }
-  }
-});
-
-const OneDayAgo = (date, time) => { // time = time in milliseconds
-=======
-  for (const user of usersArray){
-    if(user.isstreak) { 
-      await updateDoc(doc(db, 'users', user.uid), {
-            streak: 0,
-        });
-    }
-    else {
-      await updateDoc(doc(db, 'users', user.uid), {
-            isstreak: true,
-        });
-    }
-  }
-  logger.log("User cleanup finished");
-});
-
-//it seem we dont need this anymore
-const OneDayAgo = (date, time) => { // returns True if date passed is within one day of current date, False otherwise
->>>>>>> f7dc5c9c0566f7fcd2f697131be68b115fc2658a
-  const day= 1000 * 60 * 60 * 24; // 1 day in milliseconds
-  const dayago= time - day;
-  console.log('Day in milliseconds: ' + day)
-  console.log('Current time:' + date);
-  return date > dayago;
-}
-
 export default function Index() {
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
