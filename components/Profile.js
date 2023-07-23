@@ -378,47 +378,51 @@ export default function Profile() {
           placeholder="Search followers..."
           fullWidth
         />
-        <List>
-          {filteredFollowers.map(follower => (
-            <ListItem key={follower.id}>
-              <ListItemText
-                primary={
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
-                    }}
-                  >
-                    <span>{users.find(user => user.id === follower.follower)?.name}</span>
-                    {followings.find(following => following.following === follower.follower) && (
-                      <StarIcon sx={{ ml: '10px' }} />
-                    )}
-                  </div>
-                }
-                sx={{ width: '160px' }}
-              />
-              <ListItemIcon sx={{ mr: '-30px', pr: '0px' }}></ListItemIcon>
-              <Button
-                sx={{ width: '100px' }}
-                onClick={() =>
-                  followings.find(following => following.following === follower.follower)
-                    ? handleUnfollow(followings.find(following => following.following === follower.follower))
-                    : handleFollow(follower.follower)
-                }
-                style={{ color: '#209cee' }}
-              >
-                {followings.find(following => following.following === follower.follower) ? 'Unfollow' : 'Follow'}
-              </Button>
-              <Button onClick={() => handleReport(follower.follower)} style={{ color: '#209cee' }}>
-                Report
-              </Button>
-              <Button onClick={() => handleOpenProfile(follower.follower)} style={{ color: '#209cee' }}>
-                Profile
-              </Button>
-            </ListItem>
-          ))}
-        </List>
+        {filteredFollowers.length > 0 ? (
+          <List>
+            {filteredFollowers.map(follower => (
+              <ListItem key={follower.id}>
+                <ListItemText
+                  primary={
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <span>{users.find(user => user.id === follower.follower)?.name}</span>
+                      {followings.find(following => following.following === follower.follower) && (
+                        <StarIcon sx={{ ml: '10px' }} />
+                      )}
+                    </div>
+                  }
+                  sx={{ width: '160px' }}
+                />
+                <ListItemIcon sx={{ mr: '-30px', pr: '0px' }}></ListItemIcon>
+                <Button
+                  sx={{ width: '100px' }}
+                  onClick={() =>
+                    followings.find(following => following.following === follower.follower)
+                      ? handleUnfollow(followings.find(following => following.following === follower.follower))
+                      : handleFollow(follower.follower)
+                  }
+                  style={{ color: '#209cee' }}
+                >
+                  {followings.find(following => following.following === follower.follower) ? 'Unfollow' : 'Follow'}
+                </Button>
+                <Button onClick={() => handleReport(follower.follower)} style={{ color: '#209cee' }}>
+                  Report
+                </Button>
+                <Button onClick={() => handleOpenProfile(follower.follower)} style={{ color: '#209cee' }}>
+                  Profile
+                </Button>
+              </ListItem>
+            ))}
+          </List>
+        ) : (
+          <div style={{ margin: '20px' }}> No results </div>
+        )}
       </Dialog>
 
       <Dialog
@@ -449,40 +453,44 @@ export default function Profile() {
           placeholder="Search people you follow..."
           fullWidth
         />
-        <List>
-          {filteredFollowings.map(following => (
-            <ListItem key={following.id}>
-              <ListItemText
-                primary={
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
-                    }}
-                  >
-                    <span>{users.find(user => user.id === following.following)?.name}</span>
-                    {followers.find(follower => (follower.fallower = following.following)) && (
-                      <StarIcon sx={{ ml: '10px' }} />
-                    )}
-                  </div>
-                }
-                sx={{ width: '160px' }}
-              />
-              <ListItemIcon sx={{ mr: '-30px', pr: '0px' }}></ListItemIcon>
+        {filteredFollowings.length > 0 ? (
+          <List>
+            {filteredFollowings.map(following => (
+              <ListItem key={following.id}>
+                <ListItemText
+                  primary={
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <span>{users.find(user => user.id === following.following)?.name}</span>
+                      {followers.find(follower => (follower.fallower = following.following)) && (
+                        <StarIcon sx={{ ml: '10px' }} />
+                      )}
+                    </div>
+                  }
+                  sx={{ width: '160px' }}
+                />
+                <ListItemIcon sx={{ mr: '-30px', pr: '0px' }}></ListItemIcon>
 
-              <Button sx={{ width: '100px' }} onClick={() => handleUnfollow(following)} style={{ color: '#209cee' }}>
-                Unfollow
-              </Button>
-              <Button onClick={() => handleReport(following.following)} style={{ color: '#209cee' }}>
-                Report
-              </Button>
-              <Button onClick={() => handleOpenProfile(following.following)} style={{ color: '#209cee' }}>
-                Profile
-              </Button>
-            </ListItem>
-          ))}
-        </List>
+                <Button sx={{ width: '100px' }} onClick={() => handleUnfollow(following)} style={{ color: '#209cee' }}>
+                  Unfollow
+                </Button>
+                <Button onClick={() => handleReport(following.following)} style={{ color: '#209cee' }}>
+                  Report
+                </Button>
+                <Button onClick={() => handleOpenProfile(following.following)} style={{ color: '#209cee' }}>
+                  Profile
+                </Button>
+              </ListItem>
+            ))}
+          </List>
+        ) : (
+          <div style={{ margin: '20px' }}> No results </div>
+        )}
       </Dialog>
       <Box sx={{ height: 'calc(100vh - 120px)', overflow: 'auto' }}>
         <UserProfile user={users.find(user => user.id === auth.currentUser.uid)} />
