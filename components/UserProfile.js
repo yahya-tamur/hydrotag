@@ -96,7 +96,7 @@ export default function UserProfile(props) {
 
   return (
     props.user && (
-      <div>
+      <div style={{ width: '520px' }}>
         <Box sx={{ flex: '1 1', p: 2 }}>
           <Box display="flex" flexDirection="column" alignItems="center">
             <AccountCircleSharpIcon

@@ -6,6 +6,7 @@ import {
   Button,
   Dialog,
   DialogContent,
+  DialogContentText,
   DialogActions,
   DialogTitle,
   ListItem,
@@ -71,7 +72,9 @@ export default function Leadership() {
         <DialogTitle>User Profile</DialogTitle>
         <DialogContent>
           {/* Here you should render the user profile information */}
-          <UserProfile user={profileUser} />
+          <DialogContentText>
+            <UserProfile user={profileUser} />
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button

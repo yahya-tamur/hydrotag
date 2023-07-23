@@ -306,7 +306,7 @@ export default function Profile() {
               Record
             </button>
           </Box>
-          <List sx={{ height: 'calc(100vh - 450px)', overflow: 'auto' }}>
+          <List sx={{ height: 'calc(100vh - 450px)', width: '450px', overflow: 'auto' }}>
             {waterIntakelog.map((entry, index) => (
               <ListItemText
                 primary={`${
@@ -319,7 +319,10 @@ export default function Profile() {
           </List>
         </div>
       </div>
-      <Divider orientation="vertical" flexItem />
+      <Divider sx={{ ml: '20px', mr: '50px' }} orientation="vertical" flexItem />
+      <Box sx={{ height: 'calc(100vh - 120px)', width: '100%', mr: '-263px', overflow: 'auto' }}>
+        <UserProfile user={users.find(user => user.id === auth.currentUser.uid)} />
+      </Box>
 
       {/* Report User Dialog */}
       <Dialog open={openReport} onClose={handleCloseReport}>
@@ -492,9 +495,6 @@ export default function Profile() {
           <div style={{ margin: '20px' }}> No results </div>
         )}
       </Dialog>
-      <Box sx={{ height: 'calc(100vh - 120px)', overflow: 'auto' }}>
-        <UserProfile user={users.find(user => user.id === auth.currentUser.uid)} />
-      </Box>
     </Box>
   );
 }
