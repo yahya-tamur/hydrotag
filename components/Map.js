@@ -249,46 +249,46 @@ export default function Map() {
           }}>
             <Button
               variant="contained"
-              color="error"
+              color='error'
               onClick={() => {
                 deleteroute();
               }}
             >
-              <Typography>Delete Route</Typography>
+              <Typography>
+                Delete Route
+              </Typography>
             </Button>
           </div>
-          ) : null}
+        ) : null}
 
-          {selectedMarker ? (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
+
+        {selectedMarker ? (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+          }}>
+
+            <Button
+              variant="contained"
+              color='success'
+              onClick={() => {
+                getroute();
               }}
             >
-              <Button
-                variant="contained"
-                color="success"
-                onClick={() => {
-                  getroute();
-                }}
-              >
-                <Typography>Find Route</Typography>
-              </Button>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
-                Marker by{' '}
-                {users.find(user => user.id === markerlist.find(m => m.id === selectedMarker).poster).name ?? 'no name'}
+              <Typography>
+                Find Route
               </Typography>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
-                Reviews:
-              </Typography>
-              <List>
-                {(!review_fr
-                  ? reviews
-                  : reviews.filter(r => friendlist.includes(r.poster.id) || r.poster.id === auth.currentUser.uid)
-                )
-                  .filter(r => r.marker === selectedMarker)
-                  .sort((a, b) => b.timestamp - a.timestamp)
+            </Button>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
+              Marker by {users.find(user => user.id === markerlist.find(m => m.id === selectedMarker).poster).name ?? "no name"}
+            </Typography>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
+              Reviews:
+            </Typography>
+            <List>
+              {(!review_fr ? reviews : reviews.filter(r => friendlist.includes(r.poster.id) || r.poster.id === auth.currentUser.uid))
+                .filter(r => r.marker === selectedMarker)
+                .sort((a, b) => b.timestamp - a.timestamp)
 
                 .map(review => (
                   <ListItemText
@@ -310,42 +310,19 @@ export default function Map() {
                 ))}
                 
             </List>
-                  .map(review => (
-                    <ListItemText
-                      key={review.id}
-                      primary={review.poster.name ?? 'no name'}
-                      primaryTypographyProps={{ fontSize: 'small' }}
-                      secondary={`${review.text} (${formatTimestamp(review.timestamp)})`}
-                      secondaryTypographyProps={{ fontSize: 'medium' }}
-                      sx={{
-                        bgcolor: 'background.paper',
-                        boxShadow: 1,
-                        borderRadius: 1,
-                        p: 1,
-                        minWidth: 250,
-                      }}
-                    />
-                  ))}
-              </List>
 
-              <TextField
-                variant="standard"
-                value={text}
-                onChange={e => {
-                  setText(e.target.value);
-                }}
-                placeholder="write a review..."
-              />
-              <Button
-                sx={{ alignSelf: 'flex-start', margin: '10px', marginLeft: '0px' }}
-                variant="outlined"
-                onClick={async () => {
+            <TextField variant="standard" value={text} onChange={e => { setText(e.target.value) }} placeholder="write a review..." />
+            <Button
+              sx={{ alignSelf: 'flex-start', margin: '10px', marginLeft: '0px' }}
+              variant='outlined'
+              onClick={
+                async () => {
                   if (selectedMarker == undefined) {
-                    alert('no marker selected!');
+                    alert("no marker selected!");
                     return;
                   }
                   try {
-                    await addDoc(collection(db, 'reviews'), {
+                    await addDoc(collection(db, "reviews"), {
                       marker: selectedMarker,
                       poster: auth.currentUser.uid,
                       text: text,
@@ -357,95 +334,96 @@ export default function Map() {
                       reviews: increment(1),
                       lastActive: Timestamp.now(),
                       isstreak: false,
-                      streak: u.isstreak ? u.streak + 1 : u.streak,
+                      streak: u.isstreak ? u.streak+1 : u.streak,
                     });
-                    setText('');
+                    setText("");
                     getData();
                   } catch (e) {
                     console.log(e);
-                    console.log('error adding data!');
+                    console.log("error adding data!");
                   }
-                }}
-              >
-                Submit
-              </Button>
-            </div>
-          ) : (
-            <div />
-          )}
-        </Paper>
+                }
 
-        <GoogleMap
-          zoom={15}
-          center={center}
-          mapContainerStyle={{
-            width: 'calc(100vw - 360pt)',
-            height: 'calc(100vh - 250pt)',
-            padding: '1000pxm',
-            fontWeight: 'bold',
-            flex: 40,
-            marginRight: '-240px',
-            overflow: 'visible',
-          }}
-          options={{
-            streetViewControl: false,
-            disableDefaultUI: true,
-            clickableIcons: false,
-            draggableCursor: cursor,
-            minZoom: 5,
-            maxZoom: 16,
-          }}
-          onClick={async e => {
-            if (!adding) {
-              setSelectedMarker(undefined);
-            } else {
-              try {
-                console.log(
-                  await addDoc(collection(db, 'markers'), {
-                    location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
-                    poster: auth.currentUser.uid,
-                  })
-                );
-                const u = users.find(user => user.id === auth.currentUser.uid);
-                updateDoc(doc(db, 'users', auth.currentUser.uid), {
-                  markers: increment(1),
-                  lastActive: Timestamp.now(),
-                  isstreak: false,
-                  streak: u.isstreak ? u.streak + 1 : u.streak,
-                });
-                await getMarkers();
-                setAdding(false);
-                changeCursor();
-              } catch (e) {
-                console.log(e);
-              }
+              }>Submit</Button>
+          </div>
+
+        ) : (<div />)}
+      </Paper>
+
+      <GoogleMap
+        zoom={15}
+        center={center}
+        mapContainerStyle={{
+          width: 'calc(100vw - 360pt)',
+          height: 'calc(100vh - 250pt)',
+          padding: '1000pxm',
+          fontWeight: 'bold',
+          flex: 40,
+          marginRight: '-240px',
+          overflow: 'visible',
+        }}
+        options={{
+          streetViewControl: false,
+          disableDefaultUI: true,
+          clickableIcons: false,
+          draggableCursor: cursor,
+          minZoom: 5, maxZoom: 16
+        }}
+        onClick={async (e) => {
+          if (!adding) {
+            setSelectedMarker(undefined);
+          } else {
+            try {
+              console.log(await addDoc(collection(db, "markers"), {
+                location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
+                poster: auth.currentUser.uid,
+              }));
+              const u = users.find(user => user.id === auth.currentUser.uid);
+              updateDoc(doc(db, 'users', auth.currentUser.uid), {
+                markers: increment(1),
+                lastActive: Timestamp.now(),
+                isstreak: false,
+                streak: u.isstreak ? u.streak+1 : u.streak,
+              });
+              await getMarkers();
+              setAdding(false);
+              changeCursor();
+            } catch (e) {
+              console.log(e);
             }
-          }}
-        >
-          {directionresponse && (
-            <DirectionsRenderer directions={directionresponse} options={{ suppressMarkers: true }} />
-          )}
-          <PanningComponent targetLocation={center} />
+          }
+        }}
+      >
+        {directionresponse && (
+          <DirectionsRenderer
+            directions={directionresponse}
+            options={{ suppressMarkers: true }}
+          />
+        )}
+        <PanningComponent targetLocation={center} />
 
-          {(!pin_fr
-            ? markerlist
-            : markerlist.filter(marker => friendlist.includes(marker.poster) || marker.poster == auth.currentUser.uid)
-          ).map((marker, i) => (
-            <Marker
-              icon={marker.id == selectedMarker ? iconSelectedMarker : iconMarker}
-              position={marker}
-              key={i}
-              onClick={e => {
-                setSelectedMarker(marker.id);
-                console.log(selectedMarker);
-                setdestination({ lat: marker.lat, lng: marker.lng });
-              }}
-            />
-          ))}
-          {currentPosition && <Marker icon={iconCurrentPosition} position={currentPosition} />}
-        </GoogleMap>
-      </div>
+        {(!pin_fr ? markerlist : markerlist.filter(marker => friendlist.includes(marker.poster) || marker.poster == auth.currentUser.uid)).map((marker, i) => (
+          <Marker
+            icon={marker.id == selectedMarker ? iconSelectedMarker : iconMarker}
+            position={marker}
+            key={i}
+            onClick={(e) => {
+              setSelectedMarker(marker.id);
+              console.log(selectedMarker);
+              setdestination({ lat: marker.lat, lng: marker.lng });
+            }}
+          />
+        ))}
+        {currentPosition && (
+          <Marker
+            icon={iconCurrentPosition}
+            position={currentPosition}
+          />
+        )}
+      </GoogleMap>
     </div>
+    </div>
+
   );
 }
 
