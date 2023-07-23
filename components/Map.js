@@ -300,9 +300,13 @@ export default function Map() {
                       text: text,
                       timestamp: Timestamp.now(), // added server time stamp
                     });
+                    const u = users.find(user => user.id === auth.currentUser.uid);
+                    console.log(u);
                     updateDoc(doc(db, 'users', auth.currentUser.uid), {
                       reviews: increment(1),
-                      lastActive: Timestamp.now()
+                      lastActive: Timestamp.now(),
+                      isstreak: false,
+                      streak: u.isstreak ? u.streak+1 : u.streak,
                     });
                     setText("");
                     getData();
@@ -346,9 +350,12 @@ export default function Map() {
                 location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
                 poster: auth.currentUser.uid,
               }));
+              const u = users.find(user => user.id === auth.currentUser.uid);
               updateDoc(doc(db, 'users', auth.currentUser.uid), {
                 markers: increment(1),
-                lastActive: Timestamp.now()
+                lastActive: Timestamp.now(),
+                isstreak: false,
+                streak: u.isstreak ? u.streak+1 : u.streak,
               });
               await getMarkers();
               setAdding(false);
