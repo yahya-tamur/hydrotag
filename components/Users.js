@@ -1,6 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { getAuth } from "firebase/auth";
-import { updateDoc, increment, getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, where, query, onSnapshot } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
+import { getAuth } from 'firebase/auth';
+import {
+  updateDoc,
+  increment,
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+  where,
+  query,
+  onSnapshot,
+} from 'firebase/firestore';
 import { app } from '../app';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
@@ -23,25 +36,25 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 export default function Users() {
-  const [nametext, setNameText] = useState("");
+  const [nametext, setNameText] = useState('');
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [followings, setFollowings] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [openReport, setOpenReport] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
-  const [reportType, setReportType] = useState("");
-  const [reportText, setReportText] = useState("");
+  const [reportType, setReportType] = useState('');
+  const [reportText, setReportText] = useState('');
   const [userIdToReport, setUserIdToReport] = useState(null);
   const [profileUserId, setProfileUserId] = useState(null);
 
-  const reportTypes = ["Falsely pinning a water source", "Inappropriate reviews", "Spamming", "Being a bully"];
+  const reportTypes = ['Falsely pinning a water source', 'Inappropriate reviews', 'Spamming', 'Being a bully'];
 
   const handleCloseReport = () => {
     setOpenReport(false);
   };
 
-  const handleOpenReport = (userId) => {
+  const handleOpenReport = userId => {
     setUserIdToReport(userId);
     setOpenReport(true);
   };
@@ -50,7 +63,7 @@ export default function Users() {
     setOpenProfile(false);
   };
 
-  const handleOpenProfile = (userId) => {
+  const handleOpenProfile = userId => {
     setProfileUserId(userId);
     setOpenProfile(true);
   };
@@ -58,26 +71,26 @@ export default function Users() {
   const handleSubmitReport = async () => {
     if (reportType && reportText) {
       const time = serverTimestamp();
-      await addDoc(collection(db, "reports"), {
+      await addDoc(collection(db, 'reports'), {
         reporter: auth.currentUser.uid,
         reportedUser: userIdToReport,
         timestamp: time,
         type: reportType,
-        description: reportText
+        description: reportText,
       });
-      setReportType("");
-      setReportText("");
+      setReportType('');
+      setReportText('');
       handleCloseReport();
-      alert("Your report has been submitted and is being reviewed.");
+      alert('Your report has been submitted and is being reviewed.');
     } else {
-      alert("Please fill in all fields to submit a report.");
+      alert('Please fill in all fields to submit a report.');
     }
   };
 
   useEffect(() => {
     const fetchUsersData = async () => {
-      const q = await getDocs(collection(db, "users"));
-      const usersArray = q.docs.map((doc) => ({
+      const q = await getDocs(collection(db, 'users'));
+      const usersArray = q.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       }));
@@ -88,8 +101,9 @@ export default function Users() {
 
   useEffect(() => {
     const filterUsers = () => {
-      const filteredResults = users.filter((user) =>
-        (user.name ?? "no name").toLowerCase().includes(nametext.toLowerCase()) && user.id !== auth.currentUser.uid
+      const filteredResults = users.filter(
+        user =>
+          (user.name ?? 'no name').toLowerCase().includes(nametext.toLowerCase()) && user.id !== auth.currentUser.uid
       );
       setFilteredUsers(filteredResults);
     };
@@ -98,18 +112,24 @@ export default function Users() {
 
   useEffect(() => {
     const fetchFollowings = () => {
-      const unsub = onSnapshot(query(collection(db, "connections"), where('follower', '==', auth.currentUser.uid)), (snapshot) => {
-        const followingArray = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setFollowings(followingArray);
-      });
+      const unsub = onSnapshot(
+        query(collection(db, 'connections'), where('follower', '==', auth.currentUser.uid)),
+        snapshot => {
+          const followingArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setFollowings(followingArray);
+        }
+      );
       return unsub;
     };
 
     const fetchFollowers = () => {
-      const unsub = onSnapshot(query(collection(db, "connections"), where('following', '==', auth.currentUser.uid)), (snapshot) => {
-        const followersArray = snapshot.docs.map((doc) => doc.data().follower);
-        setFollowers(followersArray);
-      });
+      const unsub = onSnapshot(
+        query(collection(db, 'connections'), where('following', '==', auth.currentUser.uid)),
+        snapshot => {
+          const followersArray = snapshot.docs.map(doc => doc.data().follower);
+          setFollowers(followersArray);
+        }
+      );
       return unsub;
     };
 
@@ -119,36 +139,36 @@ export default function Users() {
       return () => {
         unsubFollowings();
         unsubFollowers();
-      }
+      };
     }
   }, []);
 
-  const handleFollow = async (userId) => {
+  const handleFollow = async userId => {
     const time = serverTimestamp();
-    await addDoc(collection(db, "connections"), {
+    await addDoc(collection(db, 'connections'), {
       follower: auth.currentUser.uid,
       following: userId,
-      timestamp: time
+      timestamp: time,
     });
     await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-      following: increment(1)
+      following: increment(1),
     });
     await updateDoc(doc(db, 'users', userId), {
-      followers: increment(1)
+      followers: increment(1),
     });
   };
 
-  const handleUnfollow = async (connection) => {
-    await deleteDoc(doc(db, "connections", connection.id));
+  const handleUnfollow = async connection => {
+    await deleteDoc(doc(db, 'connections', connection.id));
     await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-      following: increment(-1)
+      following: increment(-1),
     });
     await updateDoc(doc(db, 'users', connection.following), {
-      followers: increment(-1)
+      followers: increment(-1),
     });
   };
 
-  const handleReport = (userId) => {
+  const handleReport = userId => {
     handleOpenReport(userId);
   };
 
@@ -158,14 +178,14 @@ export default function Users() {
       <Dialog open={openReport} onClose={handleCloseReport}>
         <DialogTitle>Report User</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Please fill in the following details for your report.
-          </DialogContentText>
+          <DialogContentText>Please fill in the following details for your report.</DialogContentText>
           <FormControl fullWidth>
             <InputLabel>Report Type</InputLabel>
-            <Select value={reportType} onChange={(e) => setReportType(e.target.value)}>
+            <Select value={reportType} onChange={e => setReportType(e.target.value)}>
               {reportTypes.map((type, index) => (
-                <MenuItem value={type} key={index}>{type}</MenuItem>
+                <MenuItem value={type} key={index}>
+                  {type}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -175,7 +195,7 @@ export default function Users() {
             label="Report Description"
             type="text"
             value={reportText}
-            onChange={(e) => setReportText(e.target.value)}
+            onChange={e => setReportText(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
@@ -207,32 +227,40 @@ export default function Users() {
           <h2>Search Results:</h2>
           {filteredUsers.length > 0 ? (
             <ul>
-              {filteredUsers.map((user) => (
+              {filteredUsers.map(user => (
                 <ListItem key={user.id}>
                   {user.name}
-                  {followings.find(following => following.following === user.id) && followers.includes(user.id) && <StarIcon />}
-                  {(followings.find(following => following.following === user.id)
-                    ? <Button onClick={() => handleUnfollow(followings.find(following => following.following === user.id))} style={{ color: '#209cee' }}>Unfollow</Button>
-                    : <Button onClick={() => handleFollow(user.id)} style={{ color: '#209cee' }}>Follow</Button>
+                  {followings.find(following => following.following === user.id) && followers.includes(user.id) && (
+                    <StarIcon />
                   )}
-                  <Button onClick={() => handleReport(user.id)} style={{ color: '#209cee' }}>Report</Button>
-                  <Button onClick={() => handleOpenProfile(user.id)} style={{ color: '#209cee' }}>Profile</Button>
+                  {followings.find(following => following.following === user.id) ? (
+                    <Button
+                      onClick={() => handleUnfollow(followings.find(following => following.following === user.id))}
+                      style={{ color: '#209cee' }}
+                    >
+                      Unfollow
+                    </Button>
+                  ) : (
+                    <Button onClick={() => handleFollow(user.id)} style={{ color: '#209cee' }}>
+                      Follow
+                    </Button>
+                  )}
+                  <Button onClick={() => handleReport(user.id)} style={{ color: '#209cee' }}>
+                    Report
+                  </Button>
+                  <Button onClick={() => handleOpenProfile(user.id)} style={{ color: '#209cee' }}>
+                    Profile
+                  </Button>
                 </ListItem>
               ))}
-
             </ul>
           ) : (
             <p>No results</p>
           )}
         </div>
-        <div>
-        </div>
-        <div>
-        </div>
+        <div></div>
+        <div></div>
       </div>
     </div>
   );
 }
-
-
-

@@ -1,4 +1,4 @@
-import { getAuth } from "firebase/auth";
+import { getAuth } from 'firebase/auth';
 import Map from '../components/Map';
 import Users from '../components/Users';
 import * as React from 'react';
@@ -26,9 +26,8 @@ import { app } from '../app';
 const auth = getAuth(app);
 const drawerWidth = 240;
 
-
 export default function Home() {
-  const [selected, setSelected] = React.useState("Map");
+  const [selected, setSelected] = React.useState('Map');
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -45,20 +44,27 @@ export default function Home() {
       </AppBar>
       <Box
         component="main"
-        sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3, ml: `${drawerWidth}px`, width: `calc(100% - ${drawerWidth}px` }}
+        sx={{
+          flexGrow: 1,
+          bgcolor: 'background.default',
+          p: 3,
+          ml: `${drawerWidth}px`,
+          width: `calc(100% - ${drawerWidth}px`,
+        }}
       >
         <Toolbar />
         {(() => {
           switch (selected) {
-            case 'Map': return (<Map />);
-            case 'Add Users': return (<Users />);
-            case 'Leaderboard': return (<Leadership />);
-            case 'Profile': return (<Profile />);
-            default: return (
-              <Typography paragraph>
-                not implemented yet!
-              </Typography>
-            );
+            case 'Map':
+              return <Map />;
+            case 'Add Users':
+              return <Users />;
+            case 'Leaderboard':
+              return <Leadership />;
+            case 'Profile':
+              return <Profile />;
+            default:
+              return <Typography paragraph>not implemented yet!</Typography>;
           }
         })()}
       </Box>
@@ -78,25 +84,22 @@ export default function Home() {
         <Divider />
         <List>
           {[
-            ["Map", <TravelExploreIcon />],
-            ["Add Users", <Diversity1Icon />],
-            ["Leaderboard", <StarIcon />],
-            ["Profile", <PersonIcon />],
+            ['Map', <TravelExploreIcon />],
+            ['Add Users', <Diversity1Icon />],
+            ['Leaderboard', <StarIcon />],
+            ['Profile', <PersonIcon />],
           ].map((tuple, index) => (
             <ListItem key={tuple[0]} disablePadding>
               <ListItemButton onClick={() => setSelected(tuple[0])}>
-                <ListItemIcon>
-                  {tuple[1]}
-                </ListItemIcon>
+                <ListItemIcon>{tuple[1]}</ListItemIcon>
                 <ListItemText primary={tuple[0]} />
               </ListItemButton>
             </ListItem>
-          ))
-          }
+          ))}
         </List>
         <Divider />
         <List>
-          <ListItem key={"logout"} disablePadding>
+          <ListItem key={'logout'} disablePadding>
             <ListItemButton onClick={() => auth.signOut()}>
               <ListItemIcon>
                 <LogoutIcon />
