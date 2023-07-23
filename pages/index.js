@@ -8,49 +8,26 @@ import { app } from '../app';
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-exports.updateStreak = onSchedule("every day 23:59", async (event) => {
+exports.updateStreak = onSchedule("2 * * * *", async (event) => {
   // fetch all users, 
-  //const time = new Date(Timestamp.now());
-  //const time = new Date(Timestamp.now().toMillis());
-  //time.setHours(0, 0, 0, 0);
   const q = await getDocs(collection(db, "users"));
   const usersArray = q.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
   }));
-  
-  /*
-  //everytime they cliclk or add marker, it will update database and then compare the data with database.
   for (const user of usersArray){
-      //date = new Date(user.lastActive);
-      date = new Date(user.lastActive.toMillis());
-      date.setHours(0, 0, 0, 0);
-      if(date.getTime() !== time.getTime()) { // if latest activity exceeds 24 hours, 
-        await updateDoc(doc(db, 'users', user.uid), {
-              streak: 0,
-              isstreak: true,
-          });
-      }
-      else {
-        await updateDoc(doc(db, 'users', user.uid), {
-              isstreak: true,
-          });
-      }
+    if(user.isstreak) { 
+      await updateDoc(doc(db, 'users', user.uid), {
+            streak: 0,
+        });
+    }
+    else {
+      await updateDoc(doc(db, 'users', user.uid), {
+            isstreak: true,
+        });
+    }
   }
-});
-*/
- for (const user of usersArray){
-  if(user.isstreak) { // if latest activity exceeds 24 hours, 
-    await updateDoc(doc(db, 'users', user.uid), {
-          streak: 0,
-      });
-  }
-  else {
-    await updateDoc(doc(db, 'users', user.uid), {
-          isstreak: true,
-      });
-  }
-}
+  logger.log("User cleanup finished");
 });
 
 //it seem we dont need this anymore
