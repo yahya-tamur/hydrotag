@@ -302,7 +302,9 @@ export default function Map() {
                     });
                     updateDoc(doc(db, 'users', auth.currentUser.uid), {
                       reviews: increment(1),
-                      lastActive: Timestamp.now()
+                      lastActive: Timestamp.now(),
+                      isstreak: false,
+                      streak: isstreak === true ? increment(1) : streak,
                     });
                     setText("");
                     getData();
@@ -348,7 +350,9 @@ export default function Map() {
               }));
               updateDoc(doc(db, 'users', auth.currentUser.uid), {
                 markers: increment(1),
-                lastActive: Timestamp.now()
+                lastActive: Timestamp.now(),
+                isstreak: false,
+                streak: isstreak === true ? increment(1) : streak,
               });
               await getMarkers();
               setAdding(false);

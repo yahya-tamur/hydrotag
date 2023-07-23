@@ -8,33 +8,52 @@ import { app } from '../app';
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-exports.updateStreak = onSchedule("every 2 minutes", async (event) => {
+exports.updateStreak = onSchedule("every day 23:59", async (event) => {
   // fetch all users, 
-  const time = Timestamp.now();
+  //const time = new Date(Timestamp.now());
+  //const time = new Date(Timestamp.now().toMillis());
+  //time.setHours(0, 0, 0, 0);
   const q = await getDocs(collection(db, "users"));
   const usersArray = q.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
   }));
-  usersArray.forEach(async (user) => {
-      /*if(OneDayAgo(user.lastActive.toDate(), time)) { // if latest activity exceeds 24 hours, 
-          await updateDoc(doc(db, 'users', user.uid), {
-              streak: 0
+  
+  /*
+  //everytime they cliclk or add marker, it will update database and then compare the data with database.
+  for (const user of usersArray){
+      //date = new Date(user.lastActive);
+      date = new Date(user.lastActive.toMillis());
+      date.setHours(0, 0, 0, 0);
+      if(date.getTime() !== time.getTime()) { // if latest activity exceeds 24 hours, 
+        await updateDoc(doc(db, 'users', user.uid), {
+              streak: 0,
+              isstreak: true,
           });
       }
       else {
-          await updateDoc(doc(db, 'users', user.uid), {
-              streak: increment(1)
-          })
-      }*/
-      {user.lastActive ? (
-          await updateDoc(doc(db, 'users', user.uid), {
-              streak: `${OneDayAgo(user.lastActive.toDate(), time) ? 0 : increment(1)}` // if one day ago, return
-          })
-      ) : (console.log("Error updating " + user.uid + ", no lastActive attribute available"))};
-  })
-})
+        await updateDoc(doc(db, 'users', user.uid), {
+              isstreak: true,
+          });
+      }
+  }
+});
+*/
+ for (const user of usersArray){
+  if(user.isstreak) { // if latest activity exceeds 24 hours, 
+    await updateDoc(doc(db, 'users', user.uid), {
+          streak: 0,
+      });
+  }
+  else {
+    await updateDoc(doc(db, 'users', user.uid), {
+          isstreak: true,
+      });
+  }
+}
+});
 
+//it seem we dont need this anymore
 const OneDayAgo = (date, time) => { // returns True if date passed is within one day of current date, False otherwise
   const day= 1000 * 60 * 60 * 24; // 1 day in milliseconds
   const hours = moment().diff(moment(date), 'hours');
