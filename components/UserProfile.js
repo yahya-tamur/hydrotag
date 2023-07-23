@@ -6,10 +6,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { getAuth } from "firebase/auth";
-import { getFirestore, collection, getDocs, Timestamp, onSchedule, increment, updateDoc} from 'firebase/firestore';
+import { getFirestore, collection, getDocs, setDoc, Timestamp, increment, doc, updateDoc} from 'firebase/firestore';
 import { app } from '../app';
 import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
 import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 import DirectionsBoatFilledSharpIcon from '@mui/icons-material/DirectionsBoatFilledSharp';
 import Diversity1SharpIcon from '@mui/icons-material/Diversity1Sharp';
 import WaterDropSharpIcon from '@mui/icons-material/WaterDropSharp';
@@ -19,6 +20,7 @@ import EmojiEventsSharpIcon from '@mui/icons-material/EmojiEventsSharp';
 import Tooltip from '@mui/material/Tooltip';
 import { Box, borders, styled} from '@mui/system';
 import { ContactSupportOutlined } from '@mui/icons-material';
+import { getFunctions, onSchedule} from 'firebase/functions'
 
 const CountText = styled(Typography)(({ theme }) => ({
     fontSize: '2rem',
@@ -31,6 +33,18 @@ const LabelText = styled(Typography)(({ theme }) => ({
     color: 'black',
     cursor: 'pointer',
 }));
+
+const OneDayAgo = (date, time) => { // time = time in milliseconds
+    const day= 1000 * 60 * 60 * 24; // 1 day in milliseconds
+    
+    const dayago= time - day;
+    console.log('Day in milliseconds: ' + day)
+    console.log('Current time:' + date);
+    if(date > dayago) {
+        // then streak active
+    }
+    return date > dayago;
+}
 
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -46,30 +60,27 @@ export default function UserProfile(props) {
         const q = await getDocs(collection(db, "users"));
         const usersArray = q.docs.map((doc) => ({
             id: doc.id,
-            ...doc.data(),
+            lastActive: doc.lastActive,
+            streak: doc.streak
         }));
-        usersArray.forEach(async (user) => {
-            /*if(OneDayAgo(user.lastActive.toDate(), time)) { // if latest activity exceeds 24 hours, 
-                await updateDoc(doc(db, 'users', user.uid), {
-                    streak: 0
-                });
+
+        for(let i = 0; i < usersArray.length; i++) {
+            console.log(usersArray[i].lastActive);
+            let active = usersArray[i].lastActive;
+            let update = OneDayAgo(active, time);
+            if (!update) {
+                await updateDoc(doc(db, 'users', usersArray[i].id), {
+                    "streak": increment(1)
+                })
             }
             else {
-                await updateDoc(doc(db, 'users', user.uid), {
-                    streak: increment(1)
+                await updateDoc(doc(db, 'users', usersArray[i].id), {
+                    "streak": 0
                 })
-            }*/
-            console.log('Updating streaks')
-            {user.lastActive ? (
-                await updateDoc(doc(db, 'users', user.uid), {
-                    streak: `${OneDayAgo(user.lastActive.toDate(), time) ? 0 : increment(1)}` // if one day ago, return
-                })
-            ) : (console.log("Error updating " + user.uid + ", no lastActive attribute available"))};
-        })
-      }
-      isolatedFunction();
+            }
+        }
+    }
       
-
     const fetchUsersData = async () => {
         const q = await getDocs(collection(db, "users"));
         const usersArray = q.docs.map((doc) => ({
@@ -93,6 +104,9 @@ export default function UserProfile(props) {
 
     return props.user && (
         <div>
+             <Button onClick={isolatedFunction}>
+                Button
+            </Button>
             <Box sx={{ flex: '1 1', p: 2 }}>
                 <Box display="flex" flexDirection="column" alignItems="center">
                     <AccountCircleSharpIcon sx={{ width: 200, height: 200, color: '#808080', fontSize: '2.5rem', margin: '0 auto' }}>
