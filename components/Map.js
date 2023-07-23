@@ -181,7 +181,33 @@ export default function Map() {
     null,
     new google.maps.Size(40, 40)
   );
-
+  const formatTimestamp = (timestamp) => {
+    if (timestamp instanceof Date) {
+      const options = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true
+      };
+      return new Intl.DateTimeFormat("en-US", options).format(timestamp);
+    } else if (timestamp && timestamp.seconds) {
+      const dateObject = new Date(timestamp.seconds * 1000);
+      const options = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true
+      };
+      return new Intl.DateTimeFormat("en-US", options).format(dateObject);
+    } else {
+      // Handle the case when timestamp is null or invalid
+      return "Invalid Date";
+    }
+  };
   return (
     <div style={{ cursor: cursor }}>
     <div style={{
@@ -267,7 +293,7 @@ export default function Map() {
                   primary={review.poster.name ?? "no name"} 
                   primaryTypographyProps={{ fontSize: "small" }}
                   secondary={
-                    `${review.text} (${review.timestamp ? review.timestamp.toLocaleString() : 'No timestamp'})`
+                    `${review.text} (${formatTimestamp(review.timestamp)})`
                   } 
                   secondaryTypographyProps={{ fontSize: "medium" }}
                   sx={{

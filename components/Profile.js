@@ -177,11 +177,12 @@ export default function Profile() {
         try {
             await addDoc(collection(db, 'waterIntake'), {
                 amount: oz,
-                timestamp: Timestamp.now(),
+                timestamp: serverTimestamp(),
                 userId: auth.currentUser.uid,
             });
 
             console.log('water intake added successfully');
+            setOz(0);
             return Promise.resolve();
         } catch (error) {
             console.error('error in adding water intake', error);
@@ -206,15 +207,46 @@ export default function Profile() {
         const newValue = parseInt(event.target.value);
         setOz(isNaN(newValue) ? 0 : newValue);
     };
+    const formatTimestamp = (timestamp) => {
+        if (timestamp instanceof Date) {
+          const options = {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true
+          };
+          return new Intl.DateTimeFormat("en-US", options).format(timestamp);
+        } else if (timestamp && timestamp.seconds) {
+          const dateObject = new Date(timestamp.seconds * 1000);
+          const options = {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true
+          };
+          return new Intl.DateTimeFormat("en-US", options).format(dateObject);
+        } else {
+          // Handle the case when timestamp is null or invalid
+          return "Invalid Date";
+        }
+      };
+      
 
     useEffect(() => {
-        const unsub = onSnapshot(query(collection(db, 'waterIntake'), orderBy('timestamp', 'desc')), (snapshot) => {
-        const logData = snapshot.docs.map((doc) => doc.data());
-        setWaterIntakelog(logData);
+        const unsub = onSnapshot(
+            query(collection(db, 'waterIntake'), 
+            where('userId', '==', auth.currentUser.uid),
+            orderBy('timestamp', 'desc')), 
+            (snapshot) => {
+                const logData = snapshot.docs.map((doc) => doc.data());
+                setWaterIntakelog(logData);
         });
-  
         return () => unsub();
-    }, [oz]);
+    }, []);
 
 
 
@@ -245,8 +277,9 @@ export default function Profile() {
                     {/*<button onClick={() => addWaterIntake(oz)} style={{ fontSize: '22px' }}>Submit</button>*/}
                      <button onClick={handleSubmitIntake} style={{ fontSize: '22px' }}>Submit</button>
 
+
                     {waterIntakelog.map((entry, index) => (
-                        <p key={index}>{`${entry.amount} oz at ${entry.timestamp}`}</p>
+                        <p key={index}>{`${entry.amount} oz at ${formatTimestamp(entry.timestamp)}`}</p>
                     ))}
                 </div>
             </div>
@@ -357,15 +390,4 @@ export default function Profile() {
         </Box >       
     );
 }
-
-
-
-
-
-
-
-
-
-
-
 
