@@ -29,7 +29,6 @@ export default function Leadership() {
         id: doc.id,
         ...doc.data(),
       }));
-      console.log(users);
       setUsers(usersArray);
     };
     fetchUsersData();

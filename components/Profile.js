@@ -91,9 +91,6 @@ export default function Profile() {
         ...doc.data(),
       }))
       .sort((a, b) => b.timestamp - a.timestamp);
-
-    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAA');
-    console.log(intakeArray);
     setWaterIntakelog(
       intakeArray.filter(
         intake => followingsArray.find(f => f.following == intake.userId) || intake.userId == auth.currentUser.uid
@@ -204,25 +201,19 @@ export default function Profile() {
         timestamp: serverTimestamp(),
         userId: auth.currentUser.uid,
       });
-
-      console.log('water intake added successfully');
       setOz(0);
-      return Promise.resolve();
     } catch (error) {
       console.error('error in adding water intake', error);
-      return Promise.reject(error);
     }
   };
-  const handleSubmitIntake = () => {
+  const handleSubmitIntake = async () => {
     if (oz > 0) {
-      addWaterIntake()
-        .then(() => {
-          fetchData();
-          console.log('Water intake submitted successfully.');
-        })
-        .catch(error => {
-          console.error('Error in handleSubmitIntake:', error);
-        });
+      try {
+        await addWaterIntake();
+        await fetchData();
+      } catch (error) {
+        console.error('Error in handleSubmitIntake:', error);
+      }
     }
   };
 

@@ -63,7 +63,6 @@ export default function Map() {
       travelMode: google.maps.TravelMode.DRIVING,
     });
     setdirectionResponse(results);
-    console.log(results);
     setshowroute(true);
   }
 
@@ -119,7 +118,6 @@ export default function Map() {
       text: d.data().text,
       timestamp: d.data().timestamp ? d.data().timestamp.toDate() : null,
     }));
-    console.log(review_snapshot.docs.map(d => d.data()));
     setReviews(review_arr);
   };
 
@@ -306,7 +304,6 @@ export default function Map() {
                             timestamp: Timestamp.now(), // added server time stamp
                           });
                           const u = users.find(user => user.id === auth.currentUser.uid);
-                          console.log(u);
                           updateDoc(doc(db, 'users', auth.currentUser.uid), {
                             reviews: increment(1),
                             lastActive: Timestamp.now(),
@@ -317,7 +314,6 @@ export default function Map() {
                           getData();
                         } catch (e) {
                           console.log(e);
-                          console.log('error adding data!');
                         }
                       }}
                     >
@@ -387,12 +383,10 @@ export default function Map() {
               setSelectedMarker(undefined);
             } else {
               try {
-                console.log(
-                  await addDoc(collection(db, 'markers'), {
-                    location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
-                    poster: auth.currentUser.uid,
-                  })
-                );
+                await addDoc(collection(db, 'markers'), {
+                  location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
+                  poster: auth.currentUser.uid,
+                });
                 const u = users.find(user => user.id === auth.currentUser.uid);
                 updateDoc(doc(db, 'users', auth.currentUser.uid), {
                   markers: increment(1),
@@ -424,7 +418,6 @@ export default function Map() {
               key={i}
               onClick={e => {
                 setSelectedMarker(marker.id);
-                console.log(selectedMarker);
                 setdestination({ lat: marker.lat, lng: marker.lng });
               }}
             />

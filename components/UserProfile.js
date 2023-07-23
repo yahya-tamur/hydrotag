@@ -32,19 +32,18 @@ const LabelText = styled(Typography)(({ theme }) => ({
   cursor: 'pointer',
 }));
 
+/*
 const OneDayAgo = (date, time) => {
   // time = time in milliseconds
   const day = 1000 * 60 * 60 * 24; // 1 day in milliseconds
 
   const dayago = time - day;
-  console.log('Day in milliseconds: ' + day);
-  console.log('Current time:' + date);
   if (date > dayago) {
     // then streak active
   }
   return date > dayago;
 };
-
+*/
 const auth = getAuth(app);
 const db = getFirestore(app);
 
