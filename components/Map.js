@@ -159,27 +159,27 @@ export default function Map() {
 
   if (!isLoaded) return <div>Loading...</div>;
   let iconMarker = new google.maps.MarkerImage(
-    "/water-fountain.jpg",
+    "/water-pin.png", 
     null,
     null,
     null,
-    new google.maps.Size(40, 40)
+    new google.maps.Size(60, 50)
   );
 
   let iconSelectedMarker = new google.maps.MarkerImage(
-    "/water-fountain-selected.jpg",
+    "/selected-pin.png",
     null,
     null,
     null,
-    new google.maps.Size(40, 40)
+  new google.maps.Size(85, 75)
   );
 
   let iconCurrentPosition = new google.maps.MarkerImage(
-    "/logo.png",
+    "/current-pin.png",
     null,
     null,
     null,
-    new google.maps.Size(40, 40)
+    new google.maps.Size(100, 85)
   );
   const formatTimestamp = (timestamp) => {
     if (timestamp instanceof Date) {
@@ -220,6 +220,7 @@ export default function Map() {
         margin: '20px',
         marginLeft: '0px',
         padding: '20px',
+        minWidth: 300
       }}>
         <ToggleButton
           value="Add Marker"
@@ -236,8 +237,8 @@ export default function Map() {
           </Typography>
         </ToggleButton>
         <FormGroup>
-          <FormControlLabel control={<Switch checked={pin_fr} onChange={(e) => setpin_fr(e.target.checked)} />} label="Markers from People You Follow Only" />
-          <FormControlLabel control={<Switch checked={review_fr} onChange={(e) => setreview_fr(e.target.checked)} />} label="Reviews from People You Follow Only" />
+          <FormControlLabel control={<Switch checked={pin_fr} onChange={(e) => setpin_fr(e.target.checked)} />} label="Markers from Following" />
+          <FormControlLabel control={<Switch checked={review_fr} onChange={(e) => setreview_fr(e.target.checked)} />} label="Reviews from Following" />
         </FormGroup>
         {showroute ? (
 
@@ -302,7 +303,7 @@ export default function Map() {
                     boxShadow: 1,
                     borderRadius: 1,
                     p: 1,
-                    minWidth: 250,
+                    minWidth: 250
                   }}/>
 
                 ))}
