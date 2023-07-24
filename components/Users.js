@@ -232,7 +232,7 @@ export default function Users() {
         <div>
           <h2>Search Results:</h2>
           {filteredUsers.length > 0 ? (
-            <List>
+            <List sx={{mt: '-17px'}}>
               {filteredUsers.map(user => (
                 <ListItem key={user.id}>
                   <ListItemText
@@ -273,7 +273,7 @@ export default function Users() {
               ))}
             </List>
           ) : (
-            <p>No results</p>
+            <p style={{marginLeft: '10px'}}>No results</p>
           )}
         </div>
         <div></div>

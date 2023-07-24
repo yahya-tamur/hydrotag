@@ -285,7 +285,7 @@ export default function Map() {
               </Typography>
               <TextField
                 variant="standard"
-                sx={{ mt: '30px' }}
+                sx={{ mt: '10px' }}
                 value={text}
                 onChange={e => {
                   setText(e.target.value);
@@ -330,9 +330,14 @@ export default function Map() {
               <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
                 Reviews:
               </Typography>
+              {(!review_fr
+                  ? reviews
+                  : reviews.filter(r => friendlist.includes(r.poster.id) || r.poster.id === auth.currentUser.uid)
+                )
+                  .filter(r => r.marker === selectedMarker).length == 0 && <p style={{marginLeft: '10px'}}>No reviews</p>}
               <List
                 sx={{
-                  height: showroute ? 'calc(100vh - 556px)' : 'calc(100vh - 520px)',
+                  height: showroute ? 'calc(100vh - 536px)' : 'calc(100vh - 500px)',
                   width: '100%',
                   overflow: 'auto',
                 }}
