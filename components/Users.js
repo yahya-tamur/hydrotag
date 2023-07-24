@@ -33,7 +33,6 @@ import {
   List,
   ListItemText,
   ListItemIcon,
-  Typography,
 } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 

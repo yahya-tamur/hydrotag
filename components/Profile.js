@@ -6,15 +6,10 @@ import {
   getFirestore,
   collection,
   getDocs,
-  onSnapshot,
-  where,
-  query,
   doc,
   serverTimestamp,
   addDoc,
   deleteDoc,
-  orderBy,
-  Timestamp,
 } from 'firebase/firestore';
 import { app } from '../app';
 import {
@@ -369,7 +364,9 @@ export default function Profile() {
           <DialogTitle>User Profile</DialogTitle>
           <DialogContent>
             {/* Here you should render the user profile information */}
-            <UserProfile user={users.find(user => user.id === profileUserId)} />
+            <DialogContentText>
+              <UserProfile user={users.find(user => user.id === profileUserId)} />
+            </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseProfile}>Close</Button>

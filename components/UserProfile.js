@@ -6,11 +6,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, collection, getDocs, Timestamp, increment, doc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { app } from '../app';
 import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import DirectionsBoatFilledSharpIcon from '@mui/icons-material/DirectionsBoatFilledSharp';
 import Diversity1SharpIcon from '@mui/icons-material/Diversity1Sharp';
 import WaterDropSharpIcon from '@mui/icons-material/WaterDropSharp';
