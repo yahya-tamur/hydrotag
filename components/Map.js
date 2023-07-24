@@ -331,10 +331,11 @@ export default function Map() {
                 Reviews:
               </Typography>
               {(!review_fr
-                  ? reviews
-                  : reviews.filter(r => friendlist.includes(r.poster.id) || r.poster.id === auth.currentUser.uid)
-                )
-                  .filter(r => r.marker === selectedMarker).length == 0 && <p style={{marginLeft: '10px'}}>No reviews</p>}
+                ? reviews
+                : reviews.filter(r => friendlist.includes(r.poster.id) || r.poster.id === auth.currentUser.uid)
+              ).filter(r => r.marker === selectedMarker).length == 0 && (
+                <p style={{ marginLeft: '10px' }}>No reviews</p>
+              )}
               <List
                 sx={{
                   height: showroute ? 'calc(100vh - 536px)' : 'calc(100vh - 500px)',

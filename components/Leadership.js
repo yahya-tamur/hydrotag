@@ -38,7 +38,7 @@ export default function Leadership() {
   return (
     <div>
       <h2>Top Marker Placement:</h2>
-      <List sx={{ width: '400px', marginTop: '-17px'}}>
+      <List sx={{ width: '400px', marginTop: '-17px' }}>
         {users
           .filter(user => user.markers ?? 0 !== 0)
           .sort((a, b) => b.markers - a.markers)
