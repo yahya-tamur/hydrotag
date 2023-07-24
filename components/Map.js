@@ -397,6 +397,7 @@ export default function Map() {
           onClick={async e => {
             if (!adding) {
               setSelectedMarker(undefined);
+              setText('');
             } else {
               try {
                 await addDoc(collection(db, 'markers'), {
@@ -433,8 +434,11 @@ export default function Map() {
               position={marker}
               key={i}
               onClick={e => {
-                setSelectedMarker(marker.id);
-                setdestination({ lat: marker.lat, lng: marker.lng });
+                if (selectedMarker !== marker.id) {
+                  setText('');
+                  setSelectedMarker(marker.id);
+                  setdestination({ lat: marker.lat, lng: marker.lng });
+                }
               }}
             />
           ))}
