@@ -157,14 +157,14 @@ export default function Map() {
   const [showroute, setshowroute] = useState(false);
 
   if (!isLoaded) return <div>Loading...</div>;
-  let iconMarker = new google.maps.MarkerImage('/water-pin.png', null, null, null, new google.maps.Size(60, 50));
+  let iconMarker = new google.maps.MarkerImage('/water-pin.png', null, null, null, new google.maps.Size(50, 50));
 
   let iconSelectedMarker = new google.maps.MarkerImage(
     '/selected-pin.png',
     null,
     null,
     null,
-    new google.maps.Size(85, 75)
+    new google.maps.Size(75, 75)
   );
 
   let iconCurrentPosition = new google.maps.MarkerImage(
@@ -172,7 +172,7 @@ export default function Map() {
     null,
     null,
     null,
-    new google.maps.Size(100, 85)
+    new google.maps.Size(120, 90)
   );
   const formatTimestamp = timestamp => {
     if (timestamp instanceof Date) {
@@ -211,18 +211,21 @@ export default function Map() {
       >
         <Paper
           style={{
+            display: 'flex',
+            flexDirection: 'column',
             flex: 10,
             margin: '20px',
+            height: 'calc(100vh - 134px)',
             marginLeft: '0px',
             paddingTop: '20px',
             marginTop: '0px',
             padding: '20px',
-            width: '400px',
           }}
         >
           <ToggleButton
             value="Add Marker"
             color="primary"
+            sx={{ width: '300px' }}
             selected={adding}
             onChange={() => {
               setAdding(!adding);
@@ -231,7 +234,7 @@ export default function Map() {
           >
             <Typography>Add Marker</Typography>
           </ToggleButton>
-          <FormGroup>
+          <FormGroup sx={{ mb: '20px' }}>
             <FormControlLabel
               control={<Switch checked={pin_fr} onChange={e => setpin_fr(e.target.checked)} />}
               label="Markers from Following"
@@ -276,7 +279,7 @@ export default function Map() {
               >
                 <Typography>Find Route</Typography>
               </Button>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
+              <Typography variant="h6" component="div" sx={{ width: '250px', marginTop: '20px' }}>
                 Marker by{' '}
                 {users.find(user => user.id === markerlist.find(m => m.id === selectedMarker).poster).name ?? 'no name'}
               </Typography>
@@ -327,7 +330,13 @@ export default function Map() {
               <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginTop: '20px' }}>
                 Reviews:
               </Typography>
-              <List sx={{ height: 'calc(100vh - 378pt)', overflow: 'auto' }}>
+              <List
+                sx={{
+                  height: showroute ? 'calc(100vh - 556px)' : 'calc(100vh - 520px)',
+                  width: '100%',
+                  overflow: 'auto',
+                }}
+              >
                 {(!review_fr
                   ? reviews
                   : reviews.filter(r => friendlist.includes(r.poster.id) || r.poster.id === auth.currentUser.uid)
@@ -348,6 +357,7 @@ export default function Map() {
                         borderRadius: 1,
                         p: 1,
                         minWidth: 250,
+                        marginRight: '10px',
                       }}
                     />
                   ))}

@@ -313,7 +313,9 @@ export default function Profile() {
                   entry.userId == auth.currentUser.uid
                     ? 'You'
                     : users.find(user => user.id == entry.userId)?.name ?? 'unknown'
-                } drank ${entry.amount} oz at ${entry.timestamp?.toDate().toLocaleTimeString('en-US') ?? 'loading'}`}
+                } drank ${entry.amount} oz 💦💦 at ${
+                  entry.timestamp?.toDate().toLocaleTimeString('en-US') ?? 'loading'
+                }`}
               />
             ))}
           </List>
