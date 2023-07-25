@@ -1,6 +1,6 @@
 Hosted on [hydrotag.vercel.app](https://hydrotag.vercel.app/)
 
-# Documents
+## Documents
 
 [Initial Presentation](documents/HydroTag%20Initial%20Presentation.pptx)
 
@@ -24,7 +24,7 @@ Hosted on [hydrotag.vercel.app](https://hydrotag.vercel.app/)
 
 [Final Presentation](https://docs.google.com/presentation/d/1fvRpmCEcg1aN0IPgXJzBMwng9EW1PTLbd2yWc1fDhcE/edit?usp=sharing)
 
-# Instructions for contributing
+## Instructions for contributing
 
 - Clone the repository:
 
