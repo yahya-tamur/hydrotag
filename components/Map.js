@@ -405,7 +405,6 @@ export default function Map() {
                   location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
                   poster: auth.currentUser.uid,
                 });
-                setSelectedMarker(ad.id);
                 const u = users.find(user => user.id === auth.currentUser.uid);
                 updateDoc(doc(db, 'users', auth.currentUser.uid), {
                   markers: increment(1),
@@ -416,6 +415,7 @@ export default function Map() {
                 await getMarkers();
                 setAdding(false);
                 changeCursor();
+                setSelectedMarker(ad.id);
               } catch (e) {
                 console.log(e);
               }
