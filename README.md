@@ -1,10 +1,10 @@
 Hosted on [hydrotag.vercel.app](https://hydrotag.vercel.app/)
 
-# Documents
+## Documents
 
 [Test Plan and Report](documents/Test%20Plan%20and%20Report.pdf)
 
-# Instructions for contributing
+## Instructions for contributing
 
 - Clone the repository:
 
