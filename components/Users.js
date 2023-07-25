@@ -93,15 +93,16 @@ export default function Users() {
     }
   };
 
+  const fetchUsersData = async () => {
+    const q = await getDocs(collection(db, 'users'));
+    const usersArray = q.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setUsers(usersArray);
+  };
+
   useEffect(() => {
-    const fetchUsersData = async () => {
-      const q = await getDocs(collection(db, 'users'));
-      const usersArray = q.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setUsers(usersArray);
-    };
     fetchUsersData();
   }, []);
 
@@ -162,6 +163,7 @@ export default function Users() {
     await updateDoc(doc(db, 'users', userId), {
       followers: increment(1),
     });
+    fetchUsersData();
   };
 
   const handleUnfollow = async connection => {
@@ -172,6 +174,7 @@ export default function Users() {
     await updateDoc(doc(db, 'users', connection.following), {
       followers: increment(-1),
     });
+    fetchUsersData();
   };
 
   const handleReport = userId => {
