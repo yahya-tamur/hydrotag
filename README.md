@@ -2,7 +2,27 @@ Hosted on [hydrotag.vercel.app](https://hydrotag.vercel.app/)
 
 # Documents
 
+[Initial Presentation](documents/HydroTag%20Initial%20Presentation.pptx)
+
+[Release Plan](documents/HydroTag%20Release%20Plan.pdf)
+
+[Sprint 1 Plan](documents/HydroTag%20Sprint%201%20Plan.pdf)
+
+[Sprint 1 Report](documents/HydroTag%20Sprint%201%20Report.pdf)
+
+[Sprint 2 Plan](documents/HydroTag%20Sprint%202%20Plan.pdf)
+
+[Sprint 2 Report](documents/HydroTag%20Sprint%202%20Report.pdf)
+
+[Sprint 3 Plan](documents/HydroTag%20Sprint%203%20Plan.pdf)
+
+[Sprint 3 Report](documents/HydroTag%20Sprint%203%20Report.pdf)
+
+[Release Summary](documents/HydroTag%20Release%20Summary.pdf)
+
 [Test Plan and Report](documents/Test%20Plan%20and%20Report.pdf)
+
+[Final Presentation](https://docs.google.com/presentation/d/1fvRpmCEcg1aN0IPgXJzBMwng9EW1PTLbd2yWc1fDhcE/edit?usp=sharing)
 
 # Instructions for contributing
 
