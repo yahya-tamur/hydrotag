@@ -281,7 +281,8 @@ export default function Map() {
               </Button>
               <Typography variant="h6" component="div" sx={{ width: '250px', marginTop: '20px' }}>
                 Marker by{' '}
-                {users.find(user => user.id === markerlist.find(m => m.id === selectedMarker).poster).name ?? 'no name'}
+                {users.find(user => user.id === markerlist.find(m => m.id === selectedMarker)?.poster)?.name ??
+                  'no name'}
               </Typography>
               <TextField
                 variant="standard"
@@ -400,10 +401,11 @@ export default function Map() {
               setText('');
             } else {
               try {
-                await addDoc(collection(db, 'markers'), {
+                const ad = await addDoc(collection(db, 'markers'), {
                   location: new GeoPoint(e.latLng.lat(), e.latLng.lng()),
                   poster: auth.currentUser.uid,
                 });
+                setSelectedMarker(ad.id);
                 const u = users.find(user => user.id === auth.currentUser.uid);
                 updateDoc(doc(db, 'users', auth.currentUser.uid), {
                   markers: increment(1),
