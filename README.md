@@ -1,4 +1,4 @@
-Hosted on [hydrotag.vercel.app](https://hydrotag.vercel.app/)
+Deployed on [hydrotag.vercel.app](https://hydrotag.vercel.app/)
 
 ## Documents
 
