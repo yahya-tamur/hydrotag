@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, getFirestore } from 'firebase/firestore';
+import { doc, setDoc, getFirestore, Timestamp } from 'firebase/firestore';
 import { Box, Typography, Grid, TextField, Button, GlobalStyles } from '@mui/material';
 import { app } from '../app';
 
@@ -213,6 +213,9 @@ export default function Index() {
                           following: 0,
                           followers: 0,
                           bio: '',
+                          isstreak: false,
+                          lastActive: Timestamp.now(),
+                          streak: 0,
                         });
                         setErrorMsg('');
                         setSuccessMsg('Your account has been created. You can now log in.');

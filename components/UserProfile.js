@@ -105,7 +105,7 @@ export default function UserProfile(props) {
             </AccountCircleSharpIcon>
             <CountText variant="h2" sx={{ fontWeight: 'bold', fontSize: '0.75em', color: 'grey' }}>
               {auth.currentUser.uid === props.user.id
-                ? `Last Active ${props.user.lastActive.toDate().toLocaleTimeString('en-US')}`
+                ? `Last Active ${props.user?.lastActive?.toDate().toLocaleTimeString('en-US') ?? 'not available'}`
                 : ` `}{' '}
             </CountText>
             <Typography variant="h4" align="center" style={{ marginTop: '0.5em', fontWeight: 'bold' }}>
